@@ -2,7 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  font-family: "Poppins", serif;
+}
+
 body {
   max-width: 480px;
   margin: 0 auto;
+  padding: 0;
+}
+
+/* gradients */
+
+.text-gradient {
+  background: -webkit-linear-gradient(#5e77dd, #ff297b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

@@ -1,0 +1,171 @@
+import {Request, Response, NextFunction } from "express";
+import AppError from "../../utils/appError";
+import { EventModel } from "../../models/event";
+import { StatusCodes } from "http-status-codes";
+import mongoose from "mongoose";
+
+
+export const createEvent = async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+):Promise<Response|void> =>{
+    let {data} = req.body
+    const organizationId = req.organization.id;
+
+    console.log("organizatioId", organizationId)
+
+    if(!data.name || !data.type || !data.startDate || !data.endDate || !data.venue || !data.city)
+        throw new AppError("Field requiresd", 400);
+
+    data = {
+        ...data,
+        organizationId: new mongoose.Types.ObjectId(organizationId)
+    }
+
+    const event = await EventModel.create(data);
+    if(!event)
+        throw new AppError("Failed to create event", 500);
+
+    return res.status(200).json({
+        success:true, 
+        event
+    });
+}
+
+export const getAllEvents = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+
+    const {name, sortOrder } = req.query;
+    const organizationId = req.organization.id;
+
+    // const events = await model.find(EventModel, { projectId });
+    const events = await EventModel.aggregate([
+        {
+            $match: { 
+                organizationId:new mongoose.Types.ObjectId(organizationId),
+                ...(name ? { name: { $regex: name, $options: 'i' } } : {})
+            }
+        },
+        {
+            $sort: { createdAt: sortOrder === 'asc' ? 1 : -1 }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                description: 1,
+                startDate:1,
+                endDate:1,
+                venue:1,
+                city:1,
+                publish: 1,
+                createdAt: 1,
+            }
+        }
+    ]);
+
+    console.log("events",events)
+    if (!events.length)
+        throw new AppError("Events not available", StatusCodes.NO_CONTENT);
+
+    console.log("events", events);
+    return res.status(200).json({
+        success: true,
+        events
+    });
+}
+
+export const getEventById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const {eventId } = req.query;
+    const organizationId = req.organization.id;
+
+    const event = await EventModel.findOne({ _id: eventId, organizationId });
+    if (!event)
+        throw new AppError("Event not availabe", StatusCodes.NOT_FOUND);
+
+    console.log("event", event);
+    return res.status(200).json({
+        success: true,
+        event
+    });
+}
+
+export const updateEvent = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const { data } = req.body;
+    const organizationId = req.organization.id;
+
+    if (!data.eventId)
+        throw new AppError("Event not found", StatusCodes.BAD_REQUEST);
+
+    const updatedEvent = await EventModel.findOneAndUpdate({ _id: data.eventId, organizationId}, data);
+    if (!updatedEvent)
+        throw new AppError("Event not availabe", StatusCodes.NOT_FOUND);
+
+    console.log("updatedEvent", updatedEvent);
+    return res.status(200).json({
+        success: true,
+        updatedEvent
+    });
+}
+
+export const deleteEvent = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const { eventId } = req.query;
+    const organizationId = req.organization.id;
+
+    if (!eventId)
+        throw new AppError("Query not found", StatusCodes.BAD_REQUEST);
+
+    const event = await EventModel.deleteOne({ _id: eventId, organizationId });
+    if (!event)
+        throw new AppError("Event not deleted", StatusCodes.NOT_FOUND);
+
+    console.log("event", event);
+    return res.status(200).json({
+        success: true,
+        event
+    });
+}
+
+export const handlePublishQR= async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const organizationId = req.organization.id;
+    const {eventId } = req.query;
+
+    if (!eventId)
+        throw new AppError("Query not found", 400);
+
+    const updatedEvent = await EventModel.findOneAndUpdate(
+        { _id: eventId, organizationId },
+        [{
+            $set: { publish: { $eq: ["$publish", false] } }
+        }],
+        { new: true }
+    );
+
+    if (!updatedEvent)
+        throw new AppError("Publish QR Status not Updated", 404);
+
+    return res.status(200).json({
+        success: true,
+        updatedEvent
+    })
+}

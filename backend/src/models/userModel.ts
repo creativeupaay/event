@@ -1,21 +1,79 @@
 import { Model, Schema, model } from "mongoose";
+import { AccountStatusEnum, GenderEnum } from "../types/enum";
 
 export interface IUser extends Document {
   name: string;
-  gender: string;
   email: string;
-  number: string;
-  tags: string[];
+  gender: GenderEnum;
+  contactNumber: string;
+  profileImage:string;
+  interests: string[];
+  eventIds:Schema.Types.ObjectId[];
+  status: AccountStatusEnum;
+  refreshToken:string;
+  resetPasswordToken:string;
+  resetPasswordExpires:Date;
+  emailVerified:boolean;
 }
 
-// Schema for the Users database
+
 const UserSchema: Schema<IUser> = new Schema<IUser>({
   name: {
     type: String,
     required: true,
     trim: true,
   },
-} as const);
+  email:{
+    type:String,
+    required:true,
+    unique:true,
+  },
+  gender:{
+    type:String,
+    enum:Object.values(GenderEnum),
+    required:true,
+  },
+  contactNumber:{
+    type:String,
+  },
+  profileImage:{
+    type:String
+  },
+  interests: [
+    {
+      type: String
+    }
+  ],
+  eventIds:[
+    {
+      type:Schema.Types.ObjectId,
+      ref:"Event",
+    }
+  ],
+  status: {
+    type: String,
+    enum: Object.values(AccountStatusEnum),
+    required: true,
+    default: AccountStatusEnum.ACTIVE
+  },
+  emailVerified:{
+    type:Boolean,
+    required:true,
+    default:false
+  },
+  refreshToken: {
+    type: String
+  },
+  resetPasswordToken: {
+    type: String
+  },
+  resetPasswordExpires: {
+    type: Date
+  },
+
+},{
+  timestamps:true
+});
 
 // model for the user
-export const EmployeeModel: Model<IUser> = model<IUser>("User", UserSchema);
+export const UserModel: Model<IUser> = model<IUser>("User", UserSchema);

@@ -4,9 +4,10 @@ import FormPage from "./pages/FormPage";
 import MainPage from "./pages/MainPage";
 import ConnectPage from "./pages/ConnectPage";
 import Layout from "./Layout";
-import AlertsPage from "./pages/AlertsPage";
 import PendingConnectionsPage from "./pages/PendingConnectionsPage";
 import AllConnectionsPage from "./pages/AllConnectionsPage";
+import Profile from "./pages/Profile";
+import NotificatonsPage from "./pages/NotificationsPage";
 
 const App = () => {
   return (
@@ -14,15 +15,16 @@ const App = () => {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/form" element={<FormPage />} />
+          <Route path="/form/:eventId" element={<FormPage />} />
           <Route path="/home" element={<MainPage />} />
-          <Route path="/connect" element={<ConnectPage />} />
-          <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/connect/:eventId" element={<ConnectPage />} />
+          <Route path="/notifications" element={<NotificatonsPage />} />
           <Route
             path="/connections/pending"
             element={<PendingConnectionsPage />}
           />
           <Route path="/connections/all" element={<AllConnectionsPage />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>

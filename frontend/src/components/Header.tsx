@@ -18,7 +18,7 @@ const Header = () => {
 
       <div className="flex items-center space-x-5 ">
         <div
-          onClick={() => navigate("/alerts")}
+          onClick={() => navigate("/notifications")}
           className="text-[#6B4FC8] text-3xl relative"
         >
           <div className="absolute w-fit h-fit px-2 py-[2px]  bg-red-600 -top-1 -left-[6px] rounded-full flex items-center justify-center">
@@ -27,7 +27,11 @@ const Header = () => {
           <NotificationsOutlined fontSize="inherit" />
         </div>
 
-        <img src={tempProfile} alt="profile img" />
+        <img
+          onClick={() => navigate("/profile")}
+          src={tempProfile}
+          alt="profile img"
+        />
         {/* <button className="bg-blue-600 font-semibold text-white px-3 py-2 rounded-md text-sm">
           Get Started <ChevronRight />
         </button> */}

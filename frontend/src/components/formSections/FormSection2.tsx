@@ -48,7 +48,11 @@ const interests = [
   "AI & ML",
   "AI & ML",
   "AI & ML",
-
+  "AI & ML",
+  "AI & ML",
+  "AI & ML",
+  "AI & ML",
+  "AI & ML",
   "Finance & FinTech",
   "E-Commerce",
   "Science & Technology",
@@ -57,14 +61,16 @@ const interests = [
 ];
 
 // Form section to collect user interests
-const FormSection2 = () => {
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-
+const FormSection2 = ({
+  setSelectedInterests,
+}: {
+  setSelectedInterests: React.Dispatch<React.SetStateAction<string[]>>;
+}) => {
   return (
-    <div className="w-full h-screen flex-shrink-0">
+    <div className="w-full h-full flex-shrink-0 overflow-y-scroll no-scrollbar">
       <h1 className="text-3xl font-medium">What are your interests ?</h1>
 
-      <div className="w-full h-full pt-10 flex flex-wrap gap-3 justify-center overflow-hidden items-center">
+      <div className="w-full h-full mt-7 mb-52 flex flex-wrap  justify-evenly ">
         {interests.map((label, index) => (
           <FormInterestBox
             key={index}

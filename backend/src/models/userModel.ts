@@ -7,6 +7,10 @@ export interface IUser extends Document {
   gender: GenderEnum;
   contactNumber: string;
   profileImage:string;
+  profession:string;
+  industry:string;
+  company:string;
+  lookingFor :string[];
   interests: string[];
   eventIds:Schema.Types.ObjectId[];
   status: AccountStatusEnum;
@@ -39,6 +43,20 @@ const UserSchema: Schema<IUser> = new Schema<IUser>({
   profileImage:{
     type:String
   },
+  profession:{
+    type:String,
+  },
+  industry:{
+    type:String,
+  },
+  company:{
+    type:String,
+  },
+  lookingFor: [
+    {
+      type: String
+    }
+  ],
   interests: [
     {
       type: String

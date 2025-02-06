@@ -199,6 +199,7 @@ export const getAllFriends = async (
     next: NextFunction
 ): Promise<Response | void> => {
     const userId = req.user.id;
+    console.log("userID", userId);
 
     const friends = await FriendModel.aggregate([
         {
@@ -213,9 +214,9 @@ export const getAllFriends = async (
             $project: {
                 otherUserId: {
                     $cond: {
-                        if: { $eq: ["$user1", userId] },  // If user1 is the given userId
-                        then: "$user2",                   // Set otherUserId as user2
-                        else: "$user1"                    // Otherwise, set it as user1
+                        if: { $eq: ["$user1", new mongoose.Types.ObjectId(userId)] }, 
+                        then: "$user2",                   
+                        else: "$user1"
                     }
                 }
             }
@@ -237,6 +238,7 @@ export const getAllFriends = async (
                 friendId: "$friends._id",
                 name: "$friends.name",
                 email: "$friends.email",
+                otherUserId:1
             }
         }
     ]);
@@ -342,5 +344,73 @@ export const withdrawFriendRequest =async(
     return res.status(200).json({
         success:true, 
         message:"Request withdrawn successfully"
+    });
+}
+
+export const friendProfileById =async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+):Promise<Response | void> =>{
+    const userId = req.user.id;
+    const {friendId} = req.query;
+    
+    const friendProfile = await FriendModel.aggregate([
+        {
+            $match:{
+                $or:[
+                    {
+                        user1 : new mongoose.Types.ObjectId(userId),
+                        user2 : new mongoose.Types.ObjectId(String(friendId))
+                    },
+                    {
+                        user1 : new mongoose.Types.ObjectId(String(friendId)),
+                        user2 : new mongoose.Types.ObjectId(userId)
+                    },
+                ]
+            }
+        },
+        {
+            $project: {
+                friendId: {
+                    $cond: {
+                        if: { $eq: ["$user1", new mongoose.Types.ObjectId(userId)] },
+                        then: "$user2", 
+                        else: "$user1"
+                    }
+                }
+            }
+        },
+        {
+            $lookup:{
+                from :"users",
+                foreignField:"_id",
+                localField:"friendId",
+                as:"user"
+            }
+        },
+        {
+            $unwind:"$user"
+        },
+        {
+            $project:{
+                _id:0,
+                friendId:"$user._id",
+                name:"$user.name",
+                email:"$user.email",
+                gender:"$user.gender",
+                contactNumber:"$user.contactNummber",
+                profileImage:"$user.profileImage",
+                interests:"$user.interests",
+            }
+        }
+    ]);
+
+    if(!friendProfile.length)
+        throw new AppError("User not found", 404);
+
+    return res.status(200).json({
+        success:true, 
+        friendProfile
     });
 }

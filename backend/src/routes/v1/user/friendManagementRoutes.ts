@@ -14,4 +14,6 @@ router.route("/get-all-friends").get(authenticate, asyncHandler(friendManagement
 router.route("/unfollow").delete(authenticate, asyncHandler(friendManagementController.unfollowFriend));
 router.route("/withdraw-friend-request").delete(authenticate, asyncHandler(friendManagementController.withdrawFriendRequest));
 
+router.route("/friend-profile").get(authenticate, asyncHandler(friendManagementController.friendProfileById))
+
 export default router;

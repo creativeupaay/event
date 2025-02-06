@@ -4,7 +4,6 @@ import { EventModel } from "../../models/event";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import { UserModel } from "../../models/userModel";
-import { FriendRequestModel } from "../../models/freindRequestModel";
 
 
 export const getAllEventGuest = async (
@@ -162,8 +161,8 @@ export const getAllEventGuest = async (
             }
         }
     ]);
-   
-    
+
+
 
     // const eventGuests = await EventModel.aggregate([
     //     {
@@ -344,4 +343,124 @@ export const getAllEventGuest = async (
         success: true,
         eventGuests
     });
+}
+
+export const getUserEvents = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const userId = req.user.id;
+
+    const currentDate = new Date();
+
+    const events = await UserModel.aggregate([
+        {
+            $match: { _id: new mongoose.Types.ObjectId(userId) }
+        },
+        {
+            $lookup: {
+                from: "events",
+                foreignField: "_id",
+                localField: "eventIds",
+                as: "events"
+            }
+        },
+        {
+            $unwind: "$events"
+        },
+        {
+            $project: {
+                _id: 0,
+                eventId: "$events._id",
+                name: "$events.name",
+                description: "$events.description",
+                type: "$events.type",
+                startDate: "$events.startDate",
+                endDate: "$events.endDate",
+                venue: "$events.venue",
+                city: "$events.city",
+                banner: "$events.banner",
+                status: {
+                    $cond: {
+                        if: { $and: [{ $gte: ["$events.endDate", currentDate] }, { $lte: ["$events.startDate", currentDate] }] },
+                        then: "ongoing",
+                        else: {
+                            $cond: {
+                                if: { $gt: ["$events.startDate", currentDate] },
+                                then: "upcoming",
+                                else: "past"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                onGoing: {
+                    $push: {
+                        $cond: [
+                            { $and: [{ $gte: ["$endDate", currentDate] }, { $lte: ["$startDate", currentDate] }] },
+                            "$$ROOT",
+                            null
+                        ]
+                    }
+                },
+                upComing: {
+                    $push: {
+                        $cond: [
+                            { $gt: ["$startDate", currentDate] },
+                            "$$ROOT", 
+                            null
+                        ]
+                    }
+                },
+                past: {
+                    $push: {
+                        $cond: [
+                            { $lt: ["$endDate", currentDate] },
+                            "$$ROOT",
+                            null
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                onGoing: { 
+                    $filter: { 
+                        input: "$onGoing", 
+                        as: "event", 
+                        cond: { $ne: ["$$event", null] } 
+                    } 
+                },
+                upComing: { 
+                    $filter: { 
+                        input: "$upComing", 
+                        as: "event", 
+                        cond: { $ne: ["$$event", null] } 
+                    } 
+                },
+                past: { 
+                    $filter: { 
+                        input: "$past", 
+                        as: "event", 
+                        cond: { $ne: ["$$event", null] } 
+                    } 
+                },
+                _id: 0
+            }
+        }
+    ]);
+
+    if (!events.length)
+        throw new AppError("Event not found", 404);
+
+    return res.status(200).json({
+        success: true,
+        events
+    })
 }

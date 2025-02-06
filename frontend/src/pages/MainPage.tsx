@@ -6,7 +6,7 @@ const EventCard = ({ eventName }: { eventName: string }) => {
 
   return (
     <div
-      onClick={() => navigate("/connect")}
+      onClick={() => navigate(`/connect/67a1e3adace29974b72c9694`)}
       className="w-full h-48 bg-blue-500 rounded-lg"
     >
       <div className="w-full h-full  rounded-lg flex flex-1 justify-between">

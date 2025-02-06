@@ -5,9 +5,7 @@ import { EventModel } from "../../models/event";
 import mongoose from "mongoose";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwtUtils";
 import { Roles } from "../../types/applicationRole";
-import path from "path";
 import { imageUploader } from "../../utils/imageUploader";
-// import uploadImageToCloudinary from "../../utils/imageUploader";
 
 export const createUser = async (
     req: Request,
@@ -24,7 +22,7 @@ export const createUser = async (
     try {
 
         data.eventIds = [data.eventId];
-        data.profileImage = [`https://api.dicebear.com/5.x/initials/svg?seed=${data.name}`]
+        data.profileImage = `https://api.dicebear.com/5.x/initials/svg?seed=${data.name}`;
         const [user] = await UserModel.create([data], { session });
         if (!user)
             throw new AppError("Failed to create new User", 500);
@@ -46,6 +44,8 @@ export const createUser = async (
             id: String(user._id),
             role: Roles.USER,
         })
+
+        const updateUser = await UserModel.findByIdAndUpdate(user._id, {refreshToken},{new:true});
 
         res
             .cookie("accessToken", accessToken, {

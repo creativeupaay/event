@@ -4,6 +4,7 @@ import { EventModel } from "../../models/event";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import { UserModel } from "../../models/userModel";
+import { FriendRequestModel } from "../../models/freindRequestModel";
 
 
 export const getAllEventGuest = async (
@@ -23,7 +24,40 @@ export const getAllEventGuest = async (
         : [];
 
     let selectedInterestLength = filteredSelectedInterest.length;
-    console.log("selectedInterestLength");
+
+
+    // const data = await FriendRequestModel.aggregate([
+    //         {
+    //             $match: {
+    //                 $or:[
+    //                     {sender: new mongoose.Types.ObjectId(userId)},
+    //                     {receiver : new mongoose.Types.ObjectId(userId)}
+    //                 ]
+    //             }
+    //         },
+    //         {
+    //             $lookup: {
+    //                 from: "users",
+    //                 localField: "sender",
+    //                 foreignField: "_id",
+    //                 as: "requestRecievedUser"
+    //             }
+    //         },
+    //         {
+    //             $unwind:"$requestRecievedUser"
+    //         },
+    //         {
+    //             $project: {
+    //                 _id: 0,
+    //                 senderId:"$requestRecievedUser._id",
+    //                 name:"$requestRecievedUser.name",
+    //                 email:"$requestRecievedUser.email",
+    //                 interest:"$requestRecievedUser.interests",
+    //                 note:1,
+    //                 video:1
+    //             }
+    //         }
+    //     ]);
 
     const user = await UserModel.aggregate([
         {
@@ -128,6 +162,180 @@ export const getAllEventGuest = async (
             }
         }
     ]);
+   
+    
+
+    // const eventGuests = await EventModel.aggregate([
+    //     {
+    //         $match: {
+    //             _id: new mongoose.Types.ObjectId(String(eventId)),
+    //         }
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: "users",
+    //             foreignField: "_id",
+    //             localField: "attendies",
+    //             as: "users"
+    //         }
+    //     },
+    //     {
+    //         $addFields: {
+    //             users: {
+    //                 $map: {
+    //                     input: "$users",
+    //                     as: "user",
+    //                     in: {
+    //                         _id: "$$user._id",
+    //                         name: "$$user.name",
+    //                         email: "$$user.email",
+    //                         gender: "$$user.gender",
+    //                         interestsMatchedCount: {
+    //                             $size: {
+    //                                 $setIntersection: ["$$user.interests", userInterest]
+    //                             }
+    //                         },
+    //                         interests: "$$user.interests"
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $addFields: {
+    //             users: {
+    //                 $filter: {
+    //                     input: "$users",
+    //                     as: "user",
+    //                     cond: {
+    //                         $and: [
+    //                             { $ne: ["$$user._id", new mongoose.Types.ObjectId(userId)] },
+    //                             {
+    //                                 $cond: {
+    //                                     if: { $gt: [selectedInterestLength, 0] },
+    //                                     then: {
+    //                                         $gt: [
+    //                                             { $size: { $setIntersection: ["$$user.interests", selectedInterest] } },
+    //                                             0
+    //                                         ]
+    //                                     },
+    //                                     else: true
+    //                                 }
+    //                             }
+    //                         ]
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $sort: {
+    //             "users.interestsMatchedCount": -1
+    //         }
+    //     },
+    //     {
+    //         $match: {
+    //             ...(name ? { "users": { $elemMatch: { name: { $regex: name, $options: 'i' } } } } : {}),
+
+    //         }
+    //     },
+    //     // {
+    //     //     $lookup: {
+    //     //         from: "friendrequests",
+    //     //         let: { userId: new mongoose.Types.ObjectId(userId), friends: "$users" },
+    //     //         pipeline: [
+    //     //             {
+    //     //                 $unwind:"$$friends"
+    //     //             },
+    //     //             {
+    //     //                 $match: {
+    //     //                     $or: [
+    //     //                         {
+    //     //                             $and: [
+    //     //                                 { sender: { $eq: "$$userId" } },
+    //     //                                 { receiver: { $eq: "$$friends._id" } }
+    //     //                             ]
+    //     //                         },
+    //     //                         {
+    //     //                             $and: [
+    //     //                                 { sender: { $eq: "$$friends._id" } },
+    //     //                                 { receiver: { $eq: "$$userId" } }
+    //     //                             ]
+    //     //                         }
+    //     //                     ]
+    //     //                 }
+    //     //             },
+    //     //         ],
+    //     //         as: "friendReq"
+    //     //     }
+    //     // },
+    //     {
+    //         $lookup: {
+    //           from: "friendrequests",
+    //           let: { userId: new mongoose.Types.ObjectId(userId), friends: "$friends" }, // Assuming friends is an array of objects
+    //           pipeline: [
+    //             {
+    //               $addFields: {
+    //                 friendsMatchingRequest: {
+    //                   $filter: {
+    //                     input: "$$friends", 
+    //                     as: "friend", 
+    //                     cond: {
+    //                       $and: [
+    //                         { $eq: ["$$userId", "$$friend.sender"] },
+    //                         {  $eq: ["$$friend.receiver", "$$userId"] }
+    //                         // {
+    //                         //   $and: [
+    //                         //     { $eq: ["$$userId", "$$friend.sender"] }, // If the user is the sender
+    //                         //     { $eq: ["$$friend.receiver", "$$userId"] } // and the friend is the receiver
+    //                         //   ]
+    //                         // },
+    //                         // {
+    //                         //   $and: [
+    //                         //     { $eq: ["$$userId", "$$friend.receiver"] }, // If the user is the receiver
+    //                         //     { $eq: ["$$friend.sender", "$$userId"] } // and the friend is the sender
+    //                         //   ]
+    //                         // }
+    //                       ]
+    //                     }
+    //                   }
+    //                 }
+    //               }
+    //             },
+    //             {
+    //               $match: {
+    //                 friendsMatchingRequest: { $ne: [] } // Match if there are any matching requests
+    //               }
+    //             }
+    //           ],
+    //           as: "friendReq"
+    //         }
+    //       },                
+    //     // {
+    //     //     $match:{
+    //     //         "friendReq" :{$size : 0}
+    //     //     }
+    //     // },
+    //     {
+    //         $sort: { "users.createdAt": sortOrder === 'asc' ? 1 : -1 }
+    //     },
+    //     {
+    //         $project: {
+    //             _id: 1,
+    //             name: 1,
+    //             users: {
+    //                 _id: 1,
+    //                 name: 1,
+    //                 email: 1,
+    //                 gender: 1,
+    //                 interests: 1,
+    //                 // interestsMatchedCount: 1,
+    //             },
+    //             friendReq: 1,
+    //         }
+    //     }
+    // ]);
+
 
     if (!eventGuests.length)
         throw new AppError("Events not available", StatusCodes.NO_CONTENT);

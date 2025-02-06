@@ -9,6 +9,7 @@ router.route("/create").post(asyncHandler(UserController.createUser))
 router.route("/").get(authenticate, asyncHandler(UserController.UserInfo));
 router.route("/edit").put(authenticate,asyncHandler(UserController.updateUser));
 router.route("/editInterest").put(authenticate, asyncHandler(UserController.updateInterest));
+router.route("/edit-profile-picture").put(authenticate, asyncHandler(UserController.editProfilePicture));
 
 
 export default router;

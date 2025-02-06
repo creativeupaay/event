@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { FriendRequestModel } from "../../models/freindRequestModel";
 import { RequestStatusEnum } from "../../types/enum";
 import { FriendModel } from "../../models/friendModel";
+import { imageUploader } from "../../utils/imageUploader";
 
 export const sendFriendRequest = async (
     req: Request,
@@ -14,6 +15,9 @@ export const sendFriendRequest = async (
     const userId = req.user.id;
     const { data } = req.body;
 
+    if(!data.note && !req.file)
+        throw new AppError("Either note or video, one is required", 400);
+
     if (!data.recieverId)
         throw new AppError("RecieverId required", 400);
 
@@ -21,11 +25,20 @@ export const sendFriendRequest = async (
     if (!receiverExist)
         throw new AppError("Reciever not found", 404);
 
+    let video;
+    if(req.file)
+    {
+        const videoUrl = await imageUploader(req.file);
+        if(!videoUrl)
+            throw new AppError("Failed to upload video",500);
+        video = videoUrl;
+    }
+
     const newFriendRequested = await FriendRequestModel.create({
         sender: userId,
         receiver: data.recieverId,
         note: data.note ?? "",
-        video: data.video ?? "",
+        video: video ?? "",
         // sentAt: Date.now()
     });
 
@@ -167,6 +180,20 @@ export const getRequestRecieved = async (
         },
         {
             $unwind:"$requestRecievedUser"
+        },
+        {
+            $addFields:{
+                priority:{
+                    $cond :{
+                        if : { $gt: [{ $strLenCP: "$video" }, 0]},
+                        then : 2,
+                        else:0
+                    }
+                }
+            }
+        },
+        {
+            $sort :{priority : -1}
         },
         {
             $project: {

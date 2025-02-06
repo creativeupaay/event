@@ -348,9 +348,6 @@ const PendingConnectionsPage = () => {
         <div className="my-5 w-full h-full">
           {pendingRequests.length != 0 ? (
             <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
-              {/* <SwiperSlide>
-                <VideoConnectionRequestCard />
-              </SwiperSlide> */}
               {pendingRequests?.map((request) => (
                 <SwiperSlide key={request.senderId}>
                   <ConnectionRequestCard
@@ -361,6 +358,9 @@ const PendingConnectionsPage = () => {
                   />
                 </SwiperSlide>
               ))}
+              <SwiperSlide>
+                <VideoConnectionRequestCard />
+              </SwiperSlide>
             </Swiper>
           ) : (
             <div className="w-full h-full text-center">

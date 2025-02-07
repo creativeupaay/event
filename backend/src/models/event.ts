@@ -11,7 +11,7 @@ export interface IEvent extends Document {
     // country:string,
     banner: string,
     organizationId: Schema.Types.ObjectId;
-    // registration_Url: string,
+    lookingFor:String[];
     attendies:Schema.Types.ObjectId[];
     publish:Boolean
 }
@@ -53,6 +53,11 @@ const EventSchema: Schema<IEvent> = new Schema<IEvent>({
         ref:'Organization',
         required:true,
     },
+    lookingFor:[
+        {
+            type:String
+        }
+    ],
     attendies:[
         {
             type:Schema.Types.ObjectId,

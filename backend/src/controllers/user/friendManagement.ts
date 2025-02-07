@@ -15,25 +15,40 @@ export const sendFriendRequest = async (
     const userId = req.user.id;
     const { data } = req.body;
 
-    if(!data.note && !req.file)
+    if (!data.note && !req.file)
         throw new AppError("Either note or video, one is required", 400);
 
     if (!data.recieverId)
         throw new AppError("RecieverId required", 400);
 
-    const receiverExist = await UserModel.exists({ _id: new mongoose.Types.ObjectId(String(data.recieverId)) });
+    // receiver exists
+    const receiverExistPromise = await UserModel.exists({ _id: new mongoose.Types.ObjectId(String(data.recieverId)) });
+
+    // freind request exist 
+    const existingRequestPromise = await FriendRequestModel.findOne({
+        $or: [
+            { sender: new mongoose.Types.ObjectId(userId), receiver: new mongoose.Types.ObjectId(String(data.recieverId)) },
+            { sender: new mongoose.Types.ObjectId(String(data.recieverId)), receiver: new mongoose.Types.ObjectId(userId) }
+        ],
+    });
+
+    const [receiverExist, existingRequest] = await Promise.all([receiverExistPromise, existingRequestPromise]);
     if (!receiverExist)
         throw new AppError("Reciever not found", 404);
+    
+    if (existingRequest)
+        throw new AppError("Friend Request Already exist", 409);
 
+    // uploading video
     let video;
-    if(req.file)
-    {
+    if (req.file) {
         const videoUrl = await imageUploader(req.file);
-        if(!videoUrl)
-            throw new AppError("Failed to upload video",500);
+        if (!videoUrl)
+            throw new AppError("Failed to upload video", 500);
         video = videoUrl;
     }
 
+    // create friend request
     const newFriendRequested = await FriendRequestModel.create({
         sender: userId,
         receiver: data.recieverId,
@@ -129,17 +144,22 @@ export const getRequestSended = async (
             }
         },
         {
-            $unwind:"$requestSentUser"
+            $unwind: "$requestSentUser"
         },
         {
             $project: {
                 _id: 0,
-                receiverId : "$requestSentUser._id",
-                name:"$requestSentUser.name",
-                email:"$requestSentUser.email",
-                interest:"$requestSentUser.interests",
-                note:1,
-                video:1
+                receiverId: "$requestSentUser._id",
+                name: "$requestSentUser.name",
+                email: "$requestSentUser.email",
+                profileImage :"$requestSentUser.profileImage",
+                profession:"$requestSentUser.profession",
+                industry:"$requestSentUser.industry",
+                company: "$requestSentUser.company",
+                lookingFor:"$requestSentUser.lookingFor",
+                interests:"$requestSentUser.interests",
+                note: 1,
+                video: 1
             }
         }
     ]);
@@ -179,31 +199,36 @@ export const getRequestRecieved = async (
             }
         },
         {
-            $unwind:"$requestRecievedUser"
+            $unwind: "$requestRecievedUser"
         },
         {
-            $addFields:{
-                priority:{
-                    $cond :{
-                        if : { $gt: [{ $strLenCP: "$video" }, 0]},
-                        then : 2,
-                        else:0
+            $addFields: {
+                priority: {
+                    $cond: {
+                        if: { $gt: [{ $strLenCP: "$video" }, 0] },
+                        then: 2,
+                        else: 0
                     }
                 }
             }
         },
         {
-            $sort :{priority : -1}
+            $sort: { priority: -1 }
         },
         {
             $project: {
                 _id: 0,
-                senderId:"$requestRecievedUser._id",
-                name:"$requestRecievedUser.name",
-                email:"$requestRecievedUser.email",
-                interest:"$requestRecievedUser.interests",
-                note:1,
-                video:1
+                senderId: "$requestRecievedUser._id",
+                name: "$requestRecievedUser.name",
+                email: "$requestRecievedUser.email",
+                interest: "$requestRecievedUser.interests",
+                profileImage :"$requestRecievedUser.profileImage",
+                profession:"$requestRecievedUser.profession",
+                industry:"$requestRecievedUser.industry",
+                company: "$requestRecievedUser.company",
+                lookingFor:"$requestRecievedUser.lookingFor",
+                note: 1,
+                video: 1
             }
         }
     ]);
@@ -241,8 +266,8 @@ export const getAllFriends = async (
             $project: {
                 otherUserId: {
                     $cond: {
-                        if: { $eq: ["$user1", new mongoose.Types.ObjectId(userId)] }, 
-                        then: "$user2",                   
+                        if: { $eq: ["$user1", new mongoose.Types.ObjectId(userId)] },
+                        then: "$user2",
                         else: "$user1"
                     }
                 }
@@ -261,11 +286,17 @@ export const getAllFriends = async (
         },
         {
             $project: {
-                _id:0,
+                _id: 0,
                 friendId: "$friends._id",
                 name: "$friends.name",
                 email: "$friends.email",
-                otherUserId:1
+                profileImage :"$friends.profileImage",
+                profession:"$friends.profession",
+                industry:"$friends.industry",
+                company: "$friends.company",
+                lookingFor:"$friends.lookingFor",
+                interests:"$friends.interests",
+                otherUserId: 1
             }
         }
     ]);
@@ -289,7 +320,7 @@ export const unfollowFriend = async (
     const userId = req.user.id;
     const { friendId } = req.query;
 
-    if(!friendId)
+    if (!friendId)
         throw new AppError("freindId is required", 400);
 
     const session = await mongoose.startSession();
@@ -310,7 +341,7 @@ export const unfollowFriend = async (
                     }
                 ]
             },
-            { session }  
+            { session }
         );
 
         const deleteFriendPromise = FriendModel.deleteOne(
@@ -326,7 +357,7 @@ export const unfollowFriend = async (
                     }
                 ]
             },
-            { session } 
+            { session }
         );
 
         const [deleteFriendRequest, deleteFriend] = await Promise.all([deleteFriendRequestPromise, deleteFriendPromise]);
@@ -349,50 +380,50 @@ export const unfollowFriend = async (
     }
 }
 
-export const withdrawFriendRequest =async(
-    req:Request,
-    res:Response,
+export const withdrawFriendRequest = async (
+    req: Request,
+    res: Response,
     next: NextFunction
-):Promise<Response |void> =>{
-    const userId =req.user.id;
-    const {receiverId} = req.query;
+): Promise<Response | void> => {
+    const userId = req.user.id;
+    const { receiverId } = req.query;
 
-    if(!receiverId)
+    if (!receiverId)
         throw new AppError("Receiver is required", 400);
 
     const deleteRequest = await FriendRequestModel.deleteOne({
-        receiver : new mongoose.Types.ObjectId(String(receiverId)),
-        sender : new mongoose.Types.ObjectId(userId)
+        receiver: new mongoose.Types.ObjectId(String(receiverId)),
+        sender: new mongoose.Types.ObjectId(userId)
     });
-    
-    if(!deleteRequest)
+
+    if (!deleteRequest)
         throw new AppError("Receiver not found", 404);
 
     return res.status(200).json({
-        success:true, 
-        message:"Request withdrawn successfully"
+        success: true,
+        message: "Request withdrawn successfully"
     });
 }
 
-export const friendProfileById =async(
-    req:Request,
-    res:Response,
-    next:NextFunction
-):Promise<Response | void> =>{
+export const friendProfileById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
     const userId = req.user.id;
-    const {friendId} = req.query;
-    
+    const { friendId } = req.query;
+
     const friendProfile = await FriendModel.aggregate([
         {
-            $match:{
-                $or:[
+            $match: {
+                $or: [
                     {
-                        user1 : new mongoose.Types.ObjectId(userId),
-                        user2 : new mongoose.Types.ObjectId(String(friendId))
+                        user1: new mongoose.Types.ObjectId(userId),
+                        user2: new mongoose.Types.ObjectId(String(friendId))
                     },
                     {
-                        user1 : new mongoose.Types.ObjectId(String(friendId)),
-                        user2 : new mongoose.Types.ObjectId(userId)
+                        user1: new mongoose.Types.ObjectId(String(friendId)),
+                        user2: new mongoose.Types.ObjectId(userId)
                     },
                 ]
             }
@@ -402,42 +433,42 @@ export const friendProfileById =async(
                 friendId: {
                     $cond: {
                         if: { $eq: ["$user1", new mongoose.Types.ObjectId(userId)] },
-                        then: "$user2", 
+                        then: "$user2",
                         else: "$user1"
                     }
                 }
             }
         },
         {
-            $lookup:{
-                from :"users",
-                foreignField:"_id",
-                localField:"friendId",
-                as:"user"
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "friendId",
+                as: "user"
             }
         },
         {
-            $unwind:"$user"
+            $unwind: "$user"
         },
         {
-            $project:{
-                _id:0,
-                friendId:"$user._id",
-                name:"$user.name",
-                email:"$user.email",
-                gender:"$user.gender",
-                contactNumber:"$user.contactNummber",
-                profileImage:"$user.profileImage",
-                interests:"$user.interests",
+            $project: {
+                _id: 0,
+                friendId: "$user._id",
+                name: "$user.name",
+                email: "$user.email",
+                gender: "$user.gender",
+                contactNumber: "$user.contactNummber",
+                profileImage: "$user.profileImage",
+                interests: "$user.interests",
             }
         }
     ]);
 
-    if(!friendProfile.length)
+    if (!friendProfile.length)
         throw new AppError("User not found", 404);
 
     return res.status(200).json({
-        success:true, 
+        success: true,
         friendProfile
     });
 }

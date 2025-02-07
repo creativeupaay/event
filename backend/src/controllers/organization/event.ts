@@ -169,3 +169,49 @@ export const handlePublishQR= async (
         updatedEvent
     })
 }
+
+export const updateAttendeeRoles = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const organizatioId = req.organization.id;
+    const { data } = req.body;
+
+    if(!data.eventId)
+        throw new AppError("Eventd not found", 400);
+
+    if (!data.attendeeRolesToRemove.length && !data.newAttendeeRoles.length)
+        throw new AppError("Field not found", 400);
+
+    // pulls attendeeRoles
+    if (data.attendeeRolesToRemove.length) {
+        await EventModel.updateOne(
+            { _id: new mongoose.Types.ObjectId(data.eventId) },
+            { 
+                $pull: { attendeeRoles: { $in: data.attendeeRolesToRemove } } 
+            }
+        );
+    }
+
+    // push attendeeRoles
+    if (data.newAttendeesRole.length) {
+        await EventModel.updateOne(
+            { _id: new mongoose.Types.ObjectId(data.eventId) },
+            { 
+                $push: { attendeeRoles: { $each: data.newAttendeeRoles } } 
+            }
+        );
+    }
+
+    const updatedAttendeeRoles = await EventModel.findById(data.eventId).lean().select("attendeeRoles");
+
+    if (!updatedAttendeeRoles)
+        throw new AppError("Event not found", 404);
+
+    return res.status(200).json({
+        success: true,
+        updatedAttendeeRoles
+    })
+
+}

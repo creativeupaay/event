@@ -11,6 +11,7 @@ router.route("/publish").put(authenticate, asyncHandler(eventController.handlePu
 router.route("/edit").put(authenticate, asyncHandler(eventController.updateEvent));
 router.route("/delete").delete(authenticate, asyncHandler(eventController.deleteEvent));
 router.route("/fetch").get(authenticate, asyncHandler(eventController.getEventById));
+router.route("/edit-attendee-roles").put(authenticate, asyncHandler(eventController.updateAttendeeRoles));
 
 
 export default router;

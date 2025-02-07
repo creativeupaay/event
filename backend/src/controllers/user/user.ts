@@ -45,7 +45,7 @@ export const createUser = async (
             role: Roles.USER,
         })
 
-        const updateUser = await UserModel.findByIdAndUpdate(user._id, {refreshToken},{new:true});
+        const updateUser = await UserModel.findByIdAndUpdate(user._id, { refreshToken }, { new: true });
 
         res
             .cookie("accessToken", accessToken, {
@@ -141,26 +141,67 @@ export const updateInterest = async (
     if (!data.interestsToRemove.length && !data.newInterests.length)
         throw new AppError("Field not found", 400);
 
-    const removedInterest = await UserModel.findByIdAndUpdate(
-        new mongoose.Types.ObjectId(userId),
-        {
-            $pull: { interests: { $in: data.interestsToRemove } }
-        },
-        { new: true }
-    );
+    if (data.interestsToRemove.length) {
+        const removedInterest = await UserModel.findByIdAndUpdate(
+            new mongoose.Types.ObjectId(userId),
+            {
+                $pull: { interests: { $in: data.interestsToRemove } }
+            },
+            { new: true }
+        );
+    }
 
-    const updatedInterest = await UserModel.findByIdAndUpdate(
-        new mongoose.Types.ObjectId(userId),
-        { $push: { interests: { $each: data.newInterests } } },
-        { new: true }
-    );
+    if (data.newInterests.length) {
+        const updatedInterest = await UserModel.findByIdAndUpdate(
+            new mongoose.Types.ObjectId(userId),
+            { $push: { interests: { $each: data.newInterests } } },
+            { new: true }
+        );
+    }
 
-    if (!updateInterest)
-        throw new AppError("User not found", 404);
+    const updatedInterest = await EventModel.findById(new mongoose.Types.ObjectId(userId)).lean().select("interests");
 
     return res.status(200).json({
         success: true,
         updatedInterest
+    })
+
+}
+
+export const updateLookingFor = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const userId = req.user.id;
+    const { data } = req.body;
+
+    if (!data.lookingForToRemove.length && !data.newLookingFor.length)
+        throw new AppError("Field not found", 400);
+
+    if (data.lookingForToRemove.length) {
+        await UserModel.findByIdAndUpdate(
+            new mongoose.Types.ObjectId(userId),
+            {
+                $pull: { lookingFor: { $in: data.lookingForToRemove } }
+            },
+            { new: true }
+        );
+    }
+
+    if (data.newLookingFor.length) {
+        await UserModel.findByIdAndUpdate(
+            new mongoose.Types.ObjectId(userId),
+            { $push: { lookingFor: { $each: data.newLookingFor } } },
+            { new: true }
+        );
+    }
+
+    const updatedlookinFor = await UserModel.findById(new mongoose.Types.ObjectId(userId)).lean().select("lookingFor");
+
+    return res.status(200).json({
+        success: true,
+        updatedlookinFor
     })
 
 }
@@ -172,29 +213,29 @@ export const editProfilePicture = async (
 ): Promise<Response | void> => {
     const userId = req.user.id;
 
-    if(!req.file)
+    if (!req.file)
         throw new AppError("No file uploaded", 400);
 
     const imageUrl = await imageUploader(req.file);
-    if(!imageUrl)
+    if (!imageUrl)
         throw new AppError("Failed to upload Image", 500);
 
     const updatedProfile = await UserModel.findByIdAndUpdate(
         new mongoose.Types.ObjectId(userId),
         {
-            $set:{
-                profileImage : imageUrl
+            $set: {
+                profileImage: imageUrl
             }
         },
-        {new :true}
+        { new: true }
     );
 
-    if(!updatedProfile)
+    if (!updatedProfile)
         throw new AppError("Image not updated", 500);
-    
+
     return res.status(200).json({
-        sucess:true, 
-        profileImage : updatedProfile.profileImage
+        sucess: true,
+        profileImage: updatedProfile.profileImage
     })
 }
 

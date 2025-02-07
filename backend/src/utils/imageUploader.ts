@@ -30,7 +30,8 @@ export const imageUploader = async (
             const uploadStream = cloudinaryV2.uploader.upload_stream(
                 {
                     resource_type: 'auto',
-                    public_id: `file_${Date.now()}`
+                    public_id: `file_${Date.now()}`,
+                    folder:process.env.FOLDER_NAME
                 },
                 (error, result) => {
                     if (error) {

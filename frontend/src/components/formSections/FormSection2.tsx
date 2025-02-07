@@ -70,7 +70,7 @@ const FormSection2 = ({
     <div className="w-full h-full flex-shrink-0 overflow-y-scroll no-scrollbar">
       <h1 className="text-3xl font-medium">What are your interests ?</h1>
 
-      <div className="w-full h-full mt-7 mb-52 flex flex-wrap  justify-evenly ">
+      <div className="w-full h-full mt-7 gap-4 pb-60 flex flex-wrap  justify-evenly ">
         {interests.map((label, index) => (
           <FormInterestBox
             key={index}

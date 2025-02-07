@@ -1,9 +1,10 @@
+// Form field for getting phone number
 const FormSection6 = ({
   phoneNumber,
   setPhoneNumber,
 }: {
-  phoneNumber: number;
-  setPhoneNumber: React.Dispatch<React.SetStateAction<number>>;
+  phoneNumber: string;
+  setPhoneNumber: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   return (
     <div className="w-full h-screen flex-shrink-0">
@@ -12,8 +13,8 @@ const FormSection6 = ({
       <div className="w-full mt-10">
         <input
           value={phoneNumber}
-          onChange={(e) => setPhoneNumber(parseInt(e.target.value))}
-          type="number"
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          type="text"
           placeholder="Type here..."
           className="w-full text-2xl outline-none border-b-2 border-b-slate-500 bg-transparent px-1 pb-4"
         />

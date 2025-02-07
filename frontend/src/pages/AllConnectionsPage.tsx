@@ -2,6 +2,7 @@ import { ChevronRight } from "@mui/icons-material";
 import avatarProfile from "../assets/tempProfile.svg";
 import { useEffect, useState } from "react";
 import userApi from "../apis/userApi";
+import LoadingComp from "../components/loading/LoadingComp";
 
 const ConnectionRequestCard = ({ name }: { name: string }) => {
   return (
@@ -31,7 +32,10 @@ interface friendI {
 const AllConnectionsPage = () => {
   const [allFriends, setAllFriends] = useState<friendI[]>([]);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const fetchAllFriends = async () => {
+    setIsLoading(true);
     try {
       const response = await userApi.get(
         "user/friend-management/get-all-friends"
@@ -41,6 +45,8 @@ const AllConnectionsPage = () => {
         setAllFriends(response.data.friends);
       }
     } catch (e) {}
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -59,9 +65,20 @@ const AllConnectionsPage = () => {
       </div>
       <div className="my-7">
         <div className="my-5 w-full flex flex-col space-y-7">
-          {allFriends.map((friend) => (
-            <ConnectionRequestCard key={friend.friendId} name={friend.name} />
-          ))}
+          {isLoading ? (
+            <div className="w-full h-full flex justify-center">
+              <LoadingComp />
+            </div>
+          ) : (
+            <>
+              {allFriends.map((friend) => (
+                <ConnectionRequestCard
+                  key={friend.friendId}
+                  name={friend.name}
+                />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -1,9 +1,8 @@
 import { Add, Edit } from "@mui/icons-material";
-import tempProfile from "../assets/tempProfile.svg";
+// import tempProfile from "../assets/tempProfile.svg";
 import userApi from "../apis/userApi";
-import { useEffect } from "react";
-
-const interests = ["AI/ML", "Science", "Business", "Gaming", "Techonology"];
+import { useEffect, useState } from "react";
+import { GENDER } from "../types/userTypes";
 
 const TextInputField = ({ label, value }: { label: string; value: string }) => {
   return (
@@ -18,12 +17,28 @@ const TextInputField = ({ label, value }: { label: string; value: string }) => {
   );
 };
 
+interface profileI {
+  _id: string;
+  name: string;
+  gender: GENDER;
+  contactNumber: string;
+  profileImage: string;
+  interests: string[];
+  status: string;
+}
+
 const Profile = () => {
+  const [userProfileInfo, setUserProfileInfo] = useState<profileI | undefined>(
+    undefined
+  );
+
   const fetchUserProfile = async () => {
     try {
       const response = await userApi.get("/user/");
 
-      console.log(response);
+      if (response.status == 200) {
+        setUserProfileInfo(response.data.user);
+      }
     } catch (e) {}
   };
 
@@ -35,17 +50,17 @@ const Profile = () => {
     <div className="w-full h-full">
       {/* upper profile section */}
       <div className=" w-full h-40 bg-blue-500 py-3 px-4 flex flex-1 items-center space-x-3">
-        <div className="flex-[0.3] items-center justify-center">
+        <div className="items-center justify-center">
           <img
-            src={tempProfile}
+            src={userProfileInfo?.profileImage}
             alt="profile image"
-            className="w-32 h-32 object-contain"
+            className="w-24 h-24 object-contain rounded-full"
           />
         </div>
 
-        <div className="flex-[0.7] text-white">
+        <div className=" text-white">
           <div className="flex items-center space-x-2">
-            <h1 className="text-3xl font-medium">Ronak Paul</h1>
+            <h1 className="text-3xl font-medium">{userProfileInfo?.name}</h1>
             <Edit />
           </div>
           <div>
@@ -75,7 +90,7 @@ const Profile = () => {
           <p className="text-xl font-medium">Interests</p>
 
           <div className="flex items-center flex-wrap gap-5 mt-6">
-            {interests.map((label, index) => (
+            {userProfileInfo?.interests.map((label, index) => (
               <div key={index} className="bg-blue-100 px-4 py-1 rounded-full">
                 {label}
               </div>

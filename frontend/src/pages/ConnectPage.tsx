@@ -13,6 +13,8 @@ import { useEffect, useRef, useState } from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 import userApi from "../apis/userApi";
 import { userI } from "../types/userTypes";
+import LoadingComp from "../components/loading/LoadingComp";
+import { useSnackbar } from "../hooks/SnackbarContext";
 
 const VideoPreview = ({
   stream,
@@ -155,10 +157,18 @@ const ConnectCard = ({
 
   const [note, setNote] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { showSnackbar } = useSnackbar();
 
   const sendConnectionRequest = async () => {
-    if (!note) return;
+    if (!note) {
+      showSnackbar("Please provide a note", "warning");
+      return;
+    }
 
+    if (isLoading) return;
+
+    setIsLoading(true);
     try {
       const response = await userApi.post(
         "user/friend-management/friend-request-Sent",
@@ -176,7 +186,11 @@ const ConnectCard = ({
         setIsNoteModalOpen(false);
         setIsConnected(true);
       }
-    } catch (e) {}
+    } catch (e) {
+      showSnackbar("Error in connecting", "error");
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -263,7 +277,13 @@ const ConnectCard = ({
               onClick={sendConnectionRequest}
               className="  bg-blue-600  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl"
             >
-              Connect Now
+              {isLoading ? (
+                <div className="flex justify-center">
+                  <LoadingComp color="white" />
+                </div>
+              ) : (
+                "Connect"
+              )}
             </button>
           </div>
         </div>
@@ -318,7 +338,11 @@ const ConnectPage = () => {
 
   const { eventId } = useParams();
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const fetchEventGuests = async () => {
+    setIsLoading(true);
+
     try {
       const response = await userApi.get(
         `/user/events/get-all-event-Guest?eventId=${eventId}`
@@ -330,6 +354,8 @@ const ConnectPage = () => {
         setUsers(data);
       }
     } catch (e) {}
+
+    setIsLoading(false);
   };
 
   const [users, setUsers] = useState<userI[]>([]);
@@ -356,17 +382,23 @@ const ConnectPage = () => {
       </div>
 
       <div className=" mt-16 w-full h-full ">
-        <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
-          {users.map((user) => (
-            <SwiperSlide key={user._id}>
-              <ConnectCard
-                name={user.name}
-                interests={user.interests}
-                id={user._id}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        {isLoading ? (
+          <div className="w-full h-full flex justify-center">
+            <LoadingComp />
+          </div>
+        ) : (
+          <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
+            {users.map((user) => (
+              <SwiperSlide key={user._id}>
+                <ConnectCard
+                  name={user.name}
+                  interests={user.interests}
+                  id={user._id}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
       </div>
     </div>
   );

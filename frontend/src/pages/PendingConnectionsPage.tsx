@@ -1,5 +1,6 @@
 import {
   ChevronRightOutlined,
+  CloseRounded,
   DoneRounded,
   ExpandLess,
   ExpandMore,
@@ -12,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import testRecording from "../assets/test-recording.mp4";
 import userApi from "../apis/userApi";
+import LoadingComp from "../components/loading/LoadingComp";
+import { useSnackbar } from "../hooks/SnackbarContext";
 
 const VideoConnectionRequestCard = () => {
   const interests = ["Science & Technology", "AI & ML", "Business"];
@@ -202,19 +205,33 @@ const ConnectionRequestCard = ({
   note: string;
   id: string;
 }) => {
-  const [isAccepted, setIsAccepted] = useState<boolean>(false);
+  const [connectionState, setConnectionState] = useState<
+    "ACCEPTED" | "REJECTED" | "PENDING"
+  >("PENDING");
 
-  const acceptConnectionRequest = async () => {
+  const [isLoading, setIsLoading] = useState<{
+    type: "ACCEPTED" | "REJECTED";
+    state: boolean;
+  }>({ type: "ACCEPTED", state: false });
+
+  const { showSnackbar } = useSnackbar();
+
+  const acceptRjectRequest = async (type: "ACCEPTED" | "REJECTED") => {
+    if (isLoading.state) return;
+
+    setIsLoading({ type, state: true });
+
     try {
-      const response = await userApi.post(
-        `/user/friend-management/accept-reject-friend-request?senderId=${id}&status=ACCEPTED`
+      await userApi.post(
+        `/user/friend-management/accept-reject-friend-request?senderId=${id}&status=${type}`
       );
 
-      if (response.status == 200) {
-        setIsAccepted(true);
-        console.log(response);
-      }
-    } catch (e) {}
+      setConnectionState(type);
+    } catch (e) {
+      showSnackbar("Error in accepting connection", "error");
+    }
+
+    setIsLoading({ type, state: false });
   };
 
   return (
@@ -269,23 +286,44 @@ const ConnectionRequestCard = ({
         </div>
       </div>
 
-      {!isAccepted ? (
+      {connectionState == "PENDING" ? (
         <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-2">
           <button
-            onClick={acceptConnectionRequest}
+            onClick={() => acceptRjectRequest("ACCEPTED")}
             className="  bg-blue-600  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl"
           >
-            Connect Now
+            {isLoading.type == "ACCEPTED" && isLoading.state ? (
+              <div className="flex justify-center">
+                <LoadingComp color="white" />
+              </div>
+            ) : (
+              "Connect Now"
+            )}
           </button>
-          <button className="  bg-red-700  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl">
-            Remove
+          <button
+            onClick={() => acceptRjectRequest("REJECTED")}
+            className="  bg-red-700  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl"
+          >
+            {isLoading.type == "REJECTED" && isLoading.state ? (
+              <div className="flex justify-center">
+                <LoadingComp color="white" />
+              </div>
+            ) : (
+              "Remove"
+            )}
           </button>
         </div>
       ) : (
         <div className="w-full flex items-center justify-center">
-          <div className="rounded-full text-5xl bg-white px-4 py-4 flex items-center justify-center">
-            <DoneRounded fontSize="inherit" />
-          </div>
+          {connectionState == "ACCEPTED" ? (
+            <div className="rounded-full text-5xl bg-white px-4 py-4 flex items-center justify-center">
+              <DoneRounded fontSize="inherit" />
+            </div>
+          ) : (
+            <div className="rounded-full text-5xl bg-red-500 color-white px-4 py-4 flex items-center justify-center">
+              <CloseRounded fontSize="inherit" />
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -306,7 +344,10 @@ const PendingConnectionsPage = () => {
 
   const [pendingRequests, setPendingRequests] = useState<UserConnectionI[]>([]);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const fetchPendingRequests = async () => {
+    setIsLoading(true);
     try {
       const response = await userApi.get(
         "/user/friend-management/request-recieved"
@@ -315,6 +356,8 @@ const PendingConnectionsPage = () => {
       if (response.status == 200) {
         setPendingRequests(response.data.data);
       }
+
+      setIsLoading(false);
     } catch (e) {}
   };
 
@@ -346,26 +389,38 @@ const PendingConnectionsPage = () => {
           </span>
         </h2>
         <div className="my-5 w-full h-full">
-          {pendingRequests.length != 0 ? (
-            <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
-              {pendingRequests?.map((request) => (
-                <SwiperSlide key={request.senderId}>
-                  <ConnectionRequestCard
-                    name={request.name}
-                    interests={request.interest}
-                    note={request.note}
-                    id={request.senderId}
-                  />
-                </SwiperSlide>
-              ))}
-              <SwiperSlide>
-                <VideoConnectionRequestCard />
-              </SwiperSlide>
-            </Swiper>
-          ) : (
-            <div className="w-full h-full text-center">
-              <p className="text-slate-400">No Pending Connections</p>
+          {isLoading ? (
+            <div className="w-full h-full flex justify-center">
+              <LoadingComp />
             </div>
+          ) : (
+            <>
+              {pendingRequests.length != 0 ? (
+                <Swiper
+                  spaceBetween={10}
+                  slidesPerView={1.1}
+                  centeredSlides={true}
+                >
+                  {pendingRequests?.map((request) => (
+                    <SwiperSlide key={request.senderId}>
+                      <ConnectionRequestCard
+                        name={request.name}
+                        interests={request.interest}
+                        note={request.note}
+                        id={request.senderId}
+                      />
+                    </SwiperSlide>
+                  ))}
+                  <SwiperSlide>
+                    <VideoConnectionRequestCard />
+                  </SwiperSlide>
+                </Swiper>
+              ) : (
+                <div className="w-full h-full text-center">
+                  <p className="text-slate-400">No Pending Connections</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -130,7 +130,7 @@ const FormPage = () => {
     );
   } else {
     return (
-      <div className="w-full h-full bg-gradient-to-r from-[#E5E7FF] to-[#FCF1E3]">
+      <div className="w-full h-full bg-gradient-to-r from-[#E5E7FF] to-[#FCF1E3] relative">
         <div className="w-full h-[4px]">
           <div
             className={`transition-all h-full bg-gradient-to-r from-blue-500 to-pink-400`}

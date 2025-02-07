@@ -349,7 +349,7 @@ const ConnectPage = () => {
       );
 
       if (response.status == 200) {
-        const data = response.data.eventGuests[0].users;
+        const data = response.data.eventGuests;
 
         setUsers(data);
       }
@@ -388,7 +388,7 @@ const ConnectPage = () => {
           </div>
         ) : (
           <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
-            {users.map((user) => (
+            {users?.map((user) => (
               <SwiperSlide key={user._id}>
                 <ConnectCard
                   name={user.name}

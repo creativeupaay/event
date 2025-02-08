@@ -13,7 +13,7 @@ export const getAllEventGuest = async (
     next: NextFunction
 ): Promise<Response | void> => {
 
-    const { name, sortOrder, eventId, selectedInterest } = req.query;
+    const { name, sortOrder, eventId, selectedInterest, profession, industry } = req.query;
     const userId = req.user.id;
 
     if (!eventId)
@@ -147,7 +147,8 @@ export const getAllEventGuest = async (
         {
             $match: {
                 ...(name ? { "users": { $elemMatch: { name: { $regex: name, $options: 'i' } } } } : {}),
-
+                ...(profession ? { "users": { $elemMatch: { profession: { $regex: profession, $options: 'i' } } } } : {}),
+                ...(industry ? { "users": { $elemMatch: { industry: { $regex: industry, $options: 'i' } } } } : {})
             }
         },
         {
@@ -296,4 +297,35 @@ export const getUserEvents = async (
         success: true,
         events
     })
+}
+
+export const getAttendiesRole = async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+):Promise<Response | void> =>{
+    const {eventId} = req.query;
+
+    if(!eventId)
+        throw new AppError("Query not found", 400);
+
+    const attendeeRoles = await EventModel.aggregate([
+        {
+            $match:{_id: new mongoose.Types.ObjectId(String(eventId))}
+        },
+        {
+            $project:{
+                _id:0,
+                attendeeRoles:1
+            }
+        }
+    ]);
+
+    if(!attendeeRoles.length)
+        throw new AppError("Roles not found", 404);
+
+    return res.status(200).json({
+        success:true,
+        attendeeRoles
+    });
 }

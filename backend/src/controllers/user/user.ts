@@ -69,7 +69,7 @@ export const createUser = async (
     return res.status(200).json({
       success: true,
       user,
-      updatedEvent,
+      // updatedEvent,
     });
   } catch (error: any) {
     await session.abortTransaction();

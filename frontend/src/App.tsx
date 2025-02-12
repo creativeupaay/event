@@ -17,7 +17,6 @@ const App = () => {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/form/:eventId" element={<FormPage />} />
             <Route path="/home" element={<MainPage />} />
             <Route path="/connect/:eventId" element={<ConnectPage />} />
             <Route path="/notifications" element={<NotificatonsPage />} />
@@ -28,6 +27,8 @@ const App = () => {
             <Route path="/connections/all" element={<AllConnectionsPage />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
+
+          <Route path="/form/:eventId" element={<FormPage />} />
         </Routes>
       </SnackbarProvider>
     </BrowserRouter>

@@ -1,23 +1,101 @@
+import { TextField } from "@mui/material";
+import screwClockIcon from "../../assets/icons/screwClockIcon.svg";
+import { useSnackbar } from "../../hooks/SnackbarContext";
+
 // Form for getting the username
 const FormSection1 = ({
   name,
   setName,
+  email,
+  setEmail,
+  number,
+  setNumber,
+  nextForm,
 }: {
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  number: string;
+  setNumber: React.Dispatch<React.SetStateAction<string>>;
+  nextForm: Function;
 }) => {
-  return (
-    <div className="w-full h-screen flex-shrink-0">
-      <h1 className="text-3xl font-medium">What's Your Name ?</h1>
+  const { showSnackbar } = useSnackbar();
 
-      <div className="w-full mt-10">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          type="text"
-          placeholder="Type here..."
-          className="w-full text-2xl outline-none border-b-2 border-b-slate-500 bg-transparent px-1 pb-4"
-        />
+  return (
+    <div className="w-full h-screen flex-shrink-0 relative px-3">
+      <div className="w-full grid grid-cols-3 grid-rows-1 py-3 gap-3 [&>*]:bg-darkBg [&>*]:h-1  [&>*]:rounded-full [&>*]:opacity-50">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+
+      <div className="mt-2">
+        <div className="flex items-center space-x-2">
+          <img src={screwClockIcon} alt="clock icon" />
+          <p className="text-grey text-xs">Sign up in less than 2 minutes!</p>
+        </div>
+
+        <h1 className="text-darkBg text-2xl font-bold my-4">
+          Tell us about yourself!
+        </h1>
+
+        <div className="w-full space-y-4">
+          <TextField
+            type="text"
+            label="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            variant="outlined"
+            sx={{
+              width: "100%",
+              borderRadius: "8px",
+            }}
+          />
+          <TextField
+            type="email"
+            label="Email ID"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            variant="outlined"
+            sx={{
+              width: "100%",
+            }}
+          />
+          <TextField
+            type="text"
+            label="Phone Number"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+            variant="outlined"
+            sx={{
+              width: "100%",
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="absolute bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
+        <div className="text-grey text-xs space-y-1">
+          <p>*NOTE</p>
+          <p>
+            Your contact information is not shared with anyone without you
+            accept their request to connect.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            if (name && email && number) nextForm();
+            else {
+              showSnackbar("Please fill the details", "warning");
+            }
+          }}
+          className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs ${
+            name && email && number ? "opacity-100" : "opacity-60"
+          }`}
+        >
+          I am ready to start!
+        </button>
       </div>
     </div>
   );

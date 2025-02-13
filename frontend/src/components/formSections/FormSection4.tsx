@@ -156,12 +156,11 @@ const FormSection4 = ({
       <div className="absolute bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
         <button
           onClick={() => {
-            if (wantToNetworkWith.length == 0)
-              showSnackbar("Please select options");
-            else nextForm();
+            if (wantToNetworkWith.length == 3) nextForm();
+            else showSnackbar("Please select 3 options", "warning");
           }}
           className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs  ${
-            wantToNetworkWith.length == 0 ? "opacity-60" : "opacity-100"
+            wantToNetworkWith.length == 3 ? "opacity-100" : "opacity-60"
           }`}
         >
           Next

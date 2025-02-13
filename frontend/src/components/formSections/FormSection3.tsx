@@ -191,6 +191,8 @@ const FormSection3 = ({
   nextForm: Function;
   backForm: Function;
 }) => {
+  const { showSnackbar } = useSnackbar();
+
   return (
     <div className="w-full h-screen flex-shrink-0 px-3 relative">
       <div className="w-full grid grid-cols-3 grid-rows-1 py-3 gap-3 [&>*]:bg-darkBg [&>*]:h-1  [&>*]:rounded-full ">
@@ -233,9 +235,12 @@ const FormSection3 = ({
 
       <div className="absolute bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
         <button
-          onClick={() => nextForm()}
+          onClick={() => {
+            if (selectedIndustries.length == 3) nextForm();
+            else showSnackbar("Please select 3 options", "warning");
+          }}
           className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs  ${
-            selectedIndustries.length == 0 ? "opacity-60" : "opacity-100"
+            selectedIndustries.length == 3 ? "opacity-100" : "opacity-60"
           }`}
         >
           Next

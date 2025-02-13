@@ -45,10 +45,10 @@ const ConnectPage = () => {
       <div className=" px-5 flex items-center justify-between py-2">
         <div>
           <div className="flex items-center space-x-2 text-xs">
-            <p>Pending Requests</p>
+            <p>Requests Sent</p>
             <EastOutlined fontSize="inherit" />
           </div>
-          <p className="text-lg font-semibold">20</p>
+          <p className="text-lg font-semibold">10</p>
         </div>
         <div className="w-[1px] h-12 bg-black"></div>
         <div

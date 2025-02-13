@@ -3,7 +3,7 @@ import { TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useSnackbar } from "../../hooks/SnackbarContext";
 
-const FormSquareButton = ({
+export const FormSquareButton = ({
   icon,
   label,
   setDescribedAs,

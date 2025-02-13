@@ -10,6 +10,7 @@ import SplashScreen from "../components/SplashScreen";
 import FormSectionCompulsory from "../components/formSections/formSectionCompulsory";
 import FormSection3 from "../components/formSections/FormSection3";
 import FormSection4 from "../components/formSections/FormSection4";
+import FormSectionNonCompany from "../components/formSections/FormSectionNonCompany";
 
 const FormPage = () => {
   const formsContainerRef = useRef<HTMLDivElement>(null);
@@ -25,6 +26,9 @@ const FormPage = () => {
   const [describedAs, setDescribedAs] = useState<string>("");
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [wantToNetworkWith, setWantToNetworkWith] = useState<string[]>([]);
+
+  // For only students or freelancer i.e. who does not have any company
+  const [bestDescribedAs, setBestDescribedAs] = useState<string>("");
 
   const [name, setName] = useState<string>("");
   const [companyName, setCompanyName] = useState<string>("");
@@ -168,7 +172,14 @@ const FormPage = () => {
               backForm={backForm}
             />
 
-            {!(describedAs == "Freelancer" || describedAs == "Student") && (
+            {describedAs == "Freelancer" || describedAs == "Student" ? (
+              <FormSectionNonCompany
+                nextForm={nextForm}
+                backForm={backForm}
+                bestDescribedAs={bestDescribedAs}
+                setBestDescribedAs={setBestDescribedAs}
+              />
+            ) : (
               <FormSection3
                 nextForm={nextForm}
                 backForm={backForm}

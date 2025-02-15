@@ -16,7 +16,7 @@ export const createUser = async (
   next: NextFunction
 ): Promise<Response | void> => {
   const { data } = req.body;
-  if (!data.eventId || !data.name || !data.email || !data.gender)
+  if (!data.eventId || !data.name || !data.email)
     throw new AppError("Feild not found", 400);
 
   const session = await mongoose.startSession();
@@ -24,7 +24,7 @@ export const createUser = async (
 
   try {
     data.eventIds = [data.eventId];
-    data.profileImage = `https://api.dicebear.com/5.x/initials/svg?seed=${data.name}`;
+    data.profileImage = `https://api.dicebear.com/5.x/initials/svg?seed=${data.name.replace(/ /g, "_")}`;
     const [user] = await UserModel.create([data], { session });
     if (!user) throw new AppError("Failed to create new User", 500);
 

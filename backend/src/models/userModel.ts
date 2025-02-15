@@ -4,20 +4,23 @@ import { AccountStatusEnum, GenderEnum } from "../types/enum";
 export interface IUser extends Document {
   name: string;
   email: string;
-  gender: GenderEnum;
   contactNumber: string;
-  profileImage:string;
-  profession:string;
-  industry:string;
-  company:string;
-  lookingFor :string[];
+  profileImage: string;
+  profession: string;
+  position: string;
+  industry: string[];
+  help: string[];                                        
+  company: string;
+  instituteName: string;
+  courseName:string;
+  lookingFor: string[];
   interests: string[];
-  eventIds:Schema.Types.ObjectId[];
+  eventIds: Schema.Types.ObjectId[];
   status: AccountStatusEnum;
-  refreshToken:string;
-  resetPasswordToken:string;
-  resetPasswordExpires:Date;
-  emailVerified:boolean;
+  refreshToken: string;
+  resetPasswordToken: string;
+  resetPasswordExpires: Date;
+  emailVerified: boolean;
 }
 
 
@@ -27,45 +30,67 @@ const UserSchema: Schema<IUser> = new Schema<IUser>({
     required: true,
     trim: true,
   },
-  email:{
-    type:String,
-    required:true,
-    unique:true,
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim:true
   },
-  gender:{
-    type:String,
-    enum:Object.values(GenderEnum),
-    required:true,
+  contactNumber: {
+    type: String,
+    trim:true,
   },
-  contactNumber:{
-    type:String,
+  profileImage: {
+    type: String
   },
-  profileImage:{
-    type:String
+  profession: {
+    type: String,
+    trim:true
   },
-  profession:{
-    type:String,
+  position: {
+    type: String,
+    trim:true
   },
-  industry:{
-    type:String,
+  industry: [
+    {
+      type: String,
+      trim:true
+    }
+  ],
+  help: [
+    {
+      type: String,
+      trim:true,
+    }
+  ],
+  company: {
+    type: String,
+    trim:true
   },
-  company:{
+  instituteName: {
+    type: String,
+    trim:true
+  },
+  courseName:{
     type:String,
+    trim:true
   },
   lookingFor: [
     {
-      type: String
+      type: String,
+      trim:true
     }
   ],
   interests: [
     {
-      type: String
+      type: String,
+      trim:true
     }
   ],
-  eventIds:[
+  eventIds: [
     {
-      type:Schema.Types.ObjectId,
-      ref:"Event",
+      type: Schema.Types.ObjectId,
+      ref: "Event",
     }
   ],
   status: {
@@ -74,10 +99,10 @@ const UserSchema: Schema<IUser> = new Schema<IUser>({
     required: true,
     default: AccountStatusEnum.ACTIVE
   },
-  emailVerified:{
-    type:Boolean,
-    required:true,
-    default:false
+  emailVerified: {
+    type: Boolean,
+    required: true,
+    default: false
   },
   refreshToken: {
     type: String
@@ -89,8 +114,8 @@ const UserSchema: Schema<IUser> = new Schema<IUser>({
     type: Date
   },
 
-},{
-  timestamps:true
+}, {
+  timestamps: true
 });
 
 // model for the user

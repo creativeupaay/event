@@ -7,6 +7,8 @@ import userApi from "../apis/userApi";
 import { userI } from "../types/userTypes";
 import LoadingComp from "../components/loading/LoadingComp";
 import ConnectCard from "../components/ConnectCard";
+import OfferBanner from "../components/OfferBanner";
+import { Icon } from "@iconify/react";
 
 // This is the page where the user can make connection by swapping left or right
 const ConnectPage = () => {
@@ -42,33 +44,41 @@ const ConnectPage = () => {
 
   return (
     <div className="w-full h-full relative">
+      <OfferBanner />
       <div className=" px-5 flex items-center justify-between py-2">
-        <div>
-          <div className="flex items-center space-x-2 text-xs">
-            <p>Requests Sent</p>
-            <EastOutlined fontSize="inherit" />
-          </div>
-          <p className="text-lg font-semibold">10</p>
-        </div>
-        <div className="w-[1px] h-12 bg-black"></div>
         <div
-          onClick={() => navigate("/connections/pending")}
+          onClick={() => navigate("/requests/sent")}
           className="active:bg-grey01"
         >
-          <div className="flex items-center space-x-2 text-xs">
-            <p>Pending Requests</p>
-            <EastOutlined fontSize="inherit" />
+          <div className="flex items-center space-x-2 text-xs text-darkBg">
+            <p>Requests sent (90)</p>
+            <EastOutlined fontSize="inherit" color="inherit" />
           </div>
-          <p className="text-lg font-semibold">20</p>
+        </div>
+        <div className="w-[1px] h-5 bg-black"></div>
+        <div
+          onClick={() => navigate("/requests/received")}
+          className="active:bg-grey01"
+        >
+          <div className="flex items-center space-x-2 text-xs text-darkBg">
+            <p>Requests Received (20)</p>
+            <EastOutlined fontSize="inherit" color="inherit" />
+          </div>
         </div>
       </div>
 
       <div className=" my-5 w-full h-full ">
-        <div className="flex items-center space-x-4 px-5 mb-5">
-          <h1 className="font-bold">Explore Attendees</h1>
-          <div className="text-grey border border-grey flex items-center space-x-1 rounded-full text-[10px] px-2 py-1">
-            <ReplayOutlined color="inherit" fontSize="inherit" />
-            <p>Refresh</p>
+        <div className="flex items-center justify-between px-5 mb-5">
+          <div className="flex items-center space-x-4">
+            <h1 className="font-bold">Explore Attendees</h1>
+            <div className="text-grey border border-grey flex items-center space-x-1 rounded-full text-[10px] px-2 py-1">
+              <ReplayOutlined color="inherit" fontSize="inherit" />
+              <p>Refresh</p>
+            </div>
+          </div>
+
+          <div>
+            <Icon icon="proicons:filter-2" width="16" height="16" />
           </div>
         </div>
 
@@ -78,19 +88,18 @@ const ConnectPage = () => {
           </div>
         ) : (
           <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
-            <SwiperSlide key={10}>
-              <ConnectCard
-                name={"Ronak Paul"}
-                interests={["🤖 AI & Automation", "📟 Smart Devices"]}
-                id={"sga"}
-              />
-            </SwiperSlide>
             {users?.map((user) => (
               <SwiperSlide key={user._id}>
                 <ConnectCard
                   name={user.name}
                   interests={user.interests}
                   id={user._id}
+                  lookingFor={user.lookingFor}
+                  profession={user.profession}
+                  position={user.position}
+                  company={user.company}
+                  courseName={user.courseName}
+                  institueName={user.institueName}
                 />
               </SwiperSlide>
             ))}

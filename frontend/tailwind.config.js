@@ -9,6 +9,7 @@ export default {
         primary: "#F76B10",
         darkBg: "#242424",
         lightGrey: "#E1E1E1",
+        whiteBG: "#FFFCF8",
       },
     },
   },

@@ -211,6 +211,8 @@ const ConnectCard = ({
 
     if (isLoading) return;
 
+    console.log(institueName, courseName, profession);
+
     setIsLoading(true);
     try {
       const response = await userApi.post(

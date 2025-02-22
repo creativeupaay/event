@@ -8,6 +8,11 @@ export interface userI {
   _id: string;
   name: string;
   email: string;
-  gender: GENDER;
   interests: string[];
+  lookingFor: string[];
+  company: string;
+  institueName: string;
+  courseName: string;
+  profession: string;
+  position: string;
 }

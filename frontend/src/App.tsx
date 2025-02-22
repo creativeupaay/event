@@ -1,30 +1,38 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
+// import Home from "./pages/Home";
 import FormPage from "./pages/FormPage";
 import MainPage from "./pages/MainPage";
 import ConnectPage from "./pages/ConnectPage";
-import Layout from "./Layout";
 import PendingConnectionsPage from "./pages/PendingConnectionsPage";
-import AllConnectionsPage from "./pages/AllConnectionsPage";
 import Profile from "./pages/Profile";
 import NotificatonsPage from "./pages/NotificationsPage";
 import { SnackbarProvider } from "./hooks/SnackbarContext";
+import LayoutWithHeader from "./layouts/LayoutWithHeader";
+import LayoutWithOutHeader from "./layouts/LayoutWithOutHeader";
+import RequestsPage from "./pages/RequestsPage";
+import MyNetworkPage from "./pages/MyNetworkPage";
 
 const App = () => {
   return (
     <BrowserRouter>
       <SnackbarProvider>
         <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
+          <Route element={<LayoutWithHeader />}>
             <Route path="/home" element={<MainPage />} />
+
             <Route path="/connect/:eventId" element={<ConnectPage />} />
-            <Route path="/notifications" element={<NotificatonsPage />} />
             <Route
               path="/connections/pending"
               element={<PendingConnectionsPage />}
             />
-            <Route path="/connections/all" element={<AllConnectionsPage />} />
+          </Route>
+          <Route path="/" element={<FormPage />} />
+
+          <Route element={<LayoutWithOutHeader />}>
+            {/*temp form page in the index page*/}
+            <Route path="/notifications" element={<NotificatonsPage />} />
+            <Route path="requests/:rtype" element={<RequestsPage />} />
+            <Route path="/network" element={<MyNetworkPage />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
 

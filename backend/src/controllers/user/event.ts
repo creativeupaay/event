@@ -100,8 +100,10 @@ export const getAllEventGuest = async (
                             name: "$$user.name",
                             // email: "$$user.email",
                             // gender: "$$user.gender",
+                            interests:"$$user.interests",
                             profileImage: "$$user.profileImage",
                             profession: "$$user.profession",
+                            position:"$$user.position",
                             company: "$$user.company",
                             instituteName: "$$user.instituteName",
                             courseName: "$$user.courseName",
@@ -111,7 +113,6 @@ export const getAllEventGuest = async (
                                     $setIntersection: ["$$user.interests", userInterest]
                                 }
                             },
-                            interests: "$$user.interests"
                         }
                     }
                 }
@@ -167,16 +168,16 @@ export const getAllEventGuest = async (
             $project: {
                 _id: "$users._id",
                 name: "$users.name",
-                email: "$users.email",
-                gender: "$users.gender",
+                // email: "$users.email",
+                // gender: "$users.gender",
                 interests: "$users.interests",
                 profileImage: "$users.profileImage",
                 profession: "$users.profession",
+                position:"$users.position",
                 company: "$users.company",
                 instituteName: "$users.instituteName",
                 courseName: "$users.courseName",
                 lookingFor: "$users.lookingFor",
-                position:"$users.position",
                 matchCount: "$users.interestsMatchedCount"
             }
         }

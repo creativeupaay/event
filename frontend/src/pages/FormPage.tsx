@@ -156,6 +156,7 @@ const FormPage = () => {
         className="w-full relative"
         style={{
           minHeight: innerHeight,
+          height: innerHeight,
         }}
       >
         <div className="w-full">

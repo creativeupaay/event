@@ -422,3 +422,4 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user\",\"status\":\"200\",\"responseTime\":\"69.718\"}","timestamp":"2025-02-22T11:39:02.919Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/request-sended\",\"status\":\"200\",\"responseTime\":\"74.743\"}","timestamp":"2025-02-22T11:39:19.141Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/request-recieved\",\"status\":\"204\",\"responseTime\":\"72.812\"}","timestamp":"2025-02-22T11:39:25.271Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/events/get-all-event-Guest?eventId=67a1e3adace29974b72c9694&name=&selectedInterest[]=&profession=Software%20Engineer\",\"status\":\"200\",\"responseTime\":\"272.409\"}","timestamp":"2025-02-22T12:11:38.776Z"}

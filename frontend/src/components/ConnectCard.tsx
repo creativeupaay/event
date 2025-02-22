@@ -1,11 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSnackbar } from "../hooks/SnackbarContext";
 import userApi from "../apis/userApi";
 import { ReactMediaRecorder } from "react-media-recorder";
 import buildingIcon from "../assets/icons/buildingIcon.svg";
-import { Close, DoneRounded, FiberPinSharp } from "@mui/icons-material";
-import LoadingComp from "./loading/LoadingComp";
+import { Close, FiberPinSharp } from "@mui/icons-material";
 import suitcaseIcon from "../assets/icons/suitcaseIcon.svg";
+import { Icon } from "@iconify/react";
+import ReactCardFlip from "react-card-flip";
+import CircularProgress from "@mui/material/CircularProgress";
+
+enum CARD_COLORS {
+  "FOUNDER" = "bg-[linear-gradient(40deg,_#FFA469_42%,_#FF6B0B_100%)]",
+  "STUDENT" = "bg-[linear-gradient(40deg,_#FF6F72_29%,_#EC0004_100%)]",
+  "INVESTOR" = "bg-[linear-gradient(40deg,_#6D9EFF_29%,_#1362FF_100%)]",
+  "MENTOR" = "bg-[linear-gradient(40deg,_#D386FF_29%,_#9600EC_100%)]",
+  "EMPLOYEE" = "bg-[linear-gradient(40deg,_#81B1C4_29%,_#019AD6_100%)]",
+  "FREELANCER" = "bg-[linear-gradient(40deg,_#00DD4A_29%,_#00B43C_100%)]",
+}
 
 const VideoPreview = ({
   stream,
@@ -151,22 +162,46 @@ const InfoSection = ({ heading, text }: { heading: string; text: string }) => {
   );
 };
 
+const getGradientCardColor = (position: string | undefined) => {
+  if (!position) return CARD_COLORS.FOUNDER;
+
+  if (position == "Founder") return CARD_COLORS.FOUNDER;
+  else if (position == "Student") return CARD_COLORS.STUDENT;
+  else if (position == "Investor") return CARD_COLORS.INVESTOR;
+  else if (position == "Mentor") return CARD_COLORS.MENTOR;
+  else if (position == "Employee") return CARD_COLORS.EMPLOYEE;
+  else if (position == "Freelancer") return CARD_COLORS.FREELANCER;
+};
+
 const ConnectCard = ({
   name,
   interests,
+  company,
+  institueName,
+  courseName,
+  profession,
+  lookingFor,
+  position,
   id,
 }: {
   name: string;
   interests: string[];
   id: string;
+  company?: string;
+  institueName?: string;
+  courseName?: string;
+  profession?: string;
+  position?: string;
+  lookingFor?: string[];
 }) => {
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [whichModelOpen, setWhichModelOpen] = useState<"video" | "note">(
+    "note"
+  );
 
   const [note, setNote] = useState<string>("");
-  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { showSnackbar } = useSnackbar();
+  const [isFlipped, setFlipped] = useState<boolean>(false);
 
   const sendConnectionRequest = async () => {
     if (!note) {
@@ -188,11 +223,8 @@ const ConnectCard = ({
         }
       );
 
-      console.log(response);
-
       if (response.status == 200) {
-        setIsNoteModalOpen(false);
-        setIsConnected(true);
+        showSnackbar("Request is sent successfully", "success");
       }
     } catch (e) {
       showSnackbar("Error in connecting", "error");
@@ -202,147 +234,235 @@ const ConnectCard = ({
   };
 
   return (
-    <div className="w-full h-fit rounded-xl flex flex-col justify-between bg-[linear-gradient(40deg,_#FFA469_42%,_#FF6B0B_100%)] flex-shrink-0 relative px-3 pb-3">
-      <div className="bg-black w-fit px-3 py-1 rounded-b-md">
-        <p className="text-white text-xs font-light">
-          Employee | Full Stack Developer
-        </p>
-      </div>
-      <div className="mt-5">
-        <div className="flex items-center ">
-          <div className="flex flex-col space-y-2">
-            <h1 className="text-xl text-white font-medium">{name}</h1>
-
-            <InfoSection heading="Company" text="Cinnovate Solutions Pvt Ltd" />
-          </div>
-        </div>
-
-        <div className="my-5 space-y-2">
-          <div className="flex items-center">
-            <img src={buildingIcon} alt="building icon" />
-            <p className="text-xs font-extralight text-white">
-              Belongs to industries like
-            </p>
-          </div>
-          <div className=" flex flex-wrap gap-3">
-            {interests.map((label, index) => (
-              <div
-                key={index}
-                className={`border border-white
-                 w-fit px-2 py-1 rounded-lg`}
-              >
-                <p className="text-sm text-white">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="my-5">
-          <p className="text-xs font-extralight text-white">
-            Looking to connect with
-          </p>
-          <p className="text-sm font-medium text-white leading-normal">
-            Software Developers, Designers, Game Developer
-          </p>
-        </div>
-      </div>
-      {!isConnected ? (
-        <div>
-          <p className="mb-2 text-black font-light text-xs">
-            Request to connect
-          </p>
-          <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-3">
-            <button
-              onClick={() => setIsVideoModalOpen(true)}
-              className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full"
-            >
-              Via video note <span className="ml-2">📹</span>
-            </button>
-            <button
-              onClick={() => setIsNoteModalOpen(true)}
-              className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black"
-            >
-              Via a text note <span className="ml-2">🖊️</span>
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="w-full h-[300px] flex items-center justify-center">
-          <div className="text-7xl bg-white flex items-center justify-center rounded-full px-3 py-3">
-            <DoneRounded fontSize="inherit" />
-          </div>
-        </div>
-      )}
-
-      {/* Note given feature */}
-      {isNoteModalOpen && (
-        <div className="absolute w-full h-full top-0 backdrop-blur-sm left-0 flex items-center justify-center">
-          <div className="w-[95%] h-[300px] bg-white rounded-xl flex flex-col items-center justify-between px-4 py-4">
-            <div className="w-full flex justify-end text-blue-600">
-              <Close onClick={() => setIsNoteModalOpen(false)} />
+    <>
+      <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
+        {/* Front side component */}
+        <>
+          <div
+            className={`w-full h-[450px] rounded-xl flex flex-col justify-between ${getGradientCardColor(
+              position
+            )}  flex-shrink-0 relative px-3 pb-3`}
+          >
+            <div className="bg-black w-fit px-3 py-1 rounded-b-md mb-2">
+              <p className="text-white text-xs font-light">{position}</p>
             </div>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full h-[220px] outline-none text-lg"
-              placeholder="Write the note here..."
-            />
-            <button
-              onClick={sendConnectionRequest}
-              className="  bg-blue-600  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl"
-            >
-              {isLoading ? (
-                <div className="flex justify-center">
-                  <LoadingComp color="white" />
+            <div className="w-full h-full flex flex-col justify-between">
+              <div>
+                {position == "Student" && (
+                  <div className="w-full flex-1 flex items-center my-3">
+                    <div className="flex-[0.5] space-y-1">
+                      <div className="flex items-center space-x-3 text-grey01 ">
+                        <Icon icon={"ic:outline-room"} fontSize={"10px"} />
+                        <p className="text-[8px] ">Institute</p>
+                      </div>
+
+                      <p className="text-[10px] text-white font-medium">
+                        College of Technology and Engineering, Udaipur
+                      </p>
+                    </div>
+
+                    <div className="flex-[0.5] space-y-1">
+                      <div className="flex items-center space-x-3 text-grey01 ">
+                        <Icon icon={"mdi:college-outline"} fontSize={"10px"} />
+                        <p className="text-[8px] ">Course Enrolled</p>
+                      </div>
+
+                      <p className="text-[10px] text-white font-medium">
+                        Computer Science (B.Tech)
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center ">
+                  <div className="flex flex-col space-y-2">
+                    <h1 className="text-xl text-white font-medium">{name}</h1>
+
+                    {company && (
+                      <InfoSection heading="Company" text={company} />
+                    )}
+                  </div>
                 </div>
-              ) : (
-                "Connect"
-              )}
-            </button>
-          </div>
-        </div>
-      )}
 
-      {/* Video recording modal */}
-      {isVideoModalOpen && (
-        <div className="absolute w-full h-full top-0 backdrop-blur-sm left-0 flex items-center justify-center">
-          <div className="w-[95%] h-[550px] bg-white rounded-xl flex flex-col items-center justify-between px-4 py-4">
-            <div className="w-full flex justify-end text-blue-600">
-              <Close onClick={() => setIsVideoModalOpen(false)} />
+                {position != "Employee" && position != "Freelancer" && (
+                  <div className="my-5 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <img src={buildingIcon} alt="building icon" />
+                      <p className="text-xs font-extralight text-white">
+                        Belongs to industries like
+                      </p>
+                    </div>
+                    <div className=" flex flex-wrap gap-3">
+                      {interests.map((label, index) => (
+                        <div
+                          key={index}
+                          className={`border border-white
+                   w-fit px-2 py-1 rounded-lg`}
+                        >
+                          <p className="text-sm text-white">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="my-5">
+                  <p className="text-xs font-extralight text-white">
+                    Looking to connect with
+                  </p>
+                  <p className="text-sm   font-medium text-white leading-normal">
+                    {lookingFor?.map((text, index) => (
+                      <React.Fragment key={index}>{text}, </React.Fragment>
+                    ))}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center space-x-3 mb-2">
+                  <p className=" text-black font-light text-xs">
+                    Request to connect
+                  </p>
+
+                  <div className="flex items-center space-x-1 border-[0.5px] border-darkBg rounded-full px-1">
+                    <Icon icon={"formkit:info"} fontSize={"6px"} />
+                    <p className="text-[6px] text-darkBg">Pro Tip</p>
+                  </div>
+                </div>
+
+                <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-3">
+                  <button
+                    onClick={() => {
+                      setWhichModelOpen("video");
+                      setFlipped(true);
+                    }}
+                    className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
+                  >
+                    <Icon icon="akar-icons:thunder" width="24" height="24" />
+                    <p>Quick Connect</p>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setWhichModelOpen("note");
+                      setFlipped(true);
+                    }}
+                    className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-3"
+                  >
+                    <Icon icon="proicons:note" width="24" height="24" />
+                    <p>Via a text note</p>
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="w-full space-y-3 mt-2">
-              <ReactMediaRecorder
-                askPermissionOnMount
-                video
-                render={({
-                  status,
-                  previewStream,
-                  startRecording,
-                  stopRecording,
-                  mediaBlobUrl,
-                }) => {
-                  console.log(status);
-                  console.log(mediaBlobUrl);
-                  return (
-                    <VideoPreview
-                      status={status}
-                      stream={previewStream}
-                      startRecording={startRecording}
-                      stopRecording={stopRecording}
-                      mediaBlobUrl={mediaBlobUrl}
+          </div>
+        </>
+
+        {/* Back side component */}
+        <>
+          <div className="w-full h-[450px] rounded-xl flex flex-col justify-between bg-white border border-slate-200 flex-shrink-0 relative px-3 py-3">
+            {whichModelOpen == "note" ? (
+              <div
+                className="w-full h-full bg-white rounded-xl flex flex-col items-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className=" w-full space-y-1">
+                  <p className="text-darkBg font-medium">
+                    Request from Manish Singh
+                  </p>
+                  <p className="text-grey text-sm">
+                    Employee - Cinnovate Solutions Pvt Ltd
+                  </p>
+                </div>
+
+                <div className="w-full mt-3 text-center">
+                  <div className=" border border-[#E1E1E1]  rounded-lg  px-4 py-3">
+                    <textarea
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      className="w-full h-[150px] placeholder:font-medium outline-none text-grey"
+                      placeholder="Type your message here…"
                     />
-                  );
-                }}
-              />
 
-              <button className="  bg-blue-600  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl">
-                Connect Now
-              </button>
-            </div>
+                    <div className="text-grey text-[10px] text-end">
+                      <p>50/100</p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs font-light text-darkBg mt-3">
+                    Pro tip: Video requests get more accepts than text notes!
+                  </p>
+                </div>
+
+                <div className="flex flex-col w-full mt-3 space-y-3">
+                  <button
+                    onClick={sendConnectionRequest}
+                    className={`w-full font-medium text-white bg-gradient-to-r from-[#242424] to-[#242424] py-3 rounded-lg  ${
+                      !note && "opacity-55"
+                    }`}
+                  >
+                    {isLoading ? (
+                      <CircularProgress size={"15px"} />
+                    ) : (
+                      "Send Request"
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setFlipped(false)}
+                    className="font-medium text-darkBg py-3 rounded-lg border border-darkBg"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="absolute w-full h-full top-0 backdrop-blur-sm left-0 flex items-center justify-center">
+                  <div className="w-[95%] h-fit min-h-[550px] bg-white rounded-xl flex flex-col items-center justify-between px-4 py-4">
+                    <div className="w-full flex justify-end text-blue-600">
+                      <Close
+                        onClick={() => {
+                          setFlipped(false);
+                        }}
+                      />
+                    </div>
+                    <div className="w-full space-y-3 mt-2">
+                      <ReactMediaRecorder
+                        askPermissionOnMount
+                        video
+                        render={({
+                          status,
+                          previewStream,
+                          startRecording,
+                          stopRecording,
+                          mediaBlobUrl,
+                        }) => {
+                          console.log(status);
+                          console.log(mediaBlobUrl);
+                          return (
+                            <VideoPreview
+                              status={status}
+                              stream={previewStream}
+                              startRecording={startRecording}
+                              stopRecording={stopRecording}
+                              mediaBlobUrl={mediaBlobUrl}
+                            />
+                          );
+                        }}
+                      />
+
+                      <button className="  bg-blue-600  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl">
+                        Connect Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-        </div>
-      )}
-    </div>
+        </>
+      </ReactCardFlip>
+    </>
   );
 };
 

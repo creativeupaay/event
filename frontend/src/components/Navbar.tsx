@@ -1,26 +1,39 @@
-import { useNavigate, useParams } from "react-router-dom";
-import homeIcon from "../assets/icons/homeIcon.svg";
-import networkIcon from "../assets/icons/networkIcon.svg";
-import profileIcon from "../assets/icons/profileIcon.svg";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Icon } from "@iconify/react";
+import { useEffect, useState } from "react";
 
 const NavButton = ({
   icon,
   title,
   toRoute,
+  isActive,
+  setCurrentTab,
+  tabNo,
 }: {
   icon: string;
   title: string;
   toRoute: string;
+  isActive: boolean;
+  setCurrentTab: React.Dispatch<React.SetStateAction<number>>;
+  tabNo: number;
 }) => {
   const navigate = useNavigate();
 
   return (
     <div
-      onClick={() => navigate(toRoute)}
+      onClick={() => {
+        setCurrentTab(tabNo);
+        navigate(toRoute);
+      }}
       className="flex flex-col items-center space-y-1 "
     >
-      <img src={icon} alt={`title icon`} className="stroke-orange-400" />
-      <p className="text-xs">{title}</p>
+      <Icon
+        icon={icon}
+        width={20}
+        height={20}
+        className={`${isActive && "text-primary"}`}
+      />
+      <p className={`text-xs ${isActive && "text-primary"}`}>{title}</p>
     </div>
   );
 };
@@ -28,19 +41,59 @@ const NavButton = ({
 const Navbar = () => {
   const { eventId } = useParams();
 
+  const location = useLocation();
+
+  const [currentTab, setCurrentTab] = useState<number>(0);
+
+  useEffect(() => {
+    const paths = location.pathname.split("/");
+
+    if (eventId) {
+      localStorage.setItem("currentEventId", eventId);
+    }
+
+    if (paths[1] == "connect") setCurrentTab(0);
+    else if (paths[1] == "connections") setCurrentTab(1);
+    else if (paths[1] == "profile") setCurrentTab(2);
+  }, []);
+
   return (
-    <div className="w-full h-full bg-grey01 flex items-center justify-evenly">
-      <NavButton icon={homeIcon} title="Home" toRoute={`/connect/${eventId}`} />
+    <div className="w-full h-full bg-grey01 flex items-center justify-evenly py-2 border-t border-t-lightGrey">
       <NavButton
-        icon={networkIcon}
-        title="My Network"
-        toRoute={`/connections/all`}
+        icon={"proicons:home"}
+        title="Home"
+        tabNo={0}
+        toRoute={
+          eventId
+            ? `/connect/${eventId}`
+            : `/connect/${localStorage.getItem("currentEventId")}`
+        }
+        isActive={currentTab == 0}
+        setCurrentTab={setCurrentTab}
       />
-      <NavButton icon={profileIcon} title="Profile" toRoute={`/profile`} />
       <NavButton
-        icon={profileIcon}
+        icon={"material-symbols-light:business-messages-outline-rounded"}
+        title="My Network"
+        toRoute={`/network`}
+        isActive={currentTab == 1}
+        tabNo={1}
+        setCurrentTab={setCurrentTab}
+      />
+      <NavButton
+        icon={"carbon:user-profile"}
+        title="Profile"
+        toRoute={`/profile`}
+        isActive={currentTab == 2}
+        setCurrentTab={setCurrentTab}
+        tabNo={2}
+      />
+      <NavButton
+        icon={"material-symbols-light:exit-to-app-rounded"}
         title="Exit"
         toRoute={`/connect/${eventId}`}
+        isActive={false}
+        setCurrentTab={setCurrentTab}
+        tabNo={3}
       />
     </div>
   );

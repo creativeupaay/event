@@ -98,8 +98,14 @@ export const getAllEventGuest = async (
                         in: {
                             _id: "$$user._id",
                             name: "$$user.name",
-                            email: "$$user.email",
-                            gender: "$$user.gender",
+                            // email: "$$user.email",
+                            // gender: "$$user.gender",
+                            profileImage: "$$user.profileImage",
+                            profession: "$$user.profession",
+                            company: "$$user.company",
+                            instituteName: "$$user.instituteName",
+                            courseName: "$$user.courseName",
+                            lookingFor: "$$user.lookingFor",
                             interestsMatchedCount: {
                                 $size: {
                                     $setIntersection: ["$$user.interests", userInterest]
@@ -159,12 +165,19 @@ export const getAllEventGuest = async (
         },
         {
             $project: {
-                _id:"$users._id",
+                _id: "$users._id",
                 name: "$users.name",
                 email: "$users.email",
                 gender: "$users.gender",
                 interests: "$users.interests",
-                matchCount :"$users.interestsMatchedCount"
+                profileImage: "$users.profileImage",
+                profession: "$users.profession",
+                company: "$users.company",
+                instituteName: "$users.instituteName",
+                courseName: "$users.courseName",
+                lookingFor: "$users.lookingFor",
+                position:"$users.position",
+                matchCount: "$users.interestsMatchedCount"
             }
         }
     ]);
@@ -299,33 +312,33 @@ export const getUserEvents = async (
     })
 }
 
-export const getAttendiesRole = async(
-    req:Request,
-    res:Response,
-    next:NextFunction
-):Promise<Response | void> =>{
-    const {eventId} = req.query;
+export const getAttendiesRole = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const { eventId } = req.query;
 
-    if(!eventId)
+    if (!eventId)
         throw new AppError("Query not found", 400);
 
     const attendeeRoles = await EventModel.aggregate([
         {
-            $match:{_id: new mongoose.Types.ObjectId(String(eventId))}
+            $match: { _id: new mongoose.Types.ObjectId(String(eventId)) }
         },
         {
-            $project:{
-                _id:0,
-                attendeeRoles:1
+            $project: {
+                _id: 0,
+                attendeeRoles: 1
             }
         }
     ]);
 
-    if(!attendeeRoles.length)
+    if (!attendeeRoles.length)
         throw new AppError("Roles not found", 404);
 
     return res.status(200).json({
-        success:true,
+        success: true,
         attendeeRoles
     });
 }

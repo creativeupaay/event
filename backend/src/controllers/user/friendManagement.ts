@@ -290,6 +290,7 @@ export const getAllFriends = async (
                 friendId: "$friends._id",
                 name: "$friends.name",
                 email: "$friends.email",
+                contactNumber:"$friends.contactNumber",
                 profileImage :"$friends.profileImage",
                 profession:"$friends.profession",
                 industry:"$friends.industry",
@@ -456,16 +457,22 @@ export const friendProfileById = async (
                 friendId: "$user._id",
                 name: "$user.name",
                 email: "$user.email",
-                gender: "$user.gender",
-                contactNumber: "$user.contactNummber",
+                contactNumber: "$user.contactNumber",
                 profileImage: "$user.profileImage",
+                profession: "$user.profession",
+                position:"$user.position",
+                industry:"$user.industry",
+                company: "$user.company",
+                instituteName: "$user.instituteName",
+                courseName: "$user.courseName",
+                lookingFor: "$user.lookingFor",
                 interests: "$user.interests",
             }
         }
     ]);
 
     if (!friendProfile.length)
-        throw new AppError("User not found", 404);
+        throw new AppError("Can't view user profile", 409);
 
     return res.status(200).json({
         success: true,

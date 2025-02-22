@@ -414,3 +414,11 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/friend-profile?friendId=67b6aafb833d7ddb29fa327a\",\"status\":\"404\",\"responseTime\":\"91.561\"}","timestamp":"2025-02-22T06:59:35.424Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/friend-profile?friendId=67b6aafb833d7ddb29fa327a\",\"status\":\"409\",\"responseTime\":\"103.993\"}","timestamp":"2025-02-22T07:00:44.714Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/friend-profile?friendId=67a340c11ff7b729bf262024\",\"status\":\"200\",\"responseTime\":\"104.166\"}","timestamp":"2025-02-22T07:04:45.926Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"404\",\"responseTime\":\"327.638\"}","timestamp":"2025-02-22T11:34:43.647Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user\",\"status\":\"401\",\"responseTime\":\"7.507\"}","timestamp":"2025-02-22T11:34:50.207Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/auth/login\",\"status\":\"200\",\"responseTime\":\"151.365\"}","timestamp":"2025-02-22T11:35:31.040Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user\",\"status\":\"404\",\"responseTime\":\"80.181\"}","timestamp":"2025-02-22T11:35:35.091Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user\",\"status\":\"404\",\"responseTime\":\"92.242\"}","timestamp":"2025-02-22T11:37:17.601Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user\",\"status\":\"200\",\"responseTime\":\"69.718\"}","timestamp":"2025-02-22T11:39:02.919Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/request-sended\",\"status\":\"200\",\"responseTime\":\"74.743\"}","timestamp":"2025-02-22T11:39:19.141Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/request-recieved\",\"status\":\"204\",\"responseTime\":\"72.812\"}","timestamp":"2025-02-22T11:39:25.271Z"}

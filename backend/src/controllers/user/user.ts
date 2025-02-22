@@ -9,6 +9,7 @@ import {
 } from "../../utils/jwtUtils";
 import { Roles } from "../../types/applicationRole";
 import { imageUploader } from "../../utils/imageUploader";
+import { RequestStatusEnum } from "../../types/enum";
 
 export const createUser = async (
   req: Request,
@@ -92,17 +93,70 @@ export const UserInfo = async (
       $match: { _id: new mongoose.Types.ObjectId(userId) },
     },
     {
+      $lookup: {
+        from: "friendrequests",
+        localField: "_id",
+        foreignField: "sender",
+        as: "requestSentUser"
+      }
+    },
+    {
+      $addFields: {
+        requestSent: { 
+          $size: {
+            $filter: {
+              input: "$requestSentUser", 
+              as: "request",
+              cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] }
+            }
+          }
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: "friendrequests",
+        localField: "_id",
+        foreignField: "receiver",
+        as: "requestReceivedUser"
+      }
+    },
+    {
+      $addFields: {
+        requestReceived: { 
+          $size: {
+            $filter: {
+              input: "$requestReceivedUser", 
+              as: "request",
+              cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] }
+            }
+          }
+        }
+      }
+    },
+    {
       $project: {
         _id: 1,
+        requestSent: 1,
+        requestReceived: 1,
         name: 1,
-        gender: 1,
-        profileImage: 1,
+        email: 1,
         contactNumber: 1,
-        status: 1,
+        profileImage: 1,
+        profession: 1,
+        position: 1,
+        industry: 1,
+        company: 1,
+        instituteName: 1,
+        courseName: 1,
+        lookingFor: 1,
         interests: 1,
+        status: 1,
       },
     },
   ]);
+  
+  
 
   if (!user.length) throw new AppError("User not found", 404);
 

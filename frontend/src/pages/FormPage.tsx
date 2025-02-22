@@ -35,6 +35,9 @@ const FormPage = () => {
   const [email, setEmail] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
 
+  // It is from the compulsory last form page
+  const [helps, setHelps] = useState<string[]>([]);
+
   // for students only
   const [instituteName, setInstituteName] = useState<string>("");
   const [courseName, setCourseName] = useState<string>("");
@@ -87,6 +90,13 @@ const FormPage = () => {
           eventId,
           contactNumber: phoneNumber,
           company: companyName,
+          position: describedAs,
+          instituteName,
+          courseName,
+          profession: bestDescribedAs,
+          industry: selectedIndustries,
+          lookingFor: wantToNetworkWith,
+          help: helps,
         },
       });
 
@@ -142,11 +152,21 @@ const FormPage = () => {
     );
   } else {
     return (
-      <div className="w-full h-screen relative">
+      <div
+        className="w-full relative"
+        style={{
+          minHeight: innerHeight,
+          height: innerHeight,
+        }}
+      >
         <div className="w-full">
           <div
             ref={formsContainerRef}
-            className="w-full h-screen flex flex-col flex-nowrap overflow-y-hidden"
+            className="w-full flex flex-col flex-nowrap overflow-y-hidden"
+            style={{
+              minHeight: innerHeight,
+              height: innerHeight,
+            }}
           >
             <FormSectionIntro nextForm={nextForm} />
             <FormSection1
@@ -195,7 +215,12 @@ const FormPage = () => {
               setWantToNetworkWith={setWantToNetworkWith}
             />
 
-            <FormSectionCompulsory backForm={backForm} />
+            <FormSectionCompulsory
+              helps={helps}
+              setHelps={setHelps}
+              backForm={backForm}
+              nextForm={nextForm}
+            />
           </div>
         </div>
       </div>

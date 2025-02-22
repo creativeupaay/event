@@ -40,11 +40,24 @@ const Option = ({
 };
 
 // A compulsory form section at the last of the form
-const FormSectionCompulsory = ({ backForm }: { backForm: Function }) => {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-
+const FormSectionCompulsory = ({
+  helps,
+  setHelps,
+  backForm,
+  nextForm,
+}: {
+  helps: string[];
+  setHelps: React.Dispatch<React.SetStateAction<string[]>>;
+  backForm: Function;
+  nextForm: Function;
+}) => {
   return (
-    <div className="w-full h-screen flex-shrink-0 px-3 relative">
+    <div
+      className={`w-full  flex-shrink-0 px-3 relative`}
+      style={{
+        height: innerHeight,
+      }}
+    >
       <div className="w-full grid grid-cols-3 grid-rows-1 py-3 gap-3 [&>*]:bg-darkBg [&>*]:h-1  [&>*]:rounded-full ">
         <div className="opacity-100"></div>
         <div className="opacity-100"></div>
@@ -72,31 +85,23 @@ const FormSectionCompulsory = ({ backForm }: { backForm: Function }) => {
           </h1>
 
           <div className="flex flex-col items-center w-full space-y-3 mt-7">
-            <Option
-              label="Website Development"
-              setSelectedOptions={setSelectedOptions}
-            />
+            <Option label="Website Development" setSelectedOptions={setHelps} />
             <Option
               label="Mobile App Development"
-              setSelectedOptions={setSelectedOptions}
+              setSelectedOptions={setHelps}
             />
             <Option
               label="Custom Web App Development"
-              setSelectedOptions={setSelectedOptions}
+              setSelectedOptions={setHelps}
             />
-            <Option
-              label="UI/UX Designing"
-              setSelectedOptions={setSelectedOptions}
-            />
-            <Option
-              label="Graphic Designing"
-              setSelectedOptions={setSelectedOptions}
-            />
+            <Option label="UI/UX Designing" setSelectedOptions={setHelps} />
+            <Option label="Graphic Designing" setSelectedOptions={setHelps} />
           </div>
 
           <button
+            onClick={() => nextForm()}
             className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs flex items-center justify-center space-x-2 ${
-              selectedOptions.length == 0 ? "opacity-60" : "opacity-100"
+              helps.length == 0 ? "opacity-60" : "opacity-100"
             }`}
           >
             <p>Let's start networking</p>

@@ -11,6 +11,8 @@ import LayoutWithHeader from "./layouts/LayoutWithHeader";
 import LayoutWithOutHeader from "./layouts/LayoutWithOutHeader";
 import RequestsPage from "./pages/RequestsPage";
 import MyNetworkPage from "./pages/MyNetworkPage";
+import LevelUpPage from "./pages/LevelUpPage";
+import QRPage from "./pages/QRPage";
 
 const App = () => {
   return (
@@ -36,6 +38,8 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
           </Route>
 
+          <Route path="qr" element={<QRPage />} />
+          <Route path="/levelup" element={<LevelUpPage />} />
           <Route path="/form/:eventId" element={<FormPage />} />
         </Routes>
       </SnackbarProvider>

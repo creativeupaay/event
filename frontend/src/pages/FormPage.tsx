@@ -100,8 +100,12 @@ const FormPage = () => {
         },
       });
 
-      console.log(response);
-    } catch (e) {}
+      // console.log(response);
+
+      if (response.status == 200) navigate(`/connect/${eventId}`);
+    } catch (e) {
+      showSnackbar("Error in submittig the form", "error");
+    }
 
     setIsLoading(false);
   };
@@ -129,7 +133,6 @@ const FormPage = () => {
       setCurrentFormIndex((index) => index + 1);
     else {
       await submitForm();
-      navigate(`/connect/${eventId}`);
     }
   };
 

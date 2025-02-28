@@ -15,6 +15,9 @@ interface profileI {
   profileImage: string;
   interests: string[];
   status: string;
+  profession: string;
+  position: string;
+  lookingFor: string;
 }
 
 const Profile = () => {
@@ -51,7 +54,11 @@ const Profile = () => {
           <p className="font-medium">Profile</p>
         </div>
 
-        <Icon icon={"uil:qrcode-scan"} fontSize={"20px"} />
+        <Icon
+          onClick={() => navigate("/qr")}
+          icon={"uil:qrcode-scan"}
+          fontSize={"20px"}
+        />
       </div>
       <OfferBanner />
 
@@ -84,7 +91,10 @@ const Profile = () => {
           </div>
 
           {/* got to scan the QR section */}
-          <div className="w-full bg-white flex items-center justify-between p-3 rounded-lg">
+          <div
+            onClick={() => navigate("/qr")}
+            className="w-full bg-white flex items-center justify-between p-3 rounded-lg"
+          >
             <div className="flex items-center space-x-3">
               <img
                 src={QRImg}
@@ -116,7 +126,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>Ronak Paul</p>
+                  <p>{userProfileInfo?.name}</p>
                 </div>
               </div>
               <div className="flex items-center">

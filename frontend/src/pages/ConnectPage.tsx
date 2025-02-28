@@ -9,6 +9,9 @@ import LoadingComp from "../components/loading/LoadingComp";
 import ConnectCard from "../components/ConnectCard";
 import OfferBanner from "../components/OfferBanner";
 import { Icon } from "@iconify/react";
+import { Modal } from "@mui/material";
+import FilterComp from "../components/FilterComp";
+import AdCard from "../components/AdCard";
 
 // This is the page where the user can make connection by swapping left or right
 const ConnectPage = () => {
@@ -17,6 +20,8 @@ const ConnectPage = () => {
   const { eventId } = useParams();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
 
   const fetchEventGuests = async () => {
     setIsLoading(true);
@@ -44,6 +49,12 @@ const ConnectPage = () => {
 
   return (
     <div className="w-full h-full relative">
+      <Modal open={isFilterModalOpen}>
+        <div className="w-full h-full px-2 flex items-center">
+          <FilterComp setIsFilterModalOpen={setIsFilterModalOpen} />
+        </div>
+      </Modal>
+
       <OfferBanner />
       <div className=" px-5 flex items-center justify-between py-2">
         <div
@@ -77,7 +88,10 @@ const ConnectPage = () => {
             </div>
           </div>
 
-          <div>
+          <div
+            className="w-fit h-fit"
+            onClick={() => setIsFilterModalOpen(true)}
+          >
             <Icon icon="proicons:filter-2" width="16" height="16" />
           </div>
         </div>
@@ -88,6 +102,16 @@ const ConnectPage = () => {
           </div>
         ) : (
           <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
+            <SwiperSlide>
+              <AdCard>
+                <p>
+                  Break a samosa, not a connection!{" "}
+                  <span className="text-primary">
+                    Keep sending those requests!
+                  </span>
+                </p>
+              </AdCard>
+            </SwiperSlide>
             {users?.map((user) => (
               <SwiperSlide key={user._id}>
                 <ConnectCard

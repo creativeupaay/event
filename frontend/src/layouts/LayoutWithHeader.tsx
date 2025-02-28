@@ -8,6 +8,7 @@ const LayoutWithHeader = () => {
       className="w-full flex flex-col flex-1 bg-whiteBG"
       style={{
         minHeight: innerHeight,
+        height: innerHeight,
       }}
     >
       <div className="flex-[0.03] w-full h-full">

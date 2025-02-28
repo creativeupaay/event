@@ -67,7 +67,7 @@ const NotificatonsPage = () => {
 
         <div className="mt-9 space-y-4">
           {/* Video Requests */}
-          <Accordion
+          {/* <Accordion
             sx={{
               border: "none",
               boxShadow: "none",
@@ -92,8 +92,7 @@ const NotificatonsPage = () => {
             </AccordionSummary>
 
             <AccordionDetails></AccordionDetails>
-          </Accordion>
-
+          </Accordion> */}
           {/* Note Requests */}
           <Accordion
             sx={{

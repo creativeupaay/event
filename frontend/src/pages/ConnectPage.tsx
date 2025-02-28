@@ -10,7 +10,7 @@ import ConnectCard from "../components/ConnectCard";
 import OfferBanner from "../components/OfferBanner";
 import { Icon } from "@iconify/react";
 import { Modal } from "@mui/material";
-import FilterComp from "../components/FilterComp";
+import FilterComp, { filterI } from "../components/FilterComp";
 import AdCard from "../components/AdCard";
 
 // This is the page where the user can make connection by swapping left or right
@@ -20,8 +20,15 @@ const ConnectPage = () => {
   const { eventId } = useParams();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [users, setUsers] = useState<userI[]>([]);
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
+
+  const [filters, setFilters] = useState<filterI>({
+    workStatus: [],
+    industries: [],
+    lookingFor: [],
+  });
 
   const fetchEventGuests = async () => {
     setIsLoading(true);
@@ -41,8 +48,6 @@ const ConnectPage = () => {
     setIsLoading(false);
   };
 
-  const [users, setUsers] = useState<userI[]>([]);
-
   useEffect(() => {
     fetchEventGuests();
   }, []);
@@ -51,7 +56,11 @@ const ConnectPage = () => {
     <div className="w-full h-full relative">
       <Modal open={isFilterModalOpen}>
         <div className="w-full h-full px-2 flex items-center">
-          <FilterComp setIsFilterModalOpen={setIsFilterModalOpen} />
+          <FilterComp
+            setIsFilterModalOpen={setIsFilterModalOpen}
+            filters={filters}
+            setFilters={setFilters}
+          />
         </div>
       </Modal>
 

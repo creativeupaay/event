@@ -52,7 +52,7 @@ const IndustryBox = ({
   );
 };
 
-const industries = [
+export const industries = [
   {
     label: "AI & Automation",
     icon: "🤖",

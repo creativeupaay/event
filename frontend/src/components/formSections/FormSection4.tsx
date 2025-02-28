@@ -49,7 +49,7 @@ const FormSquareButton = ({
   );
 };
 
-const suggestedProfessions = [
+export const suggestedProfessions = [
   {
     icon: "🚀",
     label: "Founder",

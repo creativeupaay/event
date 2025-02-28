@@ -320,10 +320,10 @@ const ConnectCard = ({
                     Request to connect
                   </p>
 
-                  <div className="flex items-center space-x-1 border-[0.5px] border-darkBg rounded-full px-1">
+                  {/* <div className="flex items-center space-x-1 border-[0.5px] border-darkBg rounded-full px-1">
                     <Icon icon={"formkit:info"} fontSize={"6px"} />
                     <p className="text-[6px] text-darkBg">Pro Tip</p>
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-3">
@@ -331,7 +331,11 @@ const ConnectCard = ({
                     onClick={() => {}}
                     className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
                   >
-                    <Icon icon="akar-icons:thunder" width="24" height="24" />
+                    <Icon
+                      icon="tdesign:lighting-circle"
+                      width="24"
+                      height="24"
+                    />
                     <p>Quick Connect</p>
                   </button>
                   <button
@@ -370,7 +374,7 @@ const ConnectCard = ({
                   <textarea
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    className="w-full h-[150px] placeholder:font-medium outline-none text-grey"
+                    className="w-full h-[200px] placeholder:font-medium outline-none text-grey"
                     placeholder="Type your message here…"
                   />
 
@@ -379,9 +383,9 @@ const ConnectCard = ({
                   </div>
                 </div>
 
-                <p className="text-xs font-light text-darkBg mt-3">
+                {/* <p className="text-xs font-light text-darkBg mt-3">
                   Pro tip: Video requests get more accepts than text notes!
-                </p>
+                </p> */}
               </div>
 
               <div className="flex flex-col w-full mt-3 space-y-3">

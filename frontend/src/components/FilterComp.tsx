@@ -1,9 +1,50 @@
 import { Icon } from "@iconify/react";
 import CustomButton from "./CustomButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { industries } from "./formSections/FormSection3";
+import { suggestedProfessions } from "./formSections/FormSection4";
 
-const Option = ({ label }: { label: string }) => {
+export interface filterI {
+  workStatus: string[];
+  industries: string[];
+  lookingFor: string[];
+}
+
+const Option = ({
+  label,
+  setFilters,
+}: {
+  label: string;
+  setFilters: React.Dispatch<React.SetStateAction<filterI>>;
+}) => {
   const [isSelected, setIsSelected] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isSelected) {
+      setFilters((filters) => {
+        const temp = [...filters.workStatus];
+        temp.push(label);
+
+        return {
+          workStatus: temp,
+          industries: filters.industries,
+          lookingFor: filters.lookingFor,
+        };
+      });
+    } else {
+      setFilters((filters) => {
+        const filteredWorkStatus = filters.workStatus.filter(
+          (text) => text !== label
+        );
+
+        return {
+          workStatus: filteredWorkStatus,
+          industries: filters.industries,
+          lookingFor: filters.lookingFor,
+        };
+      });
+    }
+  }, [isSelected]);
 
   return (
     <div
@@ -19,9 +60,17 @@ const Option = ({ label }: { label: string }) => {
 
 const FilterComp = ({
   setIsFilterModalOpen,
+  filters,
+  setFilters,
 }: {
   setIsFilterModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  filters: filterI;
+  setFilters: React.Dispatch<React.SetStateAction<filterI>>;
 }) => {
+  useEffect(() => {
+    console.log(filters);
+  }, [filters]);
+
   return (
     <div className="w-full h-[80%] flex flex-col flex-1 rounded-lg bg-white px-4 py-3">
       <div className="flex-[0.02] flex justify-end">
@@ -36,7 +85,18 @@ const FilterComp = ({
       <div className="flex-[0.9] h-full w-full">
         <div className="flex items-center justify-between my-3">
           <h1 className="text-xl font-semibold text-darkBg">Filter</h1>
-          <p className="text-primary text-sm font-medium">Reset all</p>
+          <p
+            className="text-primary text-sm font-medium"
+            onClick={() => {
+              setFilters({
+                industries: [],
+                workStatus: [],
+                lookingFor: [],
+              });
+            }}
+          >
+            Reset all
+          </p>
         </div>
 
         <div className="space-y-8">
@@ -52,27 +112,53 @@ const FilterComp = ({
                 "Student",
                 "Freelancer",
               ].map((label, index) => (
-                <Option key={index} label={label} />
+                <Option key={index} label={label} setFilters={setFilters} />
               ))}
             </div>
           </div>
 
           <div className="space-y-5">
             <p className="text-sm font-semibold text-grey">Industries</p>
-            <select className="w-full py-2 px-3 bg-transparent border border-grey01 rounded-lg outline-none text-grey text-sm">
+            <select
+              onChange={(e) => {
+                const temp = [...filters.industries];
+                temp.push(e.target.value);
+
+                setFilters({
+                  workStatus: filters.workStatus,
+                  industries: temp,
+                  lookingFor: filters.lookingFor,
+                });
+              }}
+              className="w-full py-2 px-3 bg-transparent border border-grey01 rounded-lg outline-none text-grey text-sm"
+            >
               <option>Choose your preference</option>
-              <option>AI</option>
-              <option>Gaming</option>
-              <option>AR/VR</option>
+              {industries.map((data, index) => (
+                <option key={index}>{data.label}</option>
+              ))}
             </select>
 
             <div className="flex items-center flex-wrap gap-3">
-              {["AI", "Gaming"].map((label, index) => (
+              {filters.industries.map((label, index) => (
                 <div
                   key={index}
                   className="text-xs bg-grey01 px-3 py-2 rounded-full font-medium text-darkBg flex items-center space-x-4"
                 >
-                  <p>{label}</p> <Icon icon={"ph:x-bold"} />
+                  <p>{label}</p>{" "}
+                  <Icon
+                    onClick={() => {
+                      const filteredIndustries = filters.industries.filter(
+                        (text) => text !== label
+                      );
+
+                      setFilters({
+                        workStatus: filters.workStatus,
+                        industries: filteredIndustries,
+                        lookingFor: filters.lookingFor,
+                      });
+                    }}
+                    icon={"ph:x-bold"}
+                  />
                 </div>
               ))}
             </div>
@@ -82,20 +168,46 @@ const FilterComp = ({
             <p className="text-sm font-semibold text-grey">
               Looking to Connect with
             </p>
-            <select className="w-full py-2 px-3 bg-transparent border border-grey01 rounded-lg outline-none text-grey text-sm">
+            <select
+              onChange={(e) => {
+                const temp = [...filters.lookingFor];
+                temp.push(e.target.value);
+
+                setFilters({
+                  workStatus: filters.workStatus,
+                  industries: filters.industries,
+                  lookingFor: temp,
+                });
+              }}
+              className="w-full py-2 px-3 bg-transparent border border-grey01 rounded-lg outline-none text-grey text-sm"
+            >
               <option>Choose your preference</option>
-              <option>AI</option>
-              <option>Gaming</option>
-              <option>AR/VR</option>
+              {suggestedProfessions.map((data, index) => (
+                <option key={index}>{data.label}</option>
+              ))}
             </select>
 
             <div className="flex items-center flex-wrap gap-3">
-              {["AI", "Gaming"].map((label, index) => (
+              {filters.lookingFor.map((label, index) => (
                 <div
                   key={index}
                   className="text-xs bg-grey01 px-3 py-2 rounded-full font-medium text-darkBg flex items-center space-x-4"
                 >
-                  <p>{label}</p> <Icon icon={"ph:x-bold"} />
+                  <p>{label}</p>{" "}
+                  <Icon
+                    onClick={() => {
+                      const filteredLookingFor = filters.lookingFor.filter(
+                        (text) => text !== label
+                      );
+
+                      setFilters({
+                        workStatus: filters.workStatus,
+                        industries: filters.industries,
+                        lookingFor: filteredLookingFor,
+                      });
+                    }}
+                    icon={"ph:x-bold"}
+                  />
                 </div>
               ))}
             </div>

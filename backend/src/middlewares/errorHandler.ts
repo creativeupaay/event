@@ -59,11 +59,11 @@ const errorHandlerMiddleware = (
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'development') {
         // console.log("dev error", err);
         devErrors(res, err);
     }
-    else if (process.env.NODE_ENV === 'development') {
+    else if (process.env.NODE_ENV === 'production') {
         console.log("prod error");
         if (err.name === "ValidationError")
             err = validationErrorHandler(err);

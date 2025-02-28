@@ -13,8 +13,10 @@ export const getAllEventGuest = async (
     next: NextFunction
 ): Promise<Response | void> => {
 
-    const { name, sortOrder, eventId, selectedInterest, profession, industry } = req.query;
+    const { name, sortOrder, eventId, selectedInterest, profession, position, industry, limit = 10, cursor } = req.query;
     const userId = req.user.id;
+
+    console.log("name :", name, profession)
 
     if (!eventId)
         throw new AppError("Query(eventId) not found", 400);
@@ -98,13 +100,12 @@ export const getAllEventGuest = async (
                         in: {
                             _id: "$$user._id",
                             name: "$$user.name",
-                            // email: "$$user.email",
-                            // gender: "$$user.gender",
-                            interests:"$$user.interests",
+                            interests: "$$user.interests",
                             profileImage: "$$user.profileImage",
                             profession: "$$user.profession",
-                            position:"$$user.position",
+                            position: "$$user.position",
                             company: "$$user.company",
+                            industry: "$$user.industry",
                             instituteName: "$$user.instituteName",
                             courseName: "$$user.courseName",
                             lookingFor: "$$user.lookingFor",
@@ -113,6 +114,10 @@ export const getAllEventGuest = async (
                                     $setIntersection: ["$$user.interests", userInterest]
                                 }
                             },
+                            isNameMatch: name ? { $regexMatch: { input: "$$user.name", regex: name, options: "i" } } : true,
+                            isProfessionMatch: profession ? { $regexMatch: { input: "$$user.profession", regex: profession, options: "i" } } : true,
+                            isPositionMatch: position ? { $regexMatch: { input: "$$user.position", regex: position, options: "i" } } : true,
+                            isIndustryMatch: industry ? { $regexMatch: { input: "$$user.industry", regex: industry, options: "i" } } : true,
                         }
                     }
                 }
@@ -139,7 +144,12 @@ export const getAllEventGuest = async (
                                         },
                                         else: true
                                     }
-                                }
+                                },
+
+                                { $eq: ["$$user.isNameMatch", true] },
+                                { $eq: ["$$user.isProfessionMatch", true] },
+                                { $eq: ["$$user.isPositionMatch", true] },
+                                { $eq: ["$$user.isIndustryMatch", true] },
                             ]
                         }
                     }
@@ -152,28 +162,31 @@ export const getAllEventGuest = async (
             }
         },
         {
-            $match: {
-                ...(name ? { "users": { $elemMatch: { name: { $regex: name, $options: 'i' } } } } : {}),
-                ...(profession ? { "users": { $elemMatch: { profession: { $regex: profession, $options: 'i' } } } } : {}),
-                ...(industry ? { "users": { $elemMatch: { industry: { $regex: industry, $options: 'i' } } } } : {})
-            }
-        },
-        {
             $sort: { "users.createdAt": sortOrder === 'asc' ? 1 : -1 }
         },
+
         {
             $unwind: "$users"
+        },
+        ...(cursor ? [
+            {
+                $match: {
+                    "users._id": { $gt: new mongoose.Types.ObjectId(String(cursor)) }
+                }
+            }
+        ] : []),
+        {
+            $limit: parseInt(String(limit))
         },
         {
             $project: {
                 _id: "$users._id",
                 name: "$users.name",
-                // email: "$users.email",
-                // gender: "$users.gender",
+                industry: "$users.industry",
                 interests: "$users.interests",
                 profileImage: "$users.profileImage",
                 profession: "$users.profession",
-                position:"$users.position",
+                position: "$users.position",
                 company: "$users.company",
                 instituteName: "$users.instituteName",
                 courseName: "$users.courseName",
@@ -189,7 +202,7 @@ export const getAllEventGuest = async (
     return res.status(200).json({
         success: true,
         eventGuests,
-        knownUserIds
+        // knownUserIds
     });
 }
 

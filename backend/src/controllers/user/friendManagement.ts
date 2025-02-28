@@ -3,9 +3,10 @@ import AppError from "../../utils/appError";
 import { UserModel } from "../../models/userModel";
 import mongoose from "mongoose";
 import { FriendRequestModel } from "../../models/freindRequestModel";
-import { RequestStatusEnum } from "../../types/enum";
+import { NotificationEnum, RequestStatusEnum } from "../../types/enum";
 import { FriendModel } from "../../models/friendModel";
 import { imageUploader } from "../../utils/imageUploader";
+import { createNotification } from "../../utils/notificationService";
 
 export const sendFriendRequest = async (
     req: Request,
@@ -15,27 +16,31 @@ export const sendFriendRequest = async (
     const userId = req.user.id;
     const { data } = req.body;
 
-    if (!data.note && !req.file)
-        throw new AppError("Either note or video, one is required", 400);
+    // if (!data.note && !req.file)
+    //     throw new AppError("Either note or video, one is required", 400);
 
     if (!data.recieverId)
         throw new AppError("RecieverId required", 400);
 
     // receiver exists
-    const receiverExistPromise = await UserModel.exists({ _id: new mongoose.Types.ObjectId(String(data.recieverId)) });
+    const senderPromise = UserModel.findById(new mongoose.Types.ObjectId(userId)).select("name");
+    const receiverExistPromise = UserModel.exists({ _id: new mongoose.Types.ObjectId(String(data.recieverId)) });
 
     // freind request exist 
-    const existingRequestPromise = await FriendRequestModel.findOne({
+    const existingRequestPromise = FriendRequestModel.findOne({
         $or: [
             { sender: new mongoose.Types.ObjectId(userId), receiver: new mongoose.Types.ObjectId(String(data.recieverId)) },
             { sender: new mongoose.Types.ObjectId(String(data.recieverId)), receiver: new mongoose.Types.ObjectId(userId) }
         ],
     });
 
-    const [receiverExist, existingRequest] = await Promise.all([receiverExistPromise, existingRequestPromise]);
+    const [sender, receiverExist, existingRequest] = await Promise.all([senderPromise, receiverExistPromise, existingRequestPromise]);
+    if (!sender)
+        throw new AppError("Reciever not found", 404);
+
     if (!receiverExist)
         throw new AppError("Reciever not found", 404);
-    
+
     if (existingRequest)
         throw new AppError("Friend Request Already exist", 409);
 
@@ -60,6 +65,14 @@ export const sendFriendRequest = async (
     if (!newFriendRequested)
         throw new AppError("Failed to sent request, try again later", 500);
 
+    const notificationData = {
+        userId: data.recieverId,
+        type: NotificationEnum.FRIEND_REQUEST_RECEIVED,
+        message: `${sender.name} sent you a friend request`,
+        reference: userId
+    }
+    await createNotification(notificationData);
+
     return res.status(200).json({
         success: true,
         newFriendRequested
@@ -81,7 +94,9 @@ export const acceptRequestReceived = async (
         throw new AppError("Invalid status provided", 400);
     }
 
-
+    const user = await UserModel.findById(new mongoose.Types.ObjectId(userId)).select("name");
+    if(!user)
+        throw new AppError("Invalid request", 409);
     // update the friend request
     const updateFriendRequest = await FriendRequestModel.findOneAndUpdate(
         {
@@ -104,6 +119,14 @@ export const acceptRequestReceived = async (
             user1: new mongoose.Types.ObjectId(String(senderId)),
             user2: new mongoose.Types.ObjectId(String(userId))
         });
+
+        const notificationData = {
+            userId: String(senderId),
+            type: NotificationEnum.FRIEND_REQUEST_ACCEPTED,
+            message: `${user.name} accepted your friend request`,
+            reference: userId
+        }
+        await createNotification(notificationData);
 
         return res.status(201).json({
             success: true,
@@ -152,12 +175,12 @@ export const getRequestSended = async (
                 receiverId: "$requestSentUser._id",
                 name: "$requestSentUser.name",
                 email: "$requestSentUser.email",
-                profileImage :"$requestSentUser.profileImage",
-                profession:"$requestSentUser.profession",
-                industry:"$requestSentUser.industry",
+                profileImage: "$requestSentUser.profileImage",
+                profession: "$requestSentUser.profession",
+                industry: "$requestSentUser.industry",
                 company: "$requestSentUser.company",
-                lookingFor:"$requestSentUser.lookingFor",
-                interests:"$requestSentUser.interests",
+                lookingFor: "$requestSentUser.lookingFor",
+                interests: "$requestSentUser.interests",
                 note: 1,
                 video: 1
             }
@@ -222,11 +245,11 @@ export const getRequestRecieved = async (
                 name: "$requestRecievedUser.name",
                 email: "$requestRecievedUser.email",
                 interest: "$requestRecievedUser.interests",
-                profileImage :"$requestRecievedUser.profileImage",
-                profession:"$requestRecievedUser.profession",
-                industry:"$requestRecievedUser.industry",
+                profileImage: "$requestRecievedUser.profileImage",
+                profession: "$requestRecievedUser.profession",
+                industry: "$requestRecievedUser.industry",
                 company: "$requestRecievedUser.company",
-                lookingFor:"$requestRecievedUser.lookingFor",
+                lookingFor: "$requestRecievedUser.lookingFor",
                 note: 1,
                 video: 1
             }
@@ -290,13 +313,13 @@ export const getAllFriends = async (
                 friendId: "$friends._id",
                 name: "$friends.name",
                 email: "$friends.email",
-                contactNumber:"$friends.contactNumber",
-                profileImage :"$friends.profileImage",
-                profession:"$friends.profession",
-                industry:"$friends.industry",
+                contactNumber: "$friends.contactNumber",
+                profileImage: "$friends.profileImage",
+                profession: "$friends.profession",
+                industry: "$friends.industry",
                 company: "$friends.company",
-                lookingFor:"$friends.lookingFor",
-                interests:"$friends.interests",
+                lookingFor: "$friends.lookingFor",
+                interests: "$friends.interests",
                 otherUserId: 1
             }
         }
@@ -460,8 +483,8 @@ export const friendProfileById = async (
                 contactNumber: "$user.contactNumber",
                 profileImage: "$user.profileImage",
                 profession: "$user.profession",
-                position:"$user.position",
-                industry:"$user.industry",
+                position: "$user.position",
+                industry: "$user.industry",
                 company: "$user.company",
                 instituteName: "$user.instituteName",
                 courseName: "$user.courseName",

@@ -26,3 +26,11 @@ export enum AccountStatusEnum {
     LOCKED = 'LOCKED',                                      // Account is temporarily locked due to security concerns (e.g., failed logins).
     EXPIRED = 'EXPIRED',                                    // Account or subscription has expired (e.g., subscription ended).
 }
+
+export enum NotificationEnum {
+    FRIEND_REQUEST_RECEIVED = 'friend_request_received',
+    FRIEND_REQUEST_ACCEPTED = 'friend_request_accepted',
+    POST_LIKED = 'post_liked', 
+    COMMENT_RECEIVED = 'comment_received',
+  }
+  

@@ -40,7 +40,7 @@ const Header = () => {
           <Icon icon={"bitcoin-icons:search-filled"} width={24} height={24} />
         </div>
 
-        <div className="text-3xl">
+        <div onClick={() => navigate("/qr")} className="text-3xl">
           <Icon icon={"uil:qrcode-scan"} width={24} height={24} />
         </div>
 

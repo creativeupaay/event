@@ -58,7 +58,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-grey01 flex items-center justify-evenly py-2 border-t border-t-lightGrey">
+    <div className="w-full h-fit py-2 bg-grey01 flex items-center justify-evenly border-t border-t-lightGrey">
       <NavButton
         icon={"proicons:home"}
         title="Home"
@@ -86,14 +86,6 @@ const Navbar = () => {
         isActive={currentTab == 2}
         setCurrentTab={setCurrentTab}
         tabNo={2}
-      />
-      <NavButton
-        icon={"material-symbols-light:exit-to-app-rounded"}
-        title="Exit"
-        toRoute={`/connect/${eventId}`}
-        isActive={false}
-        setCurrentTab={setCurrentTab}
-        tabNo={3}
       />
     </div>
   );

@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useSnackbar } from "../hooks/SnackbarContext";
 import userApi from "../apis/userApi";
-import { ReactMediaRecorder } from "react-media-recorder";
 import buildingIcon from "../assets/icons/buildingIcon.svg";
-import { Close, FiberPinSharp } from "@mui/icons-material";
 import suitcaseIcon from "../assets/icons/suitcaseIcon.svg";
 import { Icon } from "@iconify/react";
 import ReactCardFlip from "react-card-flip";
@@ -18,132 +16,132 @@ enum CARD_COLORS {
   "FREELANCER" = "bg-[linear-gradient(40deg,_#00DD4A_29%,_#00B43C_100%)]",
 }
 
-const VideoPreview = ({
-  stream,
-  startRecording,
-  stopRecording,
-  mediaBlobUrl,
-  status,
-}: {
-  stream: MediaStream | null;
-  startRecording: Function;
-  stopRecording: Function;
-  mediaBlobUrl: string | undefined;
-  status: string;
-}) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+// const VideoPreview = ({
+//   stream,
+//   startRecording,
+//   stopRecording,
+//   mediaBlobUrl,
+//   status,
+// }: {
+//   stream: MediaStream | null;
+//   startRecording: Function;
+//   stopRecording: Function;
+//   mediaBlobUrl: string | undefined;
+//   status: string;
+// }) => {
+//   const videoRef = useRef<HTMLVideoElement>(null);
+//   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [timer, setTimer] = useState<number>(0);
+//   const [timer, setTimer] = useState<number>(0);
 
-  useEffect(() => {
-    startRecording();
-  }, []);
+//   useEffect(() => {
+//     startRecording();
+//   }, []);
 
-  useEffect(() => {
-    let interval: number;
+//   useEffect(() => {
+//     let interval: number;
 
-    if (timer < 30) {
-      interval = setTimeout(() => {
-        setTimer((t) => t + 1);
-      }, 1000);
-    }
+//     if (timer < 30) {
+//       interval = setTimeout(() => {
+//         setTimer((t) => t + 1);
+//       }, 1000);
+//     }
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [timer]);
+//     return () => {
+//       clearInterval(interval);
+//     };
+//   }, [timer]);
 
-  const streamToCanvas = () => {
-    if (!(canvasRef.current && videoRef.current)) return;
+//   const streamToCanvas = () => {
+//     if (!(canvasRef.current && videoRef.current)) return;
 
-    const canvasW = 410;
-    const canvasH = 410;
-    const ctx = canvasRef.current.getContext("2d");
+//     const canvasW = 410;
+//     const canvasH = 410;
+//     const ctx = canvasRef.current.getContext("2d");
 
-    ctx?.clearRect(0, 0, canvasW, canvasH);
+//     ctx?.clearRect(0, 0, canvasW, canvasH);
 
-    const videoAspectRatio = canvasW / videoRef.current.clientHeight;
-    const canvasAspectRatio = canvasW / canvasH;
+//     const videoAspectRatio = canvasW / videoRef.current.clientHeight;
+//     const canvasAspectRatio = canvasW / canvasH;
 
-    let width, height, offX, offY;
+//     let width, height, offX, offY;
 
-    // Scale the video to fit within the canvas dimensions
-    if (videoAspectRatio > canvasAspectRatio) {
-      // Video is wider than the canvas, fit by height
-      height = canvasH;
-      width = canvasW * videoAspectRatio;
-      offX = (canvasW - width) / 2;
-      offY = 0;
-    } else {
-      // Video is taller than the canvas, fit by width
-      width = canvasH;
-      height = canvasW / videoAspectRatio;
-      offX = 0;
-      offY = (canvasH - height) / 2;
-    }
+//     // Scale the video to fit within the canvas dimensions
+//     if (videoAspectRatio > canvasAspectRatio) {
+//       // Video is wider than the canvas, fit by height
+//       height = canvasH;
+//       width = canvasW * videoAspectRatio;
+//       offX = (canvasW - width) / 2;
+//       offY = 0;
+//     } else {
+//       // Video is taller than the canvas, fit by width
+//       width = canvasH;
+//       height = canvasW / videoAspectRatio;
+//       offX = 0;
+//       offY = (canvasH - height) / 2;
+//     }
 
-    ctx?.drawImage(videoRef.current, offX, offY, width, height);
+//     ctx?.drawImage(videoRef.current, offX, offY, width, height);
 
-    requestAnimationFrame(streamToCanvas);
-  };
+//     requestAnimationFrame(streamToCanvas);
+//   };
 
-  useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
-    }
+//   useEffect(() => {
+//     if (videoRef.current && stream) {
+//       videoRef.current.srcObject = stream;
+//     }
 
-    requestAnimationFrame(streamToCanvas);
-  }, [stream]);
+//     requestAnimationFrame(streamToCanvas);
+//   }, [stream]);
 
-  if (!stream) {
-    return null;
-  }
+//   if (!stream) {
+//     return null;
+//   }
 
-  return (
-    <>
-      <video
-        ref={videoRef}
-        className="absolute left-0 top-0 -z-10 opacity-0"
-        autoPlay
-      />
+//   return (
+//     <>
+//       <video
+//         ref={videoRef}
+//         className="absolute left-0 top-0 -z-10 opacity-0"
+//         autoPlay
+//       />
 
-      {/* Recorded video preview */}
-      {status == "stopped" && (
-        <video
-          src={mediaBlobUrl}
-          className="absolute left-0 top-0 z-10"
-          autoPlay
-          controls
-        />
-      )}
+//       {/* Recorded video preview */}
+//       {status == "stopped" && (
+//         <video
+//           src={mediaBlobUrl}
+//           className="absolute left-0 top-0 z-10"
+//           autoPlay
+//           controls
+//         />
+//       )}
 
-      <video className="absolute left-0 top-0 z-10" />
-      <div className="relative">
-        <div className="absolute top-3 right-3 bg-white rounded-full px-5">
-          <p className="text-blue-600">{timer}/30s</p>
-        </div>
-        <div className="absolute right-3 bottom-3 text-center flex items-center space-x-3">
-          <div
-            className=" text-5xl bg-blue-100 flex items-center justify-center rounded-full text-blue-600"
-            onClick={() => {
-              stopRecording();
-            }}
-          >
-            <FiberPinSharp />
-          </div>
-        </div>
+//       <video className="absolute left-0 top-0 z-10" />
+//       <div className="relative">
+//         <div className="absolute top-3 right-3 bg-white rounded-full px-5">
+//           <p className="text-blue-600">{timer}/30s</p>
+//         </div>
+//         <div className="absolute right-3 bottom-3 text-center flex items-center space-x-3">
+//           <div
+//             className=" text-5xl bg-blue-100 flex items-center justify-center rounded-full text-blue-600"
+//             onClick={() => {
+//               stopRecording();
+//             }}
+//           >
+//             <FiberPinSharp />
+//           </div>
+//         </div>
 
-        <canvas
-          ref={canvasRef}
-          width={"380px"}
-          height={"410px"}
-          className="rounded-md"
-        ></canvas>
-      </div>
-    </>
-  );
-};
+//         <canvas
+//           ref={canvasRef}
+//           width={"380px"}
+//           height={"410px"}
+//           className="rounded-md"
+//         ></canvas>
+//       </div>
+//     </>
+//   );
+// };
 
 const InfoSection = ({ heading, text }: { heading: string; text: string }) => {
   return (
@@ -194,10 +192,6 @@ const ConnectCard = ({
   position?: string;
   lookingFor?: string[];
 }) => {
-  const [whichModelOpen, setWhichModelOpen] = useState<"video" | "note">(
-    "note"
-  );
-
   const [note, setNote] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { showSnackbar } = useSnackbar();
@@ -334,10 +328,7 @@ const ConnectCard = ({
 
                 <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-3">
                   <button
-                    onClick={() => {
-                      setWhichModelOpen("video");
-                      setFlipped(true);
-                    }}
+                    onClick={() => {}}
                     className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
                   >
                     <Icon icon="akar-icons:thunder" width="24" height="24" />
@@ -345,7 +336,6 @@ const ConnectCard = ({
                   </button>
                   <button
                     onClick={() => {
-                      setWhichModelOpen("note");
                       setFlipped(true);
                     }}
                     className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-3"
@@ -362,105 +352,60 @@ const ConnectCard = ({
         {/* Back side component */}
         <>
           <div className="w-full h-[450px] rounded-xl flex flex-col justify-between bg-white border border-slate-200 flex-shrink-0 relative px-3 py-3">
-            {whichModelOpen == "note" ? (
-              <div
-                className="w-full h-full bg-white rounded-xl flex flex-col items-center"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className=" w-full space-y-1">
-                  <p className="text-darkBg font-medium">
-                    Request from Manish Singh
-                  </p>
-                  <p className="text-grey text-sm">
-                    Employee - Cinnovate Solutions Pvt Ltd
-                  </p>
-                </div>
-
-                <div className="w-full mt-3 text-center">
-                  <div className=" border border-[#E1E1E1]  rounded-lg  px-4 py-3">
-                    <textarea
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      className="w-full h-[150px] placeholder:font-medium outline-none text-grey"
-                      placeholder="Type your message here…"
-                    />
-
-                    <div className="text-grey text-[10px] text-end">
-                      <p>50/100</p>
-                    </div>
-                  </div>
-
-                  <p className="text-xs font-light text-darkBg mt-3">
-                    Pro tip: Video requests get more accepts than text notes!
-                  </p>
-                </div>
-
-                <div className="flex flex-col w-full mt-3 space-y-3">
-                  <button
-                    onClick={sendConnectionRequest}
-                    className={`w-full font-medium text-white bg-gradient-to-r from-[#242424] to-[#242424] py-3 rounded-lg  ${
-                      !note && "opacity-55"
-                    }`}
-                  >
-                    {isLoading ? (
-                      <CircularProgress size={"15px"} />
-                    ) : (
-                      "Send Request"
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => setFlipped(false)}
-                    className="font-medium text-darkBg py-3 rounded-lg border border-darkBg"
-                  >
-                    Cancel
-                  </button>
-                </div>
+            <div
+              className="w-full h-full bg-white rounded-xl flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className=" w-full space-y-1">
+                <p className="text-darkBg font-medium">
+                  Request from Manish Singh
+                </p>
+                <p className="text-grey text-sm">
+                  Employee - Cinnovate Solutions Pvt Ltd
+                </p>
               </div>
-            ) : (
-              <>
-                <div className="absolute w-full h-full top-0 backdrop-blur-sm left-0 flex items-center justify-center">
-                  <div className="w-[95%] h-fit min-h-[550px] bg-white rounded-xl flex flex-col items-center justify-between px-4 py-4">
-                    <div className="w-full flex justify-end text-blue-600">
-                      <Close
-                        onClick={() => {
-                          setFlipped(false);
-                        }}
-                      />
-                    </div>
-                    <div className="w-full space-y-3 mt-2">
-                      <ReactMediaRecorder
-                        askPermissionOnMount
-                        video
-                        render={({
-                          status,
-                          previewStream,
-                          startRecording,
-                          stopRecording,
-                          mediaBlobUrl,
-                        }) => {
-                          console.log(status);
-                          console.log(mediaBlobUrl);
-                          return (
-                            <VideoPreview
-                              status={status}
-                              stream={previewStream}
-                              startRecording={startRecording}
-                              stopRecording={stopRecording}
-                              mediaBlobUrl={mediaBlobUrl}
-                            />
-                          );
-                        }}
-                      />
 
-                      <button className="  bg-blue-600  font-semibold text-white px-3 py-3 rounded-full w-[95%] text-xl">
-                        Connect Now
-                      </button>
-                    </div>
+              <div className="w-full mt-3 text-center">
+                <div className=" border border-[#E1E1E1]  rounded-lg  px-4 py-3">
+                  <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    className="w-full h-[150px] placeholder:font-medium outline-none text-grey"
+                    placeholder="Type your message here…"
+                  />
+
+                  <div className="text-grey text-[10px] text-end">
+                    <p>50/100</p>
                   </div>
                 </div>
-              </>
-            )}
+
+                <p className="text-xs font-light text-darkBg mt-3">
+                  Pro tip: Video requests get more accepts than text notes!
+                </p>
+              </div>
+
+              <div className="flex flex-col w-full mt-3 space-y-3">
+                <button
+                  onClick={sendConnectionRequest}
+                  className={`w-full font-medium text-white bg-gradient-to-r from-[#242424] to-[#242424] py-3 rounded-lg  ${
+                    !note && "opacity-55"
+                  }`}
+                >
+                  {isLoading ? (
+                    <CircularProgress size={"15px"} />
+                  ) : (
+                    "Send Request"
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setFlipped(false)}
+                  className="font-medium text-darkBg py-3 rounded-lg border border-darkBg"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </>
       </ReactCardFlip>

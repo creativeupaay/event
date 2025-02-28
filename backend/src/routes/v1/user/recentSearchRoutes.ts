@@ -5,7 +5,6 @@ import * as recentSearchController from "../../../controllers/user/recentSearch/
 
 const router = express.Router();
 
-// router.route("/").get(authenticate, asyncHandler(recentSearchController.))
 router.route("/add").post(authenticate, asyncHandler(recentSearchController.addSearchHistory));
 router.route("/").get(authenticate, asyncHandler(recentSearchController.getSearchedUser))
 router.route("/clear-search-history").delete(authenticate,asyncHandler(recentSearchController.clearAllSearch));

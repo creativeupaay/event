@@ -1,13 +1,15 @@
-import tempProfile from "../assets/tempProfile.svg";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import SearchPageComponent from "./SearchPageComponent";
 import { useState } from "react";
+import { useUser } from "../hooks/UserContext";
 
 const Header = () => {
   const navigate = useNavigate();
 
   const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(false);
+
+  const { user } = useUser();
 
   return (
     <header className="flex items-center justify-between px-3 py-3 sticky top-0 left-0 w-full z-50 bg-grey01">
@@ -26,12 +28,12 @@ const Header = () => {
       <div className="flex items-center space-x-5 ">
         <img
           onClick={() => navigate("/profile")}
-          src={tempProfile}
-          alt="profile img"
+          src={user?.profileImage}
+          className="w-9 object-cover rounded-full"
         />
         <div className="flex flex-col">
           <p className="text-xs">Welcome!</p>
-          <p className="font-semibold">Sourab Purbia</p>
+          <p className="font-semibold">{user?.name}</p>
         </div>
       </div>
 

@@ -53,9 +53,9 @@ const Navbar = () => {
     }
 
     if (paths[1] == "connect") setCurrentTab(0);
-    else if (paths[1] == "connections") setCurrentTab(1);
+    else if (paths[1] == "network") setCurrentTab(1);
     else if (paths[1] == "profile") setCurrentTab(2);
-  }, []);
+  }, [location]);
 
   return (
     <div className="w-full h-fit py-2 bg-grey01 flex items-center justify-evenly border-t border-t-lightGrey">

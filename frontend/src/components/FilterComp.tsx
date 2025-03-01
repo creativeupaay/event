@@ -62,10 +62,12 @@ const FilterComp = ({
   setIsFilterModalOpen,
   filters,
   setFilters,
+  applyFilters,
 }: {
   setIsFilterModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   filters: filterI;
   setFilters: React.Dispatch<React.SetStateAction<filterI>>;
+  applyFilters: Function;
 }) => {
   useEffect(() => {
     console.log(filters);
@@ -217,7 +219,14 @@ const FilterComp = ({
 
       {/* Button apply filter button section */}
       <div className="flex-[0.08] w-full h-full ">
-        <CustomButton text="Apply Filters" onClick={() => {}} width="100%" />
+        <CustomButton
+          text="Apply Filters"
+          onClick={() => {
+            applyFilters();
+            setIsFilterModalOpen(false);
+          }}
+          width="100%"
+        />
       </div>
     </div>
   );

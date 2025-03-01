@@ -106,7 +106,7 @@ const ConditionalFields = ({
   }
 };
 
-const interests = [
+export const interests = [
   {
     icon: "🚀",
     label: "Founder",

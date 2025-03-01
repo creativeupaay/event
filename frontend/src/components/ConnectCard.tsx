@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { useSnackbar } from "../hooks/SnackbarContext";
 import userApi from "../apis/userApi";
-import buildingIcon from "../assets/icons/buildingIcon.svg";
-import suitcaseIcon from "../assets/icons/suitcaseIcon.svg";
 import { Icon } from "@iconify/react";
 import ReactCardFlip from "react-card-flip";
 import CircularProgress from "@mui/material/CircularProgress";
+import { industries } from "./formSections/FormSection3";
 
 enum CARD_COLORS {
   "FOUNDER" = "bg-[linear-gradient(40deg,_#FFA469_42%,_#FF6B0B_100%)]",
@@ -143,18 +142,46 @@ enum CARD_COLORS {
 //   );
 // };
 
-const InfoSection = ({ heading, text }: { heading: string; text: string }) => {
+export const InfoSection = ({
+  heading,
+  text,
+  theme = "light",
+}: {
+  heading: string;
+  text: string;
+  theme?: "dark" | "light";
+}) => {
   return (
     <div className="flex items-center space-x-3">
-      <div className="w-1 h-8 bg-white rounded-r-lg"></div>
+      <div
+        className={`w-1 h-8 ${
+          theme == "dark" ? "bg-darkBg" : "bg-white"
+        } rounded-r-lg`}
+      ></div>
 
       <div>
         <div className="flex items-center space-x-2">
-          <img src={suitcaseIcon} alt="suitcase icon" />
-          <p className="text-xs font-extralight text-white">{heading}</p>
+          <Icon
+            icon={"solar:suitcase-outline"}
+            fontSize={"12px"}
+            color={theme == "dark" ? "#242424" : "#fff"}
+          />
+          <p
+            className={`text-xs font-extralight ${
+              theme == "dark" ? "text-darkBg" : "text-white"
+            }`}
+          >
+            {heading}
+          </p>
         </div>
 
-        <p className="text-sm font-medium text-white">{text}</p>
+        <p
+          className={`text-sm font-medium ${
+            theme == "dark" ? "text-darkBg" : "text-white"
+          }`}
+        >
+          {text}
+        </p>
       </div>
     </div>
   );
@@ -169,6 +196,14 @@ const getGradientCardColor = (position: string | undefined) => {
   else if (position == "Mentor") return CARD_COLORS.MENTOR;
   else if (position == "Employee") return CARD_COLORS.EMPLOYEE;
   else if (position == "Freelancer") return CARD_COLORS.FREELANCER;
+};
+
+export const getIconFromIndustries = (label: string) => {
+  const temp = industries.filter((industry) => industry.label == label);
+
+  if (temp.length != 0) return temp[0].icon;
+
+  return "";
 };
 
 const ConnectCard = ({
@@ -194,6 +229,7 @@ const ConnectCard = ({
 }) => {
   const [note, setNote] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isQuickConnecting, setIsQuickConnecting] = useState<boolean>(false);
   const { showSnackbar } = useSnackbar();
   const [isFlipped, setFlipped] = useState<boolean>(false);
 
@@ -204,8 +240,7 @@ const ConnectCard = ({
     }
 
     if (isLoading) return;
-
-    console.log(institueName, courseName, profession);
+    console.log(profession);
 
     setIsLoading(true);
     try {
@@ -227,6 +262,31 @@ const ConnectCard = ({
     }
 
     setIsLoading(false);
+  };
+
+  const sendQuickConnect = async () => {
+    if (isQuickConnecting) return;
+
+    setIsQuickConnecting(true);
+    try {
+      const response = await userApi.post(
+        "user/friend-management/friend-request-Sent",
+        {
+          data: {
+            recieverId: id,
+            note: "",
+          },
+        }
+      );
+
+      if (response.status == 200) {
+        showSnackbar("Quick Connected", "success");
+      }
+    } catch (e) {
+      showSnackbar("Error in quick connecting", "error");
+    }
+
+    setIsQuickConnecting(false);
   };
 
   return (
@@ -253,7 +313,7 @@ const ConnectCard = ({
                       </div>
 
                       <p className="text-[10px] text-white font-medium">
-                        College of Technology and Engineering, Udaipur
+                        {institueName}
                       </p>
                     </div>
 
@@ -264,7 +324,7 @@ const ConnectCard = ({
                       </div>
 
                       <p className="text-[10px] text-white font-medium">
-                        Computer Science (B.Tech)
+                        {courseName}
                       </p>
                     </div>
                   </div>
@@ -283,7 +343,11 @@ const ConnectCard = ({
                 {position != "Employee" && position != "Freelancer" && (
                   <div className="my-5 space-y-2">
                     <div className="flex items-center space-x-2">
-                      <img src={buildingIcon} alt="building icon" />
+                      <Icon
+                        icon={"material-symbols-light:domain"}
+                        fontSize={"12px"}
+                        color="#fff"
+                      />
                       <p className="text-xs font-extralight text-white">
                         Belongs to industries like
                       </p>
@@ -293,8 +357,9 @@ const ConnectCard = ({
                         <div
                           key={index}
                           className={`border border-white
-                   w-fit px-2 py-1 rounded-lg`}
+                   w-fit px-2 py-1 rounded-lg flex items-center space-x-2`}
                         >
+                          <p>{getIconFromIndustries(label)}</p>
                           <p className="text-sm text-white">{label}</p>
                         </div>
                       ))}
@@ -328,15 +393,21 @@ const ConnectCard = ({
 
                 <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-3">
                   <button
-                    onClick={() => {}}
+                    onClick={sendQuickConnect}
                     className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
                   >
-                    <Icon
-                      icon="tdesign:lighting-circle"
-                      width="24"
-                      height="24"
-                    />
-                    <p>Quick Connect</p>
+                    {isQuickConnecting ? (
+                      <CircularProgress size={"18px"} />
+                    ) : (
+                      <>
+                        <Icon
+                          icon="tdesign:lighting-circle"
+                          width="24"
+                          height="24"
+                        />
+                        <p>Quick Connect</p>
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => {
@@ -361,11 +432,9 @@ const ConnectCard = ({
               onClick={(e) => e.stopPropagation()}
             >
               <div className=" w-full space-y-1">
-                <p className="text-darkBg font-medium">
-                  Request from Manish Singh
-                </p>
+                <p className="text-darkBg font-medium">Request to {name}</p>
                 <p className="text-grey text-sm">
-                  Employee - Cinnovate Solutions Pvt Ltd
+                  {position} - {company}
                 </p>
               </div>
 
@@ -373,13 +442,16 @@ const ConnectCard = ({
                 <div className=" border border-[#E1E1E1]  rounded-lg  px-4 py-3">
                   <textarea
                     value={note}
-                    onChange={(e) => setNote(e.target.value)}
+                    onChange={(e) => {
+                      if (e.target.value.length <= 150) setNote(e.target.value);
+                      else showSnackbar("Can't exceed limit", "warning");
+                    }}
                     className="w-full h-[200px] placeholder:font-medium outline-none text-grey"
                     placeholder="Type your message here…"
                   />
 
                   <div className="text-grey text-[10px] text-end">
-                    <p>50/100</p>
+                    <p>{note.length}/150</p>
                   </div>
                 </div>
 
@@ -396,7 +468,7 @@ const ConnectCard = ({
                   }`}
                 >
                   {isLoading ? (
-                    <CircularProgress size={"15px"} />
+                    <CircularProgress size={"18px"} />
                   ) : (
                     "Send Request"
                   )}

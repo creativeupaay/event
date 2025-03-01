@@ -1,49 +1,79 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 // import Home from "./pages/Home";
 import FormPage from "./pages/FormPage";
 import MainPage from "./pages/MainPage";
 import ConnectPage from "./pages/ConnectPage";
-import PendingConnectionsPage from "./pages/PendingConnectionsPage";
 import Profile from "./pages/Profile";
 import NotificatonsPage from "./pages/NotificationsPage";
-import { SnackbarProvider } from "./hooks/SnackbarContext";
+import { useSnackbar } from "./hooks/SnackbarContext";
 import LayoutWithHeader from "./layouts/LayoutWithHeader";
 import LayoutWithOutHeader from "./layouts/LayoutWithOutHeader";
 import RequestsPage from "./pages/RequestsPage";
 import MyNetworkPage from "./pages/MyNetworkPage";
 import LevelUpPage from "./pages/LevelUpPage";
 import QRPage from "./pages/QRPage";
+import userApi from "./apis/userApi";
+import { useEffect, useState } from "react";
+import { UserProvider } from "./hooks/UserContext";
+import { userI, userLevelDataI } from "./types/userTypes";
+import QRConnecting from "./pages/QRConnecting";
 
 const App = () => {
+  const { showSnackbar } = useSnackbar();
+  const [user, setUser] = useState<userI | undefined>(undefined);
+  const [userLevelData, setUserLevelData] = useState<
+    userLevelDataI | undefined
+  >(undefined);
+
+  const navigate = useNavigate();
+
+  const fetchUser = async () => {
+    try {
+      const response = await userApi.get("/user/");
+
+      if (response.status == 200) {
+        setUser(response.data.user);
+        setUserLevelData(response.data.userLevelData);
+      }
+    } catch (e) {
+      navigate("/form/67a1e3adace29974b72c9694");
+      showSnackbar("Please fill the form first", "warning");
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   return (
-    <BrowserRouter>
-      <SnackbarProvider>
+    <>
+      <UserProvider user={user} userLevelData={userLevelData}>
         <Routes>
           <Route element={<LayoutWithHeader />}>
             <Route path="/home" element={<MainPage />} />
 
             <Route path="/connect/:eventId" element={<ConnectPage />} />
-            <Route
-              path="/connections/pending"
-              element={<PendingConnectionsPage />}
-            />
           </Route>
+        </Routes>
+
+        <Routes>
           <Route path="/" element={<FormPage />} />
 
           <Route element={<LayoutWithOutHeader />}>
             {/*temp form page in the index page*/}
             <Route path="/notifications" element={<NotificatonsPage />} />
-            <Route path="requests/:rtype" element={<RequestsPage />} />
+            <Route path="/requests/:rtype" element={<RequestsPage />} />
             <Route path="/network" element={<MyNetworkPage />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
 
-          <Route path="qr" element={<QRPage />} />
+          <Route path="/qr" element={<QRPage />} />
+          <Route path="/qr-connect/:friendId" element={<QRConnecting />} />
           <Route path="/levelup" element={<LevelUpPage />} />
           <Route path="/form/:eventId" element={<FormPage />} />
         </Routes>
-      </SnackbarProvider>
-    </BrowserRouter>
+      </UserProvider>
+    </>
   );
 };
 

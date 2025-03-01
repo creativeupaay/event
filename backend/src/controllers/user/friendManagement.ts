@@ -7,6 +7,7 @@ import { NotificationEnum, RequestStatusEnum } from "../../types/enum";
 import { FriendModel } from "../../models/friendModel";
 import { imageUploader } from "../../utils/imageUploader";
 import { createNotification } from "../../utils/notificationService";
+import { timeStamp } from "console";
 
 export const sendFriendRequest = async (
     req: Request,
@@ -182,7 +183,8 @@ export const getRequestSended = async (
                 lookingFor: "$requestSentUser.lookingFor",
                 interests: "$requestSentUser.interests",
                 note: 1,
-                video: 1
+                video: 1,
+                createdAt:1
             }
         }
     ]);
@@ -251,7 +253,8 @@ export const getRequestRecieved = async (
                 company: "$requestRecievedUser.company",
                 lookingFor: "$requestRecievedUser.lookingFor",
                 note: 1,
-                video: 1
+                video: 1,
+                createdAt:1
             }
         }
     ]);

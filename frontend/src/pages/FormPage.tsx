@@ -53,7 +53,11 @@ const FormPage = () => {
 
       if (response.status == 200) {
         showSnackbar("Already form is filled", "info");
-        navigate(`/connect/${eventId}`);
+        navigate(
+          `/connect/${
+            eventId ? eventId : localStorage.getItem("currentEventId")
+          }`
+        );
       }
     } catch (e) {}
 

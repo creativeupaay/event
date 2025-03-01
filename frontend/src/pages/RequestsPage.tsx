@@ -27,29 +27,56 @@ import { useSnackbar } from "../hooks/SnackbarContext";
 // };
 
 const NoteCard = ({
+  receiverId,
   senderId,
   name,
   note,
+  type,
+  removeCard,
 }: {
+  receiverId: string;
   senderId: string;
   name: string;
   note: string;
+  type: "sent" | "received";
+  removeCard: Function;
 }) => {
   const { showSnackbar } = useSnackbar();
-  const acceptRejectRequest = async (status: "ACCEPTED" | "REJECTED") => {
+
+  const [isNoteExpanded, setIsNoteExpanded] = useState<boolean>(false);
+
+  const acceptOrRejectReq = async (status: "ACCEPTED" | "REJECTED") => {
     try {
-      const res = await userApi.post(
+      await userApi.post(
         `/user/friend-management/accept-reject-friend-request?senderId=${senderId}&status=${status}`
       );
 
+      removeCard("received", senderId);
+
+      showSnackbar(
+        `Request is ${status.toLowerCase()} successfully`,
+        "success"
+      );
+    } catch (e) {
+      if (status == "ACCEPTED")
+        showSnackbar("Error in accepting the request", "error");
+      else if (status == "REJECTED")
+        showSnackbar("Error in rejecting the request", "error");
+    }
+  };
+
+  const withdrawalRequest = async () => {
+    try {
+      const res = await userApi.delete(
+        `/user/friend-management/withdraw-friend-request?receiverId=${receiverId}`
+      );
+
       if (res.status == 200) {
-        if (status == "ACCEPTED")
-          showSnackbar("Request is accepted successfully", "success");
-        else if (status == "REJECTED")
-          showSnackbar("Request is rejected successfully", "success");
+        removeCard("sent", receiverId);
+        showSnackbar("Request is withdrawed successfully", "success");
       }
     } catch (e) {
-      showSnackbar("Error in accepting request", "error");
+      showSnackbar("Error in withdrawing the request", "error");
     }
   };
 
@@ -62,21 +89,41 @@ const NoteCard = ({
           <p className="text-xs text-grey">Freelancer</p>
         </div>
         <div className="flex flex-col space-y-1">
-          <p className="text-sm text-grey">“{note}...”</p>
+          {note != "" && (
+            <>
+              <p className="text-sm text-grey">
+                “{isNoteExpanded ? note : `${note.substring(0, 40)}...`}"
+              </p>
+
+              <p
+                className="text-primary text-sm"
+                onClick={() => setIsNoteExpanded(!isNoteExpanded)}
+              >
+                {isNoteExpanded ? "View Less" : "Tap to view"}
+              </p>
+            </>
+          )}
+
           <p className="text-xs text-grey">12 min. ago</p>
         </div>
       </div>
 
       {/* right section */}
       <div className="flex items-center space-x-2">
+        {type == "received" && (
+          <div
+            onClick={() => acceptOrRejectReq("ACCEPTED")}
+            className="border border-darkBg bg-darkBg px-2 py-2 rounded-xl text-white"
+          >
+            <Icon icon={"material-symbols:done-rounded"} fontSize={"16px"} />
+          </div>
+        )}
+
         <div
-          onClick={() => acceptRejectRequest("ACCEPTED")}
-          className="border border-darkBg bg-darkBg px-2 py-2 rounded-xl text-white"
-        >
-          <Icon icon={"material-symbols:done-rounded"} fontSize={"16px"} />
-        </div>
-        <div
-          onClick={() => acceptRejectRequest("REJECTED")}
+          onClick={() => {
+            if (type == "received") acceptOrRejectReq("REJECTED");
+            else if (type == "sent") withdrawalRequest();
+          }}
           className="border border-darkBg text-darkBg px-2 py-2 rounded-xl"
         >
           <Icon icon={"material-symbols:close-rounded"} fontSize={"16px"} />
@@ -139,6 +186,21 @@ const RequestsPage = () => {
     fetchPendingRequests();
     fetchRequestsSent();
   }, []);
+
+  const removeCard = (type: "sent" | "received", id: string) => {
+    if (type == "sent") {
+      setNoteRequestsSent((requests) => {
+        const temp = requests.filter((request) => request.receiverId != id);
+
+        return temp;
+      });
+    } else if (type == "received") {
+      setPendingRequests((requests) => {
+        const temp = requests.filter((request) => request.senderId != id);
+        return temp;
+      });
+    }
+  };
 
   useEffect(() => {
     // setting the current tab from the url param
@@ -270,18 +332,24 @@ const RequestsPage = () => {
                 {currentTab == "sent"
                   ? noteRequestsSent.map((req, index) => (
                       <NoteCard
+                        type="sent"
                         key={index}
-                        senderId={req.receiverId}
+                        receiverId={req.receiverId}
+                        senderId={req.senderId}
                         name={req.name}
                         note={req.note}
+                        removeCard={removeCard}
                       />
                     ))
                   : pendingRequests.map((req, index) => (
                       <NoteCard
+                        type="received"
                         key={index}
-                        senderId={req.receiverId}
+                        receiverId={req.receiverId}
+                        senderId={req.senderId}
                         name={req.name}
                         note={req.note}
+                        removeCard={removeCard}
                       />
                     ))}
               </div>

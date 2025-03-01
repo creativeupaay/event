@@ -1,44 +1,62 @@
-import userApi from "../apis/userApi";
-import { useEffect, useState } from "react";
-import { GENDER } from "../types/userTypes";
 import OfferBanner from "../components/OfferBanner";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
-import shaniBadge from "../assets/badges/shani.png";
 import QRImg from "../assets/qrImage.png";
+import { useUser } from "../hooks/UserContext";
+import lockBadge from "../assets/badges/lock.png";
+import parmanuBadge from "../assets/badges/paramanu.png";
+import nakshatraBadge from "../assets/badges/nakshatra.png";
+import chandraBadge from "../assets/badges/chandra.png";
+import shaniBadge from "../assets/badges/shani.png";
+import suryaBadge from "../assets/badges/surya.png";
+import { useEffect, useState } from "react";
 
-interface profileI {
-  _id: string;
-  name: string;
-  gender: GENDER;
-  contactNumber: string;
-  profileImage: string;
-  interests: string[];
-  status: string;
-  profession: string;
-  position: string;
-  lookingFor: string;
-}
+const badgeInfo = [
+  {
+    badgeName: "Lock",
+    badge: lockBadge,
+    connectionsNeeded: 0,
+  },
+  {
+    badgeName: "Parmanu",
+    badge: parmanuBadge,
+    connectionsNeeded: 1,
+  },
+  {
+    badgeName: "Nakshatra",
+    badge: nakshatraBadge,
+    connectionsNeeded: 10,
+  },
+  {
+    badgeName: "Chandra",
+    badge: chandraBadge,
+    connectionsNeeded: 25,
+  },
+  {
+    badgeName: "Shani",
+    badge: shaniBadge,
+    connectionsNeeded: 50,
+  },
+  {
+    badgeName: "Surya",
+    badge: suryaBadge,
+    connectionsNeeded: 51,
+  },
+];
 
 const Profile = () => {
-  const [userProfileInfo, setUserProfileInfo] = useState<profileI | undefined>(
-    undefined
-  );
-
   const navigate = useNavigate();
+  const { user, userLevelData } = useUser();
 
-  const fetchUserProfile = async () => {
-    try {
-      const response = await userApi.get("/user/");
-
-      if (response.status == 200) {
-        setUserProfileInfo(response.data.user);
-      }
-    } catch (e) {}
-  };
+  const [levelPercentage, setLevelPercentage] = useState(0);
 
   useEffect(() => {
-    fetchUserProfile();
+    if (!user || !userLevelData) return;
+
+    const percentage =
+      user.connections / badgeInfo[userLevelData.level].connectionsNeeded;
+
+    setLevelPercentage(percentage * 100);
   }, []);
 
   return (
@@ -65,8 +83,14 @@ const Profile = () => {
       <div className="w-full h-full relative overflow-y-scroll no-scrollbar">
         {/* main profile section with name and badge */}
         <div className="flex flex-col justify-center items-center mt-4 space-y-2 ">
-          <p className="text-xl font-bold">{userProfileInfo?.name}</p>
-          <img src={shaniBadge} alt="badge" className="w-24 object-contain " />
+          <p className="text-xl font-bold">{user?.name}</p>
+          <img
+            src={
+              badgeInfo[userLevelData?.level ? userLevelData?.level : 0].badge
+            }
+            alt="badge"
+            className="w-24 object-contain "
+          />
         </div>
 
         {/* Other contents */}
@@ -74,19 +98,31 @@ const Profile = () => {
           {/* badge current score section */}
           <div className="w-full bg-white p-3 space-y-3 rounded-lg">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-darkBg">Nakshatra</p>
-              <p className="text-[10px] text-darkBg">Connections Made :39</p>
+              <p className="text-sm font-medium text-darkBg">
+                {userLevelData?.badgeName}
+              </p>
+              <p className="text-[10px] text-darkBg">
+                Connections Made : {user?.connections}
+              </p>
             </div>
             {/* Level bar */}
             <div className="w-full h-3 bg-[#EDE8FF] rounded-full">
-              <div className="w-[50%] h-full bg-[#7E1891] rounded-full"></div>
+              <div
+                className={` h-full bg-[#7E1891] rounded-full`}
+                style={{
+                  width: `${levelPercentage}%`,
+                }}
+              ></div>
             </div>
 
             <div className="flex items-center justify-between">
               <p className="text-[10px] text-grey">
-                12 more connections to Level Up! 🚀
+                {badgeInfo[userLevelData?.level ? userLevelData?.level : 0]
+                  .connectionsNeeded -
+                  (user?.connections ? user.connections : 0)}{" "}
+                more connections to Level Up! 🚀
               </p>
-              <p className="text-xs text-grey">Level 4</p>
+              <p className="text-xs text-grey">Level {userLevelData?.level}</p>
             </div>
           </div>
 
@@ -126,7 +162,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>{userProfileInfo?.name}</p>
+                  <p>{user?.name}</p>
                 </div>
               </div>
               <div className="flex items-center">
@@ -167,7 +203,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>Employee</p>
+                  <p>{user?.position}</p>
                 </div>
               </div>
               <div className="flex items-center">
@@ -176,7 +212,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>Boat</p>
+                  <p>{user?.company}</p>
                 </div>
               </div>
               <div className="flex items-center">
@@ -185,7 +221,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>Full Stack Developer</p>
+                  <p>{user?.profession}</p>
                 </div>
               </div>
             </div>

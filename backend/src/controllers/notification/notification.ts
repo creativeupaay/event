@@ -38,7 +38,7 @@ export const getNotification = async (
             }
         },
         {
-            $sort: { timeStamp: -1 }
+            $sort: { createdAt: -1 }
         },
         ...(cursor ? [
             {
@@ -58,7 +58,8 @@ export const getNotification = async (
                 message: 1,
                 reference: 1,
                 isRead: 1,
-                user: 1
+                user: 1,
+                createdAt:1,
             }
         },
     ]);

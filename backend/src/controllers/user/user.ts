@@ -10,6 +10,7 @@ import {
 import { Roles } from "../../types/applicationRole";
 import { imageUploader } from "../../utils/imageUploader";
 import { RequestStatusEnum } from "../../types/enum";
+import { getBadgeInfo } from "../../utils/badgeLevels";
 
 export const createUser = async (
   req: Request,
@@ -102,10 +103,10 @@ export const UserInfo = async (
     },
     {
       $addFields: {
-        requestSent: { 
+        requestSent: {
           $size: {
             $filter: {
-              input: "$requestSentUser", 
+              input: "$requestSentUser",
               as: "request",
               cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] }
             }
@@ -123,13 +124,44 @@ export const UserInfo = async (
     },
     {
       $addFields: {
-        requestReceived: { 
+        requestReceived: {
           $size: {
             $filter: {
-              input: "$requestReceivedUser", 
+              input: "$requestReceivedUser",
               as: "request",
               cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] }
             }
+          }
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: "friends",
+        let: { userId: new mongoose.Types.ObjectId(userId) },
+        pipeline: [
+          {
+            $match: {
+              $or: [
+                { user1: new mongoose.Types.ObjectId(userId) },
+                { user2: new mongoose.Types.ObjectId(userId) }
+              ]
+            }
+          },
+          {
+            $count: "friendCount"
+          }
+        ],
+        as: "friendshipStatus"
+      }
+    },
+    {
+      $addFields: {
+        connections: {
+          $cond: {
+            if: { $gt: [{ $size: "$friendshipStatus" }, 0] },
+            then: { $arrayElemAt: ["$friendshipStatus.friendCount", 0] },
+            else: 0
           }
         }
       }
@@ -139,6 +171,7 @@ export const UserInfo = async (
         _id: 1,
         requestSent: 1,
         requestReceived: 1,
+        connections:1,
         name: 1,
         email: 1,
         contactNumber: 1,
@@ -155,14 +188,16 @@ export const UserInfo = async (
       },
     },
   ]);
-  
-  
 
-  if (!user.length) throw new AppError("User not found", 404);
+  if (!user.length) 
+    throw new AppError("User not found", 404);
+
+  const userLevelData = getBadgeInfo(user[0]?.connections);
 
   return res.status(200).json({
     success: true,
     user: user[0],
+    userLevelData
   });
 };
 

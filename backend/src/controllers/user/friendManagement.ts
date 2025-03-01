@@ -95,7 +95,7 @@ export const acceptRequestReceived = async (
     }
 
     const user = await UserModel.findById(new mongoose.Types.ObjectId(userId)).select("name");
-    if(!user)
+    if (!user)
         throw new AppError("Invalid request", 409);
     // update the friend request
     const updateFriendRequest = await FriendRequestModel.findOneAndUpdate(
@@ -501,4 +501,75 @@ export const friendProfileById = async (
         success: true,
         friendProfile
     });
+}
+
+export const addFriendDirect = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const userId = req.user.id;
+    const { friendId } = req.query;
+
+    if (!friendId)
+        throw new AppError("FriendId not found", 400);
+
+    const [userDetails, friendDetails] = await Promise.all([
+        UserModel.findById(new mongoose.Types.ObjectId(userId)).select("name"),
+        await UserModel.findById(new mongoose.Types.ObjectId(String(friendId))).select("name")
+    ])
+
+    if (!userDetails)
+        throw new AppError("User details not found", 401);
+
+    if (!friendDetails)
+        throw new AppError("Friend not found", 400);
+
+    const existingFriendship = await FriendModel.findOne({
+        $or: [
+            {
+                user1: new mongoose.Types.ObjectId(userId),
+                user2: new mongoose.Types.ObjectId(String(friendId))
+            },
+            {
+                user1: new mongoose.Types.ObjectId(String(friendId)),
+                user2: new mongoose.Types.ObjectId(userId)
+            }
+        ]
+    });
+
+    if (existingFriendship)
+        throw new AppError("Friendship already exists", 400);
+
+    const friend = await FriendModel.create({
+        user1: new mongoose.Types.ObjectId(userId),
+        user2: new mongoose.Types.ObjectId(String(friendId))
+    });
+
+    if (!friend)
+        throw new AppError("Failed to add as friend", 500);
+
+    const userNotificationData = {
+        userId: userId,
+        type: NotificationEnum.FRIEND_ADDED_DIRECTLY,
+        message: `You and ${friendDetails.name} are now friends by scanning a QR code.`,
+        reference: String(friendId)
+    }
+
+    const friendNotificationData = {
+        userId: String(friendId),
+        type: NotificationEnum.FRIEND_ADDED_DIRECTLY,
+        message: `You and ${userDetails.name} are now friends by scanning a QR code.`,
+        reference: userId
+    }
+
+    const [userNotification, friendNotification] = await Promise.all([
+        createNotification(userNotificationData),
+        createNotification(friendNotificationData)
+    ]);
+
+    return res.status(200).json({
+        success: true,
+        message: "Friend added successfully"
+    })
 }

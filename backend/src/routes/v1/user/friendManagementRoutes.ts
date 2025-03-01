@@ -24,6 +24,7 @@ router.route("/accept-reject-friend-request").post(authenticate, asyncHandler(fr
 router.route("/get-all-friends").get(authenticate, asyncHandler(friendManagementController.getAllFriends));
 router.route("/unfollow").delete(authenticate, asyncHandler(friendManagementController.unfollowFriend));
 router.route("/withdraw-friend-request").delete(authenticate, asyncHandler(friendManagementController.withdrawFriendRequest));
+router.route("/quick-add-friend").post(authenticate, asyncHandler(friendManagementController.addFriendDirect));
 
 router.route("/friend-profile").get(authenticate, asyncHandler(friendManagementController.friendProfileById))
 

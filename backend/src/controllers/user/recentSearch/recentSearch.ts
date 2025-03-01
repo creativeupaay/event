@@ -78,6 +78,12 @@ export const getSearchedUser = async (
             }
         },
         {
+            $unwind: "$searches"
+        },
+        {
+            $sort: { "searches.timeStamps": -1 }
+        },
+        {
             $lookup: {
                 from: "users",
                 localField: "searches.searchedUserId",
@@ -95,7 +101,8 @@ export const getSearchedUser = async (
                 profession: "$user.profession",
                 position: "$user.position",
                 company: "$user.company",
-                instituteName: "$user.instituteName"
+                instituteName: "$user.instituteName",
+                timeStamps: "$searches.timeStamps"
             }
         }
     ]);

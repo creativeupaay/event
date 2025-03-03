@@ -7,7 +7,7 @@ export interface userI {
   interests: string[];
   lookingFor: string[];
   company: string;
-  institueName: string;
+  instituteName: string;
   courseName: string;
   profession: string;
   position: string;

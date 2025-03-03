@@ -210,7 +210,7 @@ const ConnectCard = ({
   name,
   interests,
   company,
-  institueName,
+  instituteName,
   courseName,
   profession,
   lookingFor,
@@ -221,7 +221,7 @@ const ConnectCard = ({
   interests: string[];
   id: string;
   company?: string;
-  institueName?: string;
+  instituteName?: string;
   courseName?: string;
   profession?: string;
   position?: string;
@@ -313,7 +313,7 @@ const ConnectCard = ({
                       </div>
 
                       <p className="text-[10px] text-white font-medium">
-                        {institueName}
+                        {instituteName}
                       </p>
                     </div>
 

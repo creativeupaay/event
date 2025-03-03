@@ -145,7 +145,7 @@ const ConnectPage = () => {
                   position={user.position}
                   company={user.company}
                   courseName={user.courseName}
-                  institueName={user.institueName}
+                  instituteName={user.instituteName}
                 />
               </SwiperSlide>
             ))}

@@ -9,7 +9,7 @@ import nakshatraBadge from "../assets/badges/nakshatra.png";
 import chandraBadge from "../assets/badges/chandra.png";
 import shaniBadge from "../assets/badges/shani.png";
 import suryaBadge from "../assets/badges/surya.png";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const badgeInfo = [
   {
@@ -171,7 +171,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>ronak@gmail.com</p>
+                  <p>{user?.email}</p>
                 </div>
               </div>
               <div className="flex items-center">
@@ -180,7 +180,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>8822412697</p>
+                  <p>{user?.contactNumber}</p>
                 </div>
               </div>
             </div>
@@ -238,7 +238,11 @@ const Profile = () => {
             </div>
 
             <div className="w-full flex items-center  my-3 text-sm text-darkBg">
-              <p>AI & Automation, Smart Devices, Gaming</p>
+              <p>
+                {user?.industry.map((label, index) => (
+                  <React.Fragment key={index}>{label}, </React.Fragment>
+                ))}
+              </p>
             </div>
           </div>
 
@@ -254,7 +258,9 @@ const Profile = () => {
 
             <div className="w-full flex items-center space-x-2 my-3 text-sm text-darkBg">
               <p>
-                Full Stack Developer, Accounting Professional, Mobile Developer
+                {user?.lookingFor.map((label, index) => (
+                  <React.Fragment key={index}>{label}, </React.Fragment>
+                ))}
               </p>
             </div>
           </div>

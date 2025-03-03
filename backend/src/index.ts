@@ -34,9 +34,12 @@ app.use(
   })
 );
 
-app.use(helmet())
+app.use(helmet());
 const corsOptions = {
-  origin: ["https://creativeevent.vercel.app", "http://localhost:5173"],
+  origin:
+    process.env.NODE_ENV === "production"
+      ? ["https://event.creativeupaay.com"]
+      : ["http://localhost:5173"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],

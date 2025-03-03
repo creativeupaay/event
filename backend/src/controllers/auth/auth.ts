@@ -222,7 +222,7 @@ export const refreshToken = async (
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "strict",
       maxAge: 2 * 60 * 60 * 1000, // 2 hours
     });
 

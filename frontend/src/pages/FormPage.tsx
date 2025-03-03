@@ -128,7 +128,6 @@ const FormPage = () => {
   }, [currentFormIndex]);
 
   const nextForm = async () => {
-    console.log("clicked");
     const formsContainerElement = formsContainerRef.current;
 
     if (!formsContainerElement) return;

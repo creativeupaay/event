@@ -3,6 +3,7 @@ export interface userI {
   name: string;
   email: string;
   profileImage: string;
+  industry: string[];
   interests: string[];
   lookingFor: string[];
   company: string;

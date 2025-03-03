@@ -12,15 +12,16 @@ import { imageUploader } from "../../utils/imageUploader";
 import { RequestStatusEnum } from "../../types/enum";
 import { getBadgeInfo } from "../../utils/badgeLevels";
 
-const updateUserBadge = async (userId: string, connections:number) => {
-  const user = await UserModel.findById(new mongoose.Types.ObjectId(userId)).select("previousBadgeName badgeSplashRead");
-  if(!user)
-    return {}
+const updateUserBadge = async (userId: string, connections: number) => {
+  const user = await UserModel.findById(
+    new mongoose.Types.ObjectId(userId)
+  ).select("previousBadgeName badgeSplashRead");
+  if (!user) return {};
   const previousBadgeName = user.previousBadgeName;
   const badgeInfo = getBadgeInfo(connections);
 
-  if (!badgeInfo){
-    return "Unable to determine badege"
+  if (!badgeInfo) {
+    return "Unable to determine badege";
   }
 
   const { badgeName, level, subText } = badgeInfo;
@@ -39,9 +40,9 @@ const updateUserBadge = async (userId: string, connections:number) => {
     badgeName,
     level,
     subText,
-    badgeSplashRead : updatedUserData.badgeSplashRead
+    badgeSplashRead: updatedUserData.badgeSplashRead,
   };
-}
+};
 
 export const createUser = async (
   req: Request,
@@ -88,14 +89,14 @@ export const createUser = async (
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "strict",
       maxAge: 2 * 60 * 60 * 1000, // 2 hours
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -129,8 +130,8 @@ export const UserInfo = async (
         from: "friendrequests",
         localField: "_id",
         foreignField: "sender",
-        as: "requestSentUser"
-      }
+        as: "requestSentUser",
+      },
     },
     {
       $addFields: {
@@ -139,19 +140,19 @@ export const UserInfo = async (
             $filter: {
               input: "$requestSentUser",
               as: "request",
-              cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] }
-            }
-          }
-        }
-      }
+              cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] },
+            },
+          },
+        },
+      },
     },
     {
       $lookup: {
         from: "friendrequests",
         localField: "_id",
         foreignField: "receiver",
-        as: "requestReceivedUser"
-      }
+        as: "requestReceivedUser",
+      },
     },
     {
       $addFields: {
@@ -160,11 +161,11 @@ export const UserInfo = async (
             $filter: {
               input: "$requestReceivedUser",
               as: "request",
-              cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] }
-            }
-          }
-        }
-      }
+              cond: { $eq: ["$$request.status", RequestStatusEnum.PENDING] },
+            },
+          },
+        },
+      },
     },
     {
       $lookup: {
@@ -175,16 +176,16 @@ export const UserInfo = async (
             $match: {
               $or: [
                 { user1: new mongoose.Types.ObjectId(userId) },
-                { user2: new mongoose.Types.ObjectId(userId) }
-              ]
-            }
+                { user2: new mongoose.Types.ObjectId(userId) },
+              ],
+            },
           },
           {
-            $count: "friendCount"
-          }
+            $count: "friendCount",
+          },
         ],
-        as: "friendshipStatus"
-      }
+        as: "friendshipStatus",
+      },
     },
     {
       $addFields: {
@@ -192,10 +193,10 @@ export const UserInfo = async (
           $cond: {
             if: { $gt: [{ $size: "$friendshipStatus" }, 0] },
             then: { $arrayElemAt: ["$friendshipStatus.friendCount", 0] },
-            else: 0
-          }
-        }
-      }
+            else: 0,
+          },
+        },
+      },
     },
     {
       $project: {
@@ -216,23 +217,22 @@ export const UserInfo = async (
         lookingFor: 1,
         interests: 1,
         status: 1,
-        previousBadgeName:1
+        previousBadgeName: 1,
       },
     },
   ]);
 
-  if (!user.length)
-    throw new AppError("User not found", 404);
+  if (!user.length) throw new AppError("User not found", 404);
 
   // const userLevelData = getBadgeInfo(user[0]?.connections);
-  const userLevelData = await updateUserBadge(userId,user[0]?.connections );
+  const userLevelData = await updateUserBadge(userId, user[0]?.connections);
 
   console.log("userLevelData", userLevelData);
 
   return res.status(200).json({
     success: true,
     user: user[0],
-    userLevelData
+    userLevelData,
   });
 };
 

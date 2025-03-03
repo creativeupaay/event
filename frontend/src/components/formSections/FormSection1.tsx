@@ -22,6 +22,31 @@ const FormSection1 = ({
 }) => {
   const { showSnackbar } = useSnackbar();
 
+  const validAndGoToNext = () => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
+
+    // Function to validate email
+    const validateEmail = (email: string) => emailRegex.test(email);
+
+    // Function to validate phone number
+    const validatePhone = (phone: string) => phoneRegex.test(phone);
+
+    if (name && email && number) {
+      if (!validateEmail(email)) {
+        showSnackbar("Enter a valid email", "warning");
+        return;
+      } else if (!validatePhone(number)) {
+        showSnackbar("Enter a valid phone number", "warning");
+        return;
+      }
+
+      nextForm();
+    } else {
+      showSnackbar("Please fill the details", "warning");
+    }
+  };
+
   return (
     <div
       className={`w-full flex-shrink-0 relative px-3`}
@@ -90,10 +115,7 @@ const FormSection1 = ({
         </div>
         <button
           onClick={() => {
-            if (name && email && number) nextForm();
-            else {
-              showSnackbar("Please fill the details", "warning");
-            }
+            validAndGoToNext();
           }}
           className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs ${
             name && email && number ? "opacity-100" : "opacity-60"

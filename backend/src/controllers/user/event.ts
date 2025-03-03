@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import { UserModel } from "../../models/userModel";
 import { FriendRequestModel } from "../../models/freindRequestModel";
+import { FriendModel } from "../../models/friendModel";
 
 
 export const getAllEventGuest = async (
@@ -15,8 +16,6 @@ export const getAllEventGuest = async (
 
     const { name, sortOrder, eventId, selectedInterest, profession, position, industry, limit = 10, cursor } = req.query;
     const userId = req.user.id;
-
-    console.log("name :", name, profession)
 
     if (!eventId)
         throw new AppError("Query(eventId) not found", 400);
@@ -63,18 +62,66 @@ export const getAllEventGuest = async (
             }
         }
     ]);
-    const knownUserIds = (data && data[0]?.otherUserIds) ?? [];
+
+    // connected users
+    const connectedUsers = await FriendModel.aggregate([
+        {
+            $match: {
+                $or: [
+                    { user1: new mongoose.Types.ObjectId(userId) },
+                    { user2: new mongoose.Types.ObjectId(userId) }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                otherUserIds: {
+                    $cond: {
+                        if: { $eq: ["$user1", new mongoose.Types.ObjectId(userId)] },
+                        then: "$user2",
+                        else: "$user1"
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                otherUserIds: { $addToSet: "$otherUserIds" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                otherUserIds: 1
+            }
+        }
+    ]);
+
+    const connectedUsersIds = connectedUsers && connectedUsers.length > 0 ? connectedUsers[0].otherUserIds : [];
+    const pendingRequestUserIds = data && data.length > 0 ? data[0].otherUserIds : [];
+
+    const knownUserIdsArray = [
+        ...(pendingRequestUserIds),
+        ...(connectedUsersIds)
+    ];
+
+    const knownUserIds = [...new Set(knownUserIdsArray)];
 
     // extracting user interests
     const user = await UserModel.aggregate([
         {
+            $match: { _id: new mongoose.Types.ObjectId(userId) }
+        },
+        {
             $project: {
                 _id: 0,
-                interests: 1
+                lookingFor: 1
             }
         }
     ]);
-    const userInterest = user[0].interests;
+    const lookingFor = user[0].lookingFor;
 
     // extracting all unknown users
     const eventGuests = await EventModel.aggregate([
@@ -109,15 +156,35 @@ export const getAllEventGuest = async (
                             instituteName: "$$user.instituteName",
                             courseName: "$$user.courseName",
                             lookingFor: "$$user.lookingFor",
+                            createdAt: "$$user.createdAt",
                             interestsMatchedCount: {
                                 $size: {
-                                    $setIntersection: ["$$user.interests", userInterest]
+                                    // $setIntersection: ["$$user.interests", lookingFor]
+                                    $setIntersection: [
+                                        {
+                                            $setUnion: [
+                                                { $ifNull: [{ $split: ["$$user.profession", ","] }, []] },
+                                                { $ifNull: [{ $split: ["$$user.position", ","] }, []] }
+                                            ]
+                                        },
+                                        lookingFor
+                                    ]
                                 }
                             },
                             isNameMatch: name ? { $regexMatch: { input: "$$user.name", regex: name, options: "i" } } : true,
                             isProfessionMatch: profession ? { $regexMatch: { input: "$$user.profession", regex: profession, options: "i" } } : true,
                             isPositionMatch: position ? { $regexMatch: { input: "$$user.position", regex: position, options: "i" } } : true,
-                            isIndustryMatch: industry ? { $regexMatch: { input: "$$user.industry", regex: industry, options: "i" } } : true,
+                            // isIndustryMatch: industry ? { $regexMatch: { input: "$$user.industry", regex: industry, options: "i" } } : true,
+                            isIndustryMatch: industry ? {
+                                $gte: [
+                                    {
+                                        $size: {
+                                            $setIntersection: ["$$user.industry", industry]
+                                        }
+                                    },
+                                    1
+                                ]
+                            } : true
                         }
                     }
                 }
@@ -138,14 +205,13 @@ export const getAllEventGuest = async (
                                         if: { $gt: [selectedInterestLength, 0] },
                                         then: {
                                             $gt: [
-                                                { $size: { $setIntersection: ["$$user.interests", selectedInterest] } },
+                                                { $size: { $setIntersection: ["$$user.lookingFor", selectedInterest] } },
                                                 0
                                             ]
                                         },
                                         else: true
                                     }
                                 },
-
                                 { $eq: ["$$user.isNameMatch", true] },
                                 { $eq: ["$$user.isProfessionMatch", true] },
                                 { $eq: ["$$user.isPositionMatch", true] },
@@ -157,14 +223,18 @@ export const getAllEventGuest = async (
             }
         },
         {
-            $sort: {
-                "users.interestsMatchedCount": -1
+            $addFields: {
+                users: {
+                    $sortArray: {
+                        input: "$users",
+                        sortBy: {
+                            "interestsMatchedCount": -1,
+                            "createdAt": sortOrder === 'asc' ? 1 : -1
+                        }
+                    }
+                }
             }
         },
-        {
-            $sort: { "users.createdAt": sortOrder === 'asc' ? 1 : -1 }
-        },
-
         {
             $unwind: "$users"
         },
@@ -202,7 +272,6 @@ export const getAllEventGuest = async (
     return res.status(200).json({
         success: true,
         eventGuests,
-        // knownUserIds
     });
 }
 
@@ -354,5 +423,219 @@ export const getAttendiesRole = async (
     return res.status(200).json({
         success: true,
         attendeeRoles
+    });
+}
+
+export const searchGuestInEvents = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const { name, sortOrder, eventId, selectedInterest, profession, position, industry, limit = 10, cursor } = req.query;
+    const userId = req.user.id;
+
+    console.log("name :", name, profession)
+
+    if (!eventId)
+        throw new AppError("Query(eventId) not found", 400);
+
+    const filteredSelectedInterest = Array.isArray(selectedInterest)
+        ? selectedInterest.filter((item: any) => item.trim() !== "")
+        : [];
+
+    let selectedInterestLength = filteredSelectedInterest.length;
+
+
+    // extracting all connected UserIds
+    const data = await FriendModel.aggregate([
+        {
+            $match: {
+                $or: [
+                    { user1: new mongoose.Types.ObjectId(userId) },
+                    { user2: new mongoose.Types.ObjectId(userId) }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                otherUserIds: {
+                    $cond: {
+                        if: { $eq: ["$user1", new mongoose.Types.ObjectId(userId)] },
+                        then: "$user2",
+                        else: "$user1"
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                otherUserIds: { $addToSet: "$otherUserIds" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                otherUserIds: 1
+            }
+        }
+    ]);
+    const knownUserIds = (data && data[0]?.otherUserIds) ?? [];
+
+    // extracting user interests
+    const user = await UserModel.aggregate([
+        {
+            $project: {
+                _id: 0,
+                lookingFor: 1
+            }
+        }
+    ]);
+    const lookingFor = user[0].lookingFor;
+
+    // extracting all users
+    const eventGuests = await EventModel.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(String(eventId)),
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "attendies",
+                as: "users"
+            }
+        },
+        {
+            $addFields: {
+                users: {
+                    $map: {
+                        input: "$users",
+                        as: "user",
+                        in: {
+                            _id: "$$user._id",
+                            name: "$$user.name",
+                            interests: "$$user.interests",
+                            profileImage: "$$user.profileImage",
+                            profession: "$$user.profession",
+                            position: "$$user.position",
+                            company: "$$user.company",
+                            industry: "$$user.industry",
+                            instituteName: "$$user.instituteName",
+                            courseName: "$$user.courseName",
+                            lookingFor: "$$user.lookingFor",
+                            isConnected: {
+                                $in: ["$$user._id", knownUserIds]
+                            },
+                            interestsMatchedCount: {
+                                $size: {
+                                    $setIntersection: [
+                                        {
+                                            $setUnion: [
+                                                { $ifNull: [{ $split: ["$$user.profession", ","] }, []] },
+                                                { $ifNull: [{ $split: ["$$user.position", ","] }, []] }
+                                            ]
+                                        },
+                                        lookingFor
+                                    ]
+                                }
+                            },
+                            isNameMatch: name ? { $regexMatch: { input: "$$user.name", regex: name, options: "i" } } : true,
+                            isProfessionMatch: profession ? { $regexMatch: { input: "$$user.profession", regex: profession, options: "i" } } : true,
+                            isPositionMatch: position ? { $regexMatch: { input: "$$user.position", regex: position, options: "i" } } : true,
+                            isIndustryMatch: industry ? { $regexMatch: { input: "$$user.industry", regex: industry, options: "i" } } : true,
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                users: {
+                    $filter: {
+                        input: "$users",
+                        as: "user",
+                        cond: {
+                            $and: [
+                                { $ne: ["$$user._id", new mongoose.Types.ObjectId(userId)] },
+                                // { $not: { $in: ["$$user._id", knownUserIds] } },
+                                {
+                                    $cond: {
+                                        if: { $gt: [selectedInterestLength, 0] },
+                                        then: {
+                                            $gt: [
+                                                { $size: { $setIntersection: ["$$user.interests", selectedInterest] } },
+                                                0
+                                            ]
+                                        },
+                                        else: true
+                                    }
+                                },
+
+                                { $eq: ["$$user.isNameMatch", true] },
+                                { $eq: ["$$user.isProfessionMatch", true] },
+                                { $eq: ["$$user.isPositionMatch", true] },
+                                { $eq: ["$$user.isIndustryMatch", true] },
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                users: {
+                    $sortArray: {
+                        input: "$users",
+                        sortBy: {
+                            "interestsMatchedCount": -1,
+                            "createdAt": sortOrder === 'asc' ? 1 : -1
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $unwind: "$users"
+        },
+        ...(cursor ? [
+            {
+                $match: {
+                    "users._id": { $gt: new mongoose.Types.ObjectId(String(cursor)) }
+                }
+            }
+        ] : []),
+        {
+            $limit: parseInt(String(limit))
+        },
+        {
+            $project: {
+                _id: "$users._id",
+                name: "$users.name",
+                industry: "$users.industry",
+                interests: "$users.interests",
+                profileImage: "$users.profileImage",
+                profession: "$users.profession",
+                position: "$users.position",
+                company: "$users.company",
+                instituteName: "$users.instituteName",
+                courseName: "$users.courseName",
+                lookingFor: "$users.lookingFor",
+                matchCount: "$users.interestsMatchedCount",
+                isConnected: "$users.isConnected"
+            }
+        }
+    ]);
+
+    if (!eventGuests.length)
+        throw new AppError("Events not available", StatusCodes.NO_CONTENT);
+
+    return res.status(200).json({
+        success: true,
+        eventGuests,
+        // knownUserIds
     });
 }

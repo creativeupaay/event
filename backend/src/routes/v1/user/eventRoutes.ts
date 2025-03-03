@@ -8,5 +8,6 @@ const router = express.Router();
 router.route("/get-all-event-Guest").get(authenticate, asyncHandler(userEventController.getAllEventGuest))
 router.route("/get-events").get(authenticate, asyncHandler(userEventController.getUserEvents));
 router.route("/get-attendees-list").get(asyncHandler(userEventController.getAttendiesRole));
+router.route("/search-guests").get(authenticate, asyncHandler(userEventController.searchGuestInEvents));
 
 export default router;

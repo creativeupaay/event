@@ -16,6 +16,8 @@ export interface IUser extends Document {
   lookingFor: string[];
   interests: string[];
   eventIds: Schema.Types.ObjectId[];
+  badgeSplashRead:Boolean;
+  previousBadgeName:String;
   status: AccountStatusEnum;
   refreshToken: string;
   resetPasswordToken: string;
@@ -93,6 +95,14 @@ const UserSchema: Schema<IUser> = new Schema<IUser>({
       ref: "Event",
     }
   ],
+  badgeSplashRead:{
+    type:Boolean,
+    default:true,
+  },
+  previousBadgeName:{
+    type:String,
+    default:"Parmanu"
+  },
   status: {
     type: String,
     enum: Object.values(AccountStatusEnum),

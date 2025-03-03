@@ -12,6 +12,37 @@ import { imageUploader } from "../../utils/imageUploader";
 import { RequestStatusEnum } from "../../types/enum";
 import { getBadgeInfo } from "../../utils/badgeLevels";
 
+const updateUserBadge = async (userId: string, connections:number) => {
+  const user = await UserModel.findById(new mongoose.Types.ObjectId(userId)).select("previousBadgeName badgeSplashRead");
+  if(!user)
+    return {}
+  const previousBadgeName = user.previousBadgeName;
+  const badgeInfo = getBadgeInfo(connections);
+
+  if (!badgeInfo){
+    return "Unable to determine badege"
+  }
+
+  const { badgeName, level, subText } = badgeInfo;
+  let badgeSplashRead = true;
+
+  if (previousBadgeName !== null && previousBadgeName !== badgeName) {
+    badgeSplashRead = false;
+  }
+
+  user.previousBadgeName = badgeName;
+  user.badgeSplashRead = badgeSplashRead;
+
+  const updatedUserData = await user.save();
+
+  return {
+    badgeName,
+    level,
+    subText,
+    badgeSplashRead : updatedUserData.badgeSplashRead
+  };
+}
+
 export const createUser = async (
   req: Request,
   res: Response,
@@ -171,7 +202,7 @@ export const UserInfo = async (
         _id: 1,
         requestSent: 1,
         requestReceived: 1,
-        connections:1,
+        connections: 1,
         name: 1,
         email: 1,
         contactNumber: 1,
@@ -185,14 +216,18 @@ export const UserInfo = async (
         lookingFor: 1,
         interests: 1,
         status: 1,
+        previousBadgeName:1
       },
     },
   ]);
 
-  if (!user.length) 
+  if (!user.length)
     throw new AppError("User not found", 404);
 
-  const userLevelData = getBadgeInfo(user[0]?.connections);
+  // const userLevelData = getBadgeInfo(user[0]?.connections);
+  const userLevelData = await updateUserBadge(userId,user[0]?.connections );
+
+  console.log("userLevelData", userLevelData);
 
   return res.status(200).json({
     success: true,

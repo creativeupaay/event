@@ -10,6 +10,11 @@ import chandraBadge from "../assets/badges/chandra.png";
 import shaniBadge from "../assets/badges/shani.png";
 import suryaBadge from "../assets/badges/surya.png";
 import React, { useEffect, useState } from "react";
+import { Modal } from "@mui/material";
+import { industries } from "../components/formSections/FormSection3";
+import { suggestedProfessions } from "../components/formSections/FormSection4";
+import CustomButton from "../components/CustomButton";
+import { useSnackbar } from "../hooks/SnackbarContext";
 
 const badgeInfo = [
   {
@@ -44,11 +49,130 @@ const badgeInfo = [
   },
 ];
 
+const EditComponent = ({
+  heading,
+  inputLabel,
+  closeModal,
+  editFunc,
+  editType,
+}: {
+  heading: string;
+  inputLabel: string;
+  closeModal: Function;
+  editFunc: Function;
+  editType: "INTERESTS" | "LOOKING_FOR";
+}) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { showSnackbar } = useSnackbar();
+
+  const onEdit = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+
+    try {
+      await editFunc();
+
+      showSnackbar("Profile is edited successfully", "success");
+    } catch (e) {
+      showSnackbar("Error in editing the profile", "error");
+    }
+  };
+
+  return (
+    <div className="w-full h-fit flex flex-col flex-1 rounded-lg bg-whiteBG px-4 py-3 space-y-3">
+      <div className="flex items-center justify-between text-darkBg font-medium">
+        <div></div>
+        <p>{heading}</p>
+        <Icon
+          onClick={() => closeModal()}
+          icon={"material-symbols:close-rounded"}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <p className="text-sm font-semibold text-grey">{inputLabel}</p>
+        <select className="w-full py-2 px-3 bg-white border border-grey01 rounded-lg outline-none text-grey text-sm">
+          <option>Choose your preference</option>
+          {(editType == "INTERESTS" ? industries : suggestedProfessions).map(
+            (data, index) => (
+              <option key={index}>{data.label}</option>
+            )
+          )}
+        </select>
+
+        <div className="flex items-center flex-wrap gap-3">
+          {/* {filters.lookingFor.map((label, index) => (
+            <div
+              key={index}
+              className="text-xs bg-grey01 px-3 py-2 rounded-full font-medium text-darkBg flex items-center space-x-4"
+            >
+              <p>{label}</p>{" "}
+              <Icon
+                onClick={() => {
+                  const filteredLookingFor = filters.lookingFor.filter(
+                    (text) => text !== label
+                  );
+
+                  setFilters({
+                    workStatus: filters.workStatus,
+                    industries: filters.industries,
+                    lookingFor: filteredLookingFor,
+                  });
+                }}
+                icon={"ph:x-bold"}
+              />
+            </div>
+          ))} */}
+        </div>
+      </div>
+
+      <div className="flex flex-col space-y-3">
+        <CustomButton
+          text="Edit"
+          onClick={() => {
+            onEdit();
+          }}
+          width="100%"
+        />
+        <CustomButton
+          text="Cancel"
+          onClick={() => {
+            closeModal();
+          }}
+          width="100%"
+          type="outlined"
+        />
+      </div>
+    </div>
+  );
+};
+
 const Profile = () => {
   const navigate = useNavigate();
   const { user, userLevelData } = useUser();
 
   const [levelPercentage, setLevelPercentage] = useState(0);
+
+  const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
+  const [isLookingForModalOpen, setIsLookingForModalOpen] = useState(false);
+
+  // edited info
+  // const [editedInterests, setEditedInterests] = useState<{
+  //   "interestsToRemove": string[],
+  //   "newInterests": string[]
+  // }>({
+  //   interestsToRemove:[],
+  //   newInterests:[]
+  // })
+
+  // const [editedLookingFor, setEditedLookingFor] = useState<{
+  //   "lookingForToRemove":string[],
+  //   "newLookingFor":string[]
+  // }>({
+  //   lookingForToRemove:[],
+  //   newLookingFor:[],
+  // })
 
   useEffect(() => {
     if (!user || !userLevelData) return;
@@ -61,6 +185,30 @@ const Profile = () => {
 
   return (
     <div className="w-full h-full">
+      <Modal open={isInterestModalOpen}>
+        <div className="w-full h-full px-2 flex items-center">
+          <EditComponent
+            heading="Edit interests"
+            inputLabel="I’m Interested in"
+            closeModal={() => setIsInterestModalOpen(false)}
+            editType="INTERESTS"
+            editFunc={() => {}}
+          />
+        </div>
+      </Modal>
+
+      <Modal open={isLookingForModalOpen}>
+        <div className="w-full h-full px-2 flex items-center">
+          <EditComponent
+            heading="Edit Networking Options"
+            inputLabel="I want to network with"
+            closeModal={() => setIsLookingForModalOpen(false)}
+            editType="LOOKING_FOR"
+            editFunc={() => {}}
+          />
+        </div>
+      </Modal>
+
       {/* top header */}
       <div className="bg-grey01 px-3 py-5 flex items-center justify-between">
         <div className="text-darkBg space-x-3 flex items-center">
@@ -191,6 +339,7 @@ const Profile = () => {
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">Professional Details</p>
               <Icon
+                onClick={() => setIsInterestModalOpen(true)}
                 icon={"material-symbols:edit-outline-rounded"}
                 fontSize={"16px"}
               />
@@ -232,6 +381,7 @@ const Profile = () => {
             <div className="w-full flex items-center justify-between">
               <p className="text-sm font-medium">Interests</p>
               <Icon
+                onClick={() => setIsLookingForModalOpen(true)}
                 icon={"material-symbols:edit-outline-rounded"}
                 fontSize={"16px"}
               />

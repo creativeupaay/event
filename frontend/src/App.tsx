@@ -1,11 +1,11 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 // import Home from "./pages/Home";
 import FormPage from "./pages/FormPage";
 import MainPage from "./pages/MainPage";
 import ConnectPage from "./pages/ConnectPage";
 import Profile from "./pages/Profile";
 import NotificatonsPage from "./pages/NotificationsPage";
-import { useSnackbar } from "./hooks/SnackbarContext";
+// import { useSnackbar } from "./hooks/SnackbarContext";
 import LayoutWithHeader from "./layouts/LayoutWithHeader";
 import LayoutWithOutHeader from "./layouts/LayoutWithOutHeader";
 import RequestsPage from "./pages/RequestsPage";
@@ -19,13 +19,14 @@ import { userI, userLevelDataI } from "./types/userTypes";
 import QRConnecting from "./pages/QRConnecting";
 
 const App = () => {
-  const { showSnackbar } = useSnackbar();
+  // const { showSnackbar } = useSnackbar();
   const [user, setUser] = useState<userI | undefined>(undefined);
   const [userLevelData, setUserLevelData] = useState<
     userLevelDataI | undefined
   >(undefined);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const fetchUser = async () => {
     try {
@@ -37,13 +38,13 @@ const App = () => {
       }
     } catch (e) {
       navigate("/form/67a1e3adace29974b72c9694");
-      showSnackbar("Please fill the form first", "warning");
+      // showSnackbar("Please fill the form first", "warning");
     }
   };
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    if (!user) fetchUser();
+  }, [location.pathname]);
 
   return (
     <>

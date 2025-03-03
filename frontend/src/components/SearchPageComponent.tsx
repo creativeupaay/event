@@ -332,7 +332,7 @@ const SearchPageComponent = ({
       {searchedName.length == 0 && <OfferBanner />}
 
       {/* Recent search portion */}
-      <div className="mt-2 px-3 h-full">
+      <div className="mt-2 px-3 h-full overflow-y-scroll no-scrollbar">
         {searchedName.length == 0 &&
           recentSearches.length != 0 &&
           !selectedSearch && (

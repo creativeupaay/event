@@ -120,7 +120,7 @@ const MyNetworkPage = () => {
       </div>
       <OfferBanner />
 
-      <div className="w-full h-full px-3 py-3">
+      <div className="w-full h-full px-3 py-3 overflow-y-scroll no-scrollbar">
         <p className="text-sm text-darkBg">
           {tempAllFriends.length} Connections
         </p>

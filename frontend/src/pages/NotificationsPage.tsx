@@ -78,7 +78,7 @@ const NotificatonsPage = () => {
       </div>
       <OfferBanner />
 
-      <div className="w-full h-full flex flex-col py-4 px-4">
+      <div className="w-full h-full flex flex-col py-4 px-4 overflow-y-scroll no-scrollbar">
         <div>
           <div className="flex items-center space-x-2">
             <Icon icon={"hugeicons:activity-01"} fontSize={"22px"} />

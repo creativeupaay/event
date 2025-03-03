@@ -18,7 +18,7 @@ const Header = () => {
         <div
           className="w-full absolute top-0 left-0 z-50"
           style={{
-            height: innerHeight - 100,
+            height: innerHeight,
           }}
         >
           <SearchPageComponent setIsSearchbarOpen={setIsSearchbarOpen} />

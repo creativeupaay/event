@@ -59,6 +59,11 @@ export const createUser = async (
   try {
     data.eventIds = [data.eventId];
     data.profileImage = `https://api.dicebear.com/5.x/initials/svg?seed=${data.name.replace(/ /g, "_")}`;
+
+    const isUserExist = await UserModel.findOne({email:data.email})
+    if(isUserExist)
+      throw new AppError("User already registerd", 400);
+    
     const [user] = await UserModel.create([data], { session });
     if (!user) throw new AppError("Failed to create new User", 500);
 

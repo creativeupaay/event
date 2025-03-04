@@ -16,6 +16,7 @@ export interface userI {
   status: string;
   contactNumber: string;
   connections: number;
+  isConnected?: boolean;
 }
 
 export interface userLevelDataI {

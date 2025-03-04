@@ -311,7 +311,7 @@ const Profile = () => {
     }
   };
 
-  const saveInterests = async (editedData: any) => {
+  const saveInterests = async (editedData: EDITED_INTEREST) => {
     try {
       await userApi.put("/user/editInterest", {
         data: editedData,
@@ -320,6 +320,19 @@ const Profile = () => {
       showSnackbar("Edited successfully", "success");
 
       setIsInterestModalOpen(false);
+    } catch (e) {
+      showSnackbar("Error while editing", "error");
+    }
+  };
+
+  const saveLookingFor = async (editedData: EDITED_LOOKINGFOR) => {
+    try {
+      await userApi.put("/user/edit-lookingFor", {
+        data: editedData,
+      });
+
+      showSnackbar("Edited successfully", "success");
+
       setIsLookingForModalOpen(false);
     } catch (e) {
       showSnackbar("Error while editing", "error");
@@ -353,7 +366,7 @@ const Profile = () => {
             editType="LOOKING_FOR"
             setEditedLookingFor={setEditedLookingFor}
             saveFunc={async () => {
-              await saveInterests(editedLookingFor);
+              await saveLookingFor(editedLookingFor);
             }}
             selectedData={user ? user.lookingFor : []}
           />

@@ -139,35 +139,37 @@ const ConnectionProfile = () => {
             </div>
 
             {/* Phone number and email */}
-            <div className="flex flex-col space-y-2 pt-3">
-              <Link to={`mailto:${profileInfo?.email}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Icon icon={"ic:outline-email"} />
-                    <p className="text-sm">{profileInfo?.email}</p>
+            {profileInfo?.isConnected && (
+              <div className="flex flex-col space-y-2 pt-3">
+                <Link to={`mailto:${profileInfo?.email}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Icon icon={"ic:outline-email"} />
+                      <p className="text-sm">{profileInfo?.email}</p>
+                    </div>
+
+                    <Icon
+                      icon={"stash:chevron-right-duotone"}
+                      fontSize={"22px"}
+                    />
                   </div>
+                </Link>
 
-                  <Icon
-                    icon={"stash:chevron-right-duotone"}
-                    fontSize={"22px"}
-                  />
-                </div>
-              </Link>
+                <Link to={`tel:${profileInfo?.contactNumber}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Icon icon={"ic:outline-phone"} />
+                      <p className="text-sm">{profileInfo?.contactNumber}</p>
+                    </div>
 
-              <Link to={`tel:${profileInfo?.contactNumber}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Icon icon={"ic:outline-phone"} />
-                    <p className="text-sm">{profileInfo?.contactNumber}</p>
+                    <Icon
+                      icon={"stash:chevron-right-duotone"}
+                      fontSize={"22px"}
+                    />
                   </div>
-
-                  <Icon
-                    icon={"stash:chevron-right-duotone"}
-                    fontSize={"22px"}
-                  />
-                </div>
-              </Link>
-            </div>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

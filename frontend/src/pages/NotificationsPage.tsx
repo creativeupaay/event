@@ -8,14 +8,23 @@ import userApi from "../apis/userApi";
 const ActivityCard = ({
   type,
   name,
+  userId,
   message,
 }: {
   type: "Note" | "Video";
   name: string;
+  userId: string;
   message: string;
 }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex items-start space-x-4">
+    <div
+      onClick={() => {
+        navigate(`/profile/${userId}`);
+      }}
+      className="flex items-start space-x-4"
+    >
       <div className="flex items-center space-x-2">
         <Icon
           icon={type == "Note" ? "proicons:note" : "proicons:video"}
@@ -97,6 +106,7 @@ const NotificatonsPage = () => {
                   type="Note"
                   message={notification.message}
                   name={notification.user[0].name}
+                  userId={notification.user[0]._id}
                 />
               ))}
 

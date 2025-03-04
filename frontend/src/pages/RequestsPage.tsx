@@ -42,6 +42,7 @@ const NoteCard = ({
   removeCard: Function;
 }) => {
   const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   const [isNoteExpanded, setIsNoteExpanded] = useState<boolean>(false);
 
@@ -83,7 +84,11 @@ const NoteCard = ({
   return (
     <div className="flex items-center justify-between">
       {/* left section */}
-      <div>
+      <div
+        onClick={() => {
+          navigate(`/profile/${type == "sent" ? receiverId : senderId}`);
+        }}
+      >
         <div className="flex items-center space-x-2">
           <p className="text-sm font-bold text-darkBg">{name}</p>
           <p className="text-xs text-grey">Freelancer</p>

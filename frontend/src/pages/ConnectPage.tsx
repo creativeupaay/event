@@ -62,7 +62,7 @@ const ConnectPage = () => {
   }, []);
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full flex flex-col flex-1 relative">
       <Modal open={isFilterModalOpen}>
         <div className="w-full h-full px-2 flex items-center">
           <FilterComp
@@ -75,7 +75,7 @@ const ConnectPage = () => {
       </Modal>
 
       <OfferBanner />
-      <div className=" px-5 flex items-center justify-between py-2">
+      <div className="flex-[0.05] px-5 flex items-center justify-between py-2">
         <div
           onClick={() => navigate("/requests/sent")}
           className="active:bg-grey01"
@@ -97,7 +97,7 @@ const ConnectPage = () => {
         </div>
       </div>
 
-      <div className=" my-5 w-full h-full ">
+      <div className="flex-[0.95] my-5 w-full h-full overflow-y-scroll no-scrollbar">
         <div className="flex items-center justify-between px-5 mb-5">
           <div className="flex items-center space-x-4">
             <h1 className="font-bold">Explore Attendees</h1>

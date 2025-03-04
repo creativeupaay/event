@@ -233,6 +233,8 @@ const ConnectCard = ({
   const { showSnackbar } = useSnackbar();
   const [isFlipped, setFlipped] = useState<boolean>(false);
 
+  const [isQuickConnected, setIsQuickConnected] = useState<boolean>(false);
+
   const sendConnectionRequest = async () => {
     if (!note) {
       showSnackbar("Please provide a note", "warning");
@@ -280,6 +282,7 @@ const ConnectCard = ({
 
       if (response.status == 200) {
         showSnackbar("Quick Connected", "success");
+        setIsQuickConnected(true);
       }
     } catch (e) {
       showSnackbar("Error in quick connecting", "error");
@@ -401,6 +404,8 @@ const ConnectCard = ({
                   >
                     {isQuickConnecting ? (
                       <CircularProgress size={"18px"} />
+                    ) : isQuickConnected ? (
+                      <p>Connection Sent</p>
                     ) : (
                       <>
                         <Icon

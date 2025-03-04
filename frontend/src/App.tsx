@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { UserProvider } from "./hooks/UserContext";
 import { userI, userLevelDataI } from "./types/userTypes";
 import QRConnecting from "./pages/QRConnecting";
+import ConnectionProfile from "./pages/ConnectionProfile";
 
 const App = () => {
   // const { showSnackbar } = useSnackbar();
@@ -66,6 +67,7 @@ const App = () => {
             <Route path="/requests/:rtype" element={<RequestsPage />} />
             <Route path="/network" element={<MyNetworkPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:id" element={<ConnectionProfile />} />
           </Route>
 
           <Route path="/qr" element={<QRPage />} />

@@ -11,15 +11,24 @@ const ConnectionCard = ({
   company,
   email,
   number,
+  userId,
 }: {
   name: string;
   position: string;
   company: string;
   email: string;
   number: string;
+  userId: string;
 }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="w-full h-[149px] flex flex-col rounded-xl bg-[#FFFEC4]">
+    <div
+      onClick={() => {
+        navigate(`/profile/${userId}`);
+      }}
+      className="w-full h-[149px] flex flex-col rounded-xl bg-[#FFFEC4]"
+    >
       {/* top part */}
       <div className="flex-[0.75] px-2 pt-4 space-y-2  ">
         <p className="text-sm font-bold text-darkBg">{name}</p>
@@ -147,6 +156,7 @@ const MyNetworkPage = () => {
               company={friend.company}
               email={friend.email}
               number={friend.contactNumber}
+              userId={friend.friendId}
             />
           ))}
         </div>

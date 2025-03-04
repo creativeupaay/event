@@ -5,6 +5,9 @@ import {
 } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useSnackbar } from "../../hooks/SnackbarContext";
+import { Icon } from "@iconify/react";
+import { Modal } from "@mui/material";
+import OtherInfoInput from "../OtherInfoInput";
 
 const Option = ({
   label,
@@ -53,6 +56,12 @@ const FormSectionCompulsory = ({
   nextForm: Function;
 }) => {
   const { showSnackbar } = useSnackbar();
+
+  const [isOtherHelpModalOpen, setIsOtherHelpModalOpen] =
+    useState<boolean>(false);
+
+  const [otherHelp, setOtherHelp] = useState<string>("");
+
   return (
     <div
       className={`w-full  flex-shrink-0 px-3 relative`}
@@ -60,6 +69,19 @@ const FormSectionCompulsory = ({
         height: innerHeight,
       }}
     >
+      <Modal open={isOtherHelpModalOpen}>
+        <div className="w-full h-full px-2 flex items-center">
+          <OtherInfoInput
+            heading="I also need help with"
+            closeModal={() => setIsOtherHelpModalOpen(false)}
+            placeholder="Let us know what you need help with!"
+            value={otherHelp}
+            setValue={setOtherHelp}
+            addFunc={() => setHelps((data) => [...data, otherHelp])}
+          />
+        </div>
+      </Modal>
+
       <div className="w-full grid grid-cols-3 grid-rows-1 py-3 gap-3 [&>*]:bg-darkBg [&>*]:h-1  [&>*]:rounded-full ">
         <div className="opacity-100"></div>
         <div className="opacity-100"></div>
@@ -101,6 +123,19 @@ const FormSectionCompulsory = ({
             />
             <Option label="UI/UX Designing" setSelectedOptions={setHelps} />
             <Option label="Graphic Designing" setSelectedOptions={setHelps} />
+
+            <div
+              onClick={() => setIsOtherHelpModalOpen(true)}
+              className={`w-full flex items-center space-x-2 h-fit bg-transparent border border-white text-base text-white font-light py-3 px-3 rounded-lg ${
+                otherHelp ? "opacity-100" : "opacity-60"
+              } `}
+            >
+              <Icon
+                icon="material-symbols-light:add-circle-outline-rounded"
+                fontSize="20px"
+              />
+              <p>Other</p>
+            </div>
           </div>
 
           <button

@@ -7,7 +7,6 @@ import { NotificationEnum, RequestStatusEnum } from "../../types/enum";
 import { FriendModel } from "../../models/friendModel";
 import { imageUploader } from "../../utils/imageUploader";
 import { createNotification } from "../../utils/notificationService";
-import { timeStamp } from "console";
 
 export const sendFriendRequest = async (
     req: Request,
@@ -98,28 +97,28 @@ export const acceptRequestReceived = async (
     const user = await UserModel.findById(new mongoose.Types.ObjectId(userId)).select("name");
     if (!user)
         throw new AppError("Invalid request", 409);
-    // update the friend request
-    const updateFriendRequest = await FriendRequestModel.findOneAndUpdate(
-        {
-            sender: new mongoose.Types.ObjectId(String(senderId)),
-            receiver: new mongoose.Types.ObjectId(String(userId))
-        },
-        {
-            $set: {
-                status
-            }
-        },
-        {
-            new: true
-        }
-    );
 
-    // Handle accept status by creating a new friend record
+    // Handle accept status by creating a new friend record and updating freind request model
     if (status === RequestStatusEnum.ACCEPTED) {
+        const updateFriendRequest = await FriendRequestModel.findOneAndUpdate(
+            {
+                sender: new mongoose.Types.ObjectId(String(senderId)),
+                receiver: new mongoose.Types.ObjectId(String(userId))
+            },
+            {
+                $set: { status }
+            },
+            { new: true }
+        );
+        if (!updateFriendRequest)
+            throw new AppError("Friend request not found", 404);
+
         const friend = await FriendModel.create({
             user1: new mongoose.Types.ObjectId(String(senderId)),
             user2: new mongoose.Types.ObjectId(String(userId))
         });
+
+        if (!friend) throw new AppError("Failed to add friend", 500);
 
         const notificationData = {
             userId: String(senderId),
@@ -136,11 +135,19 @@ export const acceptRequestReceived = async (
         });
     }
 
+    // on rejectiion delete freind request
+    const deleteFriendRequest = await FriendRequestModel.deleteOne({
+        sender: new mongoose.Types.ObjectId(String(senderId)),
+        receiver: new mongoose.Types.ObjectId(String(userId))
+    });
+
+    if (deleteFriendRequest.deletedCount === 0)
+        throw new AppError("Friend request not found", 404);
+
     // Handle rejected status
     return res.status(200).json({
         success: true,
         message: "Request rejected successfully",
-        updateFriendRequest
     });
 
 }
@@ -184,7 +191,7 @@ export const getRequestSended = async (
                 interests: "$requestSentUser.interests",
                 note: 1,
                 video: 1,
-                createdAt:1
+                createdAt: 1
             }
         }
     ]);
@@ -254,7 +261,7 @@ export const getRequestRecieved = async (
                 lookingFor: "$requestRecievedUser.lookingFor",
                 note: 1,
                 video: 1,
-                createdAt:1
+                createdAt: 1
             }
         }
     ]);
@@ -323,12 +330,13 @@ export const getAllFriends = async (
                 company: "$friends.company",
                 lookingFor: "$friends.lookingFor",
                 interests: "$friends.interests",
-                otherUserId: 1
+                otherUserId: 1,
+                createdAt:"$friends.createdAt",
             }
         }
     ]);
 
-    console.log("Friends", friends);
+    // console.log("Friends", friends);
     if (!friends.length)
         return res.status(204).send();
 
@@ -519,14 +527,11 @@ export const addFriendDirect = async (
 
     const [userDetails, friendDetails] = await Promise.all([
         UserModel.findById(new mongoose.Types.ObjectId(userId)).select("name"),
-        await UserModel.findById(new mongoose.Types.ObjectId(String(friendId))).select("name")
+        UserModel.findById(new mongoose.Types.ObjectId(String(friendId))).select("name")
     ])
 
-    if (!userDetails)
-        throw new AppError("User details not found", 401);
-
-    if (!friendDetails)
-        throw new AppError("Friend not found", 400);
+    if (!userDetails) throw new AppError("User details not found", 401);
+    if (!friendDetails) throw new AppError("Friend not found", 400);
 
     const existingFriendship = await FriendModel.findOne({
         $or: [
@@ -540,9 +545,32 @@ export const addFriendDirect = async (
             }
         ]
     });
-
     if (existingFriendship)
         throw new AppError("Friendship already exists", 400);
+
+    // checking either request earlier made or not, if made the update status to accepted
+    const existingRequestPromise = await FriendRequestModel.findOne({
+        $or: [
+            { sender: new mongoose.Types.ObjectId(userId), receiver: new mongoose.Types.ObjectId(String(friendId)) },
+            { sender: new mongoose.Types.ObjectId(String(friendId)), receiver: new mongoose.Types.ObjectId(userId) }
+        ],
+    });
+
+    if (existingRequestPromise) {
+        existingRequestPromise.status = RequestStatusEnum.ACCEPTED
+        await existingRequestPromise.save();
+    }
+    else {
+        const newFriendRequested = await FriendRequestModel.create({
+            sender: userId,
+            receiver: friendId,
+            note: "",
+            video: "",
+            status: RequestStatusEnum.ACCEPTED
+        });
+
+        console.log("newFriendRequested", newFriendRequested)
+    }
 
     const friend = await FriendModel.create({
         user1: new mongoose.Types.ObjectId(userId),

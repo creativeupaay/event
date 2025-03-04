@@ -117,6 +117,12 @@ export const getAllEventGuest = async (
         {
             $project: {
                 _id: 0,
+                profession: 1,
+                position: 1,
+                company: 1,
+                instituteName: 1,
+                courseName: 1,
+                industry: 1,
                 lookingFor: 1
             }
         }
@@ -157,7 +163,7 @@ export const getAllEventGuest = async (
                             courseName: "$$user.courseName",
                             lookingFor: "$$user.lookingFor",
                             createdAt: "$$user.createdAt",
-                            interestsMatchedCount: {
+                            lookingForMatchedCount: {
                                 $size: {
                                     // $setIntersection: ["$$user.interests", lookingFor]
                                     $setIntersection: [
@@ -169,6 +175,41 @@ export const getAllEventGuest = async (
                                         },
                                         lookingFor
                                     ]
+                                }
+                            },
+                            professionMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.profession", user[0].profession ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            positionMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.position", user[0].position ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            instituteNameMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.instituteName", user[0].instituteName ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            companyNameMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.company", user[0].company ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            courseNameMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.courseName", user[0].courseName ?? "NA"] },
+                                    then: 1,
+                                    else: 0
                                 }
                             },
                             isNameMatch: name ? { $regexMatch: { input: "$$user.name", regex: name, options: "i" } } : true,
@@ -185,6 +226,33 @@ export const getAllEventGuest = async (
                                     1
                                 ]
                             } : true
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                users: {
+                    $map: {
+                        input: "$users",
+                        as: "user",
+                        in: {
+                            $mergeObjects: [
+                                "$$user",
+                                {
+                                    totalMatchCount: {
+                                        $add: [
+                                            { $ifNull: ["$$user.lookingForMatchedCount", 0] },
+                                            { $ifNull: ["$$user.professionMatchCount", 0] },
+                                            { $ifNull: ["$$user.positionMatchCount", 0] },
+                                            { $ifNull: ["$$user.instituteNameMatchCount", 0] },
+                                            { $ifNull: ["$$user.companyNameMatchCount", 0] },
+                                            { $ifNull: ["$$user.courseNameMatchCount", 0] }
+                                        ]
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -228,7 +296,7 @@ export const getAllEventGuest = async (
                     $sortArray: {
                         input: "$users",
                         sortBy: {
-                            "interestsMatchedCount": -1,
+                            "totalMatchCount": -1,
                             "createdAt": sortOrder === 'asc' ? 1 : -1
                         }
                     }
@@ -261,7 +329,7 @@ export const getAllEventGuest = async (
                 instituteName: "$users.instituteName",
                 courseName: "$users.courseName",
                 lookingFor: "$users.lookingFor",
-                matchCount: "$users.interestsMatchedCount"
+                matchCount: "$users.totalMatchCount",
             }
         }
     ]);

@@ -25,14 +25,13 @@ const updateUserBadge = async (userId: string, connections: number) => {
   }
 
   const { badgeName, level, subText } = badgeInfo;
-  let badgeSplashRead = true;
+
 
   if (previousBadgeName !== null && previousBadgeName !== badgeName) {
-    badgeSplashRead = false;
+    user.badgeSplashRead
   }
 
   user.previousBadgeName = badgeName;
-  user.badgeSplashRead = badgeSplashRead;
 
   const updatedUserData = await user.save();
 
@@ -63,7 +62,7 @@ export const createUser = async (
     const isUserExist = await UserModel.findOne({email:data.email})
     if(isUserExist)
       throw new AppError("User already registerd", 400);
-    
+
     const [user] = await UserModel.create([data], { session });
     if (!user) throw new AppError("Failed to create new User", 500);
 
@@ -259,6 +258,7 @@ export const updateUser = async (
   });
 };
 
+// replace interest to industry
 export const updateInterest = async (
   req: Request,
   res: Response,
@@ -274,7 +274,7 @@ export const updateInterest = async (
     const removedInterest = await UserModel.findByIdAndUpdate(
       new mongoose.Types.ObjectId(userId),
       {
-        $pull: { interests: { $in: data.interestsToRemove } },
+        $pull: { industry: { $in: data.interestsToRemove } },
       },
       { new: true }
     );
@@ -283,7 +283,7 @@ export const updateInterest = async (
   if (data.newInterests.length) {
     const updatedInterest = await UserModel.findByIdAndUpdate(
       new mongoose.Types.ObjectId(userId),
-      { $push: { interests: { $each: data.newInterests } } },
+      { $push: { industry: { $each: data.newInterests } } },
       { new: true }
     );
   }

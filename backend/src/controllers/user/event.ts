@@ -177,6 +177,11 @@ export const getAllEventGuest = async (
                                     ]
                                 }
                             },
+                            industryMatchCount: {
+                                $size: {
+                                    $setIntersection: ["$$user.industry", user[0].industry ?? []]
+                                }
+                            },
                             professionMatchCount: {
                                 $cond: {
                                     if: { $eq: ["$$user.profession", user[0].profession ?? "NA"] },
@@ -248,7 +253,8 @@ export const getAllEventGuest = async (
                                             { $ifNull: ["$$user.positionMatchCount", 0] },
                                             { $ifNull: ["$$user.instituteNameMatchCount", 0] },
                                             { $ifNull: ["$$user.companyNameMatchCount", 0] },
-                                            { $ifNull: ["$$user.courseNameMatchCount", 0] }
+                                            { $ifNull: ["$$user.courseNameMatchCount", 0] },
+                                            { $ifNull: ["$$user.industryMatchCount", 0] },
                                         ]
                                     }
                                 }
@@ -317,6 +323,9 @@ export const getAllEventGuest = async (
             $limit: parseInt(String(limit))
         },
         {
+            $sample: { size: parseInt(String(limit)) }
+        },
+        {
             $project: {
                 _id: "$users._id",
                 name: "$users.name",
@@ -330,6 +339,7 @@ export const getAllEventGuest = async (
                 courseName: "$users.courseName",
                 lookingFor: "$users.lookingFor",
                 matchCount: "$users.totalMatchCount",
+                // industryMatchCount:"$users.industryMatchCount"
             }
         }
     ]);
@@ -499,10 +509,11 @@ export const searchGuestInEvents = async (
     res: Response,
     next: NextFunction
 ): Promise<Response | void> => {
-    const { name, sortOrder, eventId, selectedInterest, profession, position, industry, limit = 10, cursor } = req.query;
+    const { name, sortOrder, eventId, selectedInterest, profession, position, industry, limit = 15, cursor } = req.query;
     const userId = req.user.id;
 
-    console.log("name :", name, profession)
+    console.log("name :", name, profession);
+    const parsedLimit = Number.isNaN(parseInt(String(limit))) ? 10 : parseInt(String(limit));
 
     if (!eventId)
         throw new AppError("Query(eventId) not found", 400);
@@ -595,10 +606,11 @@ export const searchGuestInEvents = async (
                             instituteName: "$$user.instituteName",
                             courseName: "$$user.courseName",
                             lookingFor: "$$user.lookingFor",
+                            createdAt: "$$user.createdAt",
                             isConnected: {
                                 $in: ["$$user._id", knownUserIds]
                             },
-                            interestsMatchedCount: {
+                            lookingForMatchedCount: {
                                 $size: {
                                     $setIntersection: [
                                         {
@@ -611,10 +623,108 @@ export const searchGuestInEvents = async (
                                     ]
                                 }
                             },
-                            isNameMatch: name ? { $regexMatch: { input: "$$user.name", regex: name, options: "i" } } : true,
-                            isProfessionMatch: profession ? { $regexMatch: { input: "$$user.profession", regex: profession, options: "i" } } : true,
-                            isPositionMatch: position ? { $regexMatch: { input: "$$user.position", regex: position, options: "i" } } : true,
-                            isIndustryMatch: industry ? { $regexMatch: { input: "$$user.industry", regex: industry, options: "i" } } : true,
+                            industryMatchCount: {
+                                $size: {
+                                    $setIntersection: ["$$user.industry", user[0].industry ?? []]
+                                }
+                            },
+                            professionMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.profession", user[0].profession ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            positionMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.position", user[0].position ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            instituteNameMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.instituteName", user[0].instituteName ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            companyNameMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.company", user[0].company ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+                            courseNameMatchCount: {
+                                $cond: {
+                                    if: { $eq: ["$$user.courseName", user[0].courseName ?? "NA"] },
+                                    then: 1,
+                                    else: 0
+                                }
+                            },
+
+                            isAnyMatch: name ? {
+                                $or: [
+                                    { $regexMatch: { input: "$$user.name", regex: name, options: "i" } },
+                                    { $regexMatch: { input: "$$user.profession", regex: name, options: "i" } },
+                                    { $regexMatch: { input: "$$user.position", regex: name, options: "i" } },
+                                    { $regexMatch: { input: "$$user.instituteName", regex: name, options: "i" } },
+                                    { $regexMatch: { input: "$$user.company", regex: name, options: "i" } },
+                                    { $regexMatch: { input: "$$user.courseName", regex: name, options: "i" } },
+                                    { $regexMatch: { input: "$$user.industry", regex: name, options: "i" } },
+                                    // { 
+                                    //     $in: [{ $map: {
+                                    //         input: "$$user.industry", 
+                                    //         as: "industry", 
+                                    //         in: { $regexMatch: { input: { $toString: "$$industry" }, regex: name, options: "i" } }
+                                    //     }}, [true]]
+                                    // }
+                                ]
+                            } : true,
+
+                            // isNameMatch: name ? { $regexMatch: { input: "$$user.name", regex: name, options: "i" } } : true,
+                            // isProfessionMatch: profession ? { $regexMatch: { input: "$$user.profession", regex: profession, options: "i" } } : true,
+                            // isPositionMatch: position ? { $regexMatch: { input: "$$user.position", regex: position, options: "i" } } : true,
+                            // // isIndustryMatch: industry ? { $regexMatch: { input: "$$user.industry", regex: industry, options: "i" } } : true,
+                            // isIndustryMatch: industry ? {
+                            //     $gte: [
+                            //         {
+                            //             $size: {
+                            //                 $setIntersection: ["$$user.industry", industry]
+                            //             }
+                            //         },
+                            //         1
+                            //     ]
+                            // } : true
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                users: {
+                    $map: {
+                        input: "$users",
+                        as: "user",
+                        in: {
+                            $mergeObjects: [
+                                "$$user",
+                                {
+                                    totalMatchCount: {
+                                        $add: [
+                                            { $ifNull: ["$$user.lookingForMatchedCount", 0] },
+                                            { $ifNull: ["$$user.professionMatchCount", 0] },
+                                            { $ifNull: ["$$user.positionMatchCount", 0] },
+                                            { $ifNull: ["$$user.instituteNameMatchCount", 0] },
+                                            { $ifNull: ["$$user.companyNameMatchCount", 0] },
+                                            { $ifNull: ["$$user.courseNameMatchCount", 0] },
+                                            { $ifNull: ["$$user.industryMatchCount", 0] },
+                                        ]
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -630,23 +740,24 @@ export const searchGuestInEvents = async (
                             $and: [
                                 { $ne: ["$$user._id", new mongoose.Types.ObjectId(userId)] },
                                 // { $not: { $in: ["$$user._id", knownUserIds] } },
-                                {
-                                    $cond: {
-                                        if: { $gt: [selectedInterestLength, 0] },
-                                        then: {
-                                            $gt: [
-                                                { $size: { $setIntersection: ["$$user.interests", selectedInterest] } },
-                                                0
-                                            ]
-                                        },
-                                        else: true
-                                    }
-                                },
+                                // {
+                                //     $cond: {
+                                //         if: { $gt: [selectedInterestLength, 0] },
+                                //         then: {
+                                //             $gt: [
+                                //                 { $size: { $setIntersection: ["$$user.interests", selectedInterest] } },
+                                //                 0
+                                //             ]
+                                //         },
+                                //         else: true
+                                //     }
+                                // },
 
-                                { $eq: ["$$user.isNameMatch", true] },
-                                { $eq: ["$$user.isProfessionMatch", true] },
-                                { $eq: ["$$user.isPositionMatch", true] },
-                                { $eq: ["$$user.isIndustryMatch", true] },
+                                { $eq: ["$$user.isAnyMatch", true]},
+                                // { $eq: ["$$user.isNameMatch", true] },
+                                // { $eq: ["$$user.isProfessionMatch", true] },
+                                // { $eq: ["$$user.isPositionMatch", true] },
+                                // { $eq: ["$$user.isIndustryMatch", true] },
                             ]
                         }
                     }
@@ -659,7 +770,7 @@ export const searchGuestInEvents = async (
                     $sortArray: {
                         input: "$users",
                         sortBy: {
-                            "interestsMatchedCount": -1,
+                            "totalMatchCount": -1,
                             "createdAt": sortOrder === 'asc' ? 1 : -1
                         }
                     }
@@ -677,7 +788,7 @@ export const searchGuestInEvents = async (
             }
         ] : []),
         {
-            $limit: parseInt(String(limit))
+            $limit: parsedLimit
         },
         {
             $project: {
@@ -692,7 +803,7 @@ export const searchGuestInEvents = async (
                 instituteName: "$users.instituteName",
                 courseName: "$users.courseName",
                 lookingFor: "$users.lookingFor",
-                matchCount: "$users.interestsMatchedCount",
+                matchCount: "$users.lookingForMatchedCount",
                 isConnected: "$users.isConnected"
             }
         }

@@ -76,7 +76,7 @@ const FormPage = () => {
     };
   }, []);
 
-  const submitForm = async () => {
+  const submitForm = async (isLastFormSkipped: boolean) => {
     if (!eventId) {
       showSnackbar("Invalid form", "error");
       return;
@@ -100,7 +100,7 @@ const FormPage = () => {
           profession: bestDescribedAs,
           industry: selectedIndustries,
           lookingFor: wantToNetworkWith,
-          help: helps,
+          help: isLastFormSkipped ? [] : helps,
         },
       });
 
@@ -114,20 +114,29 @@ const FormPage = () => {
     setIsLoading(false);
   };
 
+  // useEffect(() => {
+  //   const formsContainerElement = formsContainerRef.current;
+
+  //   if (!formsContainerElement) return;
+
+  //   const HEIGHT = formsContainerElement.offsetHeight * currentFormIndex;
+
+  //   formsContainerElement.scrollTo({
+  //     behavior: "smooth",
+  //     top: HEIGHT,
+  //   });
+  // }, [currentFormIndex]);
+
   useEffect(() => {
     const formsContainerElement = formsContainerRef.current;
+    const currentForm = formsContainerElement?.children[currentFormIndex];
 
-    if (!formsContainerElement) return;
-
-    const HEIGHT = formsContainerElement.offsetHeight * currentFormIndex;
-
-    formsContainerElement.scrollTo({
-      behavior: "smooth",
-      top: HEIGHT,
-    });
+    if (currentForm) {
+      currentForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [currentFormIndex]);
 
-  const nextForm = async () => {
+  const nextForm = async (isLastFormSkipped: boolean = false) => {
     const formsContainerElement = formsContainerRef.current;
 
     if (!formsContainerElement) return;
@@ -135,7 +144,7 @@ const FormPage = () => {
     if (currentFormIndex != formsContainerElement.childElementCount - 1)
       setCurrentFormIndex((index) => index + 1);
     else {
-      await submitForm();
+      await submitForm(isLastFormSkipped);
     }
   };
 

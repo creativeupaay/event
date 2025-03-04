@@ -2,7 +2,7 @@ import { Icon } from "@iconify/react";
 import OfferBanner from "../components/OfferBanner";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+// import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 // import videoTestImg from "../assets/test-video-image.png";
 import userApi from "../apis/userApi";
 import { useSnackbar } from "../hooks/SnackbarContext";
@@ -149,11 +149,11 @@ const RequestsPage = () => {
 
   const [currentTab, setCurrentTab] = useState<"received" | "sent">("received");
 
-  const [_isVideoSectionExpanded, setIsVideoSectionExpanded] =
-    useState<boolean>(false);
+  //   const [_isVideoSectionExpanded, setIsVideoSectionExpanded] =
+  //     useState<boolean>(false);
 
-  const [isNoteSectionExpanded, setIsNoteSectionExpanded] =
-    useState<boolean>(true);
+  //   const [isNoteSectionExpanded, setIsNoteSectionExpanded] =
+  //     useState<boolean>(true);
 
   const [pendingRequests, setPendingRequests] = useState<UserConnectionI[]>([]);
   const [noteRequestsSent, setNoteRequestsSent] = useState<UserConnectionI[]>(
@@ -244,7 +244,7 @@ const RequestsPage = () => {
           </div>
         </div>
 
-        <div className="mt-3 space-y-4 pb-24">
+        <div className="mt-3 space-y-4 pt-5 px-3">
           {/* Video Requests */}
           {/* <Accordion
             onChange={(_, isExpanded) => {
@@ -293,68 +293,37 @@ const RequestsPage = () => {
           </Accordion> */}
 
           {/* Note Requests */}
-          <Accordion
-            onChange={(_, isExpanded) => {
-              setIsNoteSectionExpanded(isExpanded);
-              setIsVideoSectionExpanded(false);
-            }}
-            expanded={isNoteSectionExpanded}
-            sx={{
-              border: "none",
-              boxShadow: "none",
-              padding: "0px",
-              backgroundColor: "transparent",
-            }}
-          >
-            <AccordionSummary
-              expandIcon={
-                <Icon icon={"tabler:chevron-down"} fontSize={"20px"} />
-              }
-              aria-controls="panel2-content"
-              id="panel2-header"
-              sx={{
-                padding: "0px 12px",
-              }}
-            >
-              <div className="flex items-center space-x-2">
-                <Icon icon={"proicons:note"} fontSize={"20px"} />
-                <p>Note Requests {currentTab == "sent" && "Sent to"}</p>
-              </div>
-            </AccordionSummary>
 
-            <AccordionDetails
-              sx={{
-                paddingTop: "0px",
-                paddingBottom: "0px",
-              }}
-            >
-              <div className="w-full space-y-3">
-                {currentTab == "sent"
-                  ? noteRequestsSent.map((req, index) => (
-                      <NoteCard
-                        type="sent"
-                        key={index}
-                        receiverId={req.receiverId}
-                        senderId={req.senderId}
-                        name={req.name}
-                        note={req.note}
-                        removeCard={removeCard}
-                      />
-                    ))
-                  : pendingRequests.map((req, index) => (
-                      <NoteCard
-                        type="received"
-                        key={index}
-                        receiverId={req.receiverId}
-                        senderId={req.senderId}
-                        name={req.name}
-                        note={req.note}
-                        removeCard={removeCard}
-                      />
-                    ))}
-              </div>
-            </AccordionDetails>
-          </Accordion>
+          <div className="flex items-center space-x-2">
+            <Icon icon={"proicons:note"} fontSize={"20px"} />
+            <p>Note Requests {currentTab == "sent" && "Sent to"}</p>
+          </div>
+
+          <div className="w-full space-y-3">
+            {currentTab == "sent"
+              ? noteRequestsSent.map((req, index) => (
+                  <NoteCard
+                    type="sent"
+                    key={index}
+                    receiverId={req.receiverId}
+                    senderId={req.senderId}
+                    name={req.name}
+                    note={req.note}
+                    removeCard={removeCard}
+                  />
+                ))
+              : pendingRequests.map((req, index) => (
+                  <NoteCard
+                    type="received"
+                    key={index}
+                    receiverId={req.receiverId}
+                    senderId={req.senderId}
+                    name={req.name}
+                    note={req.note}
+                    removeCard={removeCard}
+                  />
+                ))}
+          </div>
         </div>
       </div>
     </div>

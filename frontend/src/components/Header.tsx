@@ -1,13 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import SearchPageComponent from "./SearchPageComponent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "../hooks/UserContext";
+import userApi from "../apis/userApi";
 
 const Header = () => {
   const navigate = useNavigate();
 
   const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(false);
+  const [notificationsCount, setNotificationsCount] = useState<number>(0);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await userApi.get("/user/notification?limit=10&cursor=");
+
+      if (res.status == 200) {
+        setNotificationsCount(res.data.notification.length);
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const { user } = useUser();
 
@@ -50,7 +66,10 @@ const Header = () => {
           onClick={() => navigate("/notifications")}
           className="text-black text-3xl relative"
         >
-          <div className="absolute w-2 h-2  bg-red-600 top-0 right-0 rounded-full"></div>
+          {notificationsCount != 0 && (
+            <div className="absolute w-2 h-2  bg-red-600 top-0 right-0 rounded-full"></div>
+          )}
+
           <Icon icon="proicons:bell" width="24" height="24" />
         </div>
       </div>

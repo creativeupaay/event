@@ -240,7 +240,6 @@ const ConnectCard = ({
     }
 
     if (isLoading) return;
-    console.log(profession);
 
     setIsLoading(true);
     try {
@@ -300,7 +299,11 @@ const ConnectCard = ({
             )}  flex-shrink-0 relative px-3 pb-3`}
           >
             <div className="bg-black w-fit px-3 py-1 rounded-b-md mb-2">
-              <p className="text-white text-xs font-light">{position}</p>
+              <p className="text-white text-xs font-light">
+                {position}{" "}
+                {(position === "Freelancer" || position === "Employee") &&
+                  ` | ${profession}`}
+              </p>
             </div>
             <div className="w-full h-full flex flex-col justify-between">
               <div>

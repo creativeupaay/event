@@ -13,14 +13,20 @@ export interface filterI {
 const Option = ({
   label,
   setFilters,
+  filters,
 }: {
   label: string;
   setFilters: React.Dispatch<React.SetStateAction<filterI>>;
+  filters: filterI;
 }) => {
   const [isSelected, setIsSelected] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isSelected) {
+    if (filters.workStatus.includes(label)) setIsSelected(true);
+  }, [filters]);
+
+  useEffect(() => {
+    if (isSelected && !filters.workStatus.includes(label)) {
       setFilters((filters) => {
         const temp = [...filters.workStatus];
         temp.push(label);
@@ -69,12 +75,8 @@ const FilterComp = ({
   setFilters: React.Dispatch<React.SetStateAction<filterI>>;
   applyFilters: Function;
 }) => {
-  useEffect(() => {
-    console.log(filters);
-  }, [filters]);
-
   return (
-    <div className="w-full h-[80%] flex flex-col flex-1 rounded-lg bg-white px-4 py-3">
+    <div className="w-full h-fit flex flex-col flex-1 rounded-lg bg-white px-4 py-3">
       <div className="flex-[0.02] flex justify-end">
         <Icon
           onClick={() => setIsFilterModalOpen(false)}
@@ -114,7 +116,12 @@ const FilterComp = ({
                 "Student",
                 "Freelancer",
               ].map((label, index) => (
-                <Option key={index} label={label} setFilters={setFilters} />
+                <Option
+                  key={index}
+                  label={label}
+                  setFilters={setFilters}
+                  filters={filters}
+                />
               ))}
             </div>
           </div>

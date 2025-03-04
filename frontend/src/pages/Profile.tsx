@@ -15,6 +15,7 @@ import { industries } from "../components/formSections/FormSection3";
 import { suggestedProfessions } from "../components/formSections/FormSection4";
 import CustomButton from "../components/CustomButton";
 import { useSnackbar } from "../hooks/SnackbarContext";
+import userApi from "../apis/userApi";
 
 const badgeInfo = [
   {
@@ -49,21 +50,43 @@ const badgeInfo = [
   },
 ];
 
+type EDITED_INTEREST = {
+  interestsToRemove: string[];
+  newInterests: string[];
+};
+
+type EDITED_LOOKINGFOR = {
+  lookingForToRemove: string[];
+  newLookingFor: string[];
+};
+
 const EditComponent = ({
   heading,
   inputLabel,
   closeModal,
-  editFunc,
+  saveFunc,
   editType,
+  selectedData,
+  setEditedInterests,
+  setEditedLookingFor,
 }: {
   heading: string;
   inputLabel: string;
   closeModal: Function;
-  editFunc: Function;
+  saveFunc: Function;
+  selectedData: string[];
   editType: "INTERESTS" | "LOOKING_FOR";
+  setEditedInterests?: React.Dispatch<React.SetStateAction<EDITED_INTEREST>>;
+  setEditedLookingFor?: React.Dispatch<React.SetStateAction<EDITED_LOOKINGFOR>>;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { showSnackbar } = useSnackbar();
+
+  const [newSelectedData, setNewSelectedData] = useState<string[]>([]);
+
+  useEffect(() => {
+    setNewSelectedData(selectedData);
+  }, [selectedData]);
 
   const onEdit = async () => {
     if (isLoading) return;
@@ -71,16 +94,81 @@ const EditComponent = ({
     setIsLoading(true);
 
     try {
-      await editFunc();
+      await saveFunc();
 
       showSnackbar("Profile is edited successfully", "success");
     } catch (e) {
       showSnackbar("Error in editing the profile", "error");
     }
+
+    setIsLoading(false);
+  };
+
+  const onChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (selectedData.includes(e.target.value)) {
+      showSnackbar("Already selected", "warning");
+      return;
+    }
+
+    if (editType == "INTERESTS") {
+      if (!setEditedInterests) return;
+
+      setEditedInterests((data) => {
+        const temp: EDITED_INTEREST = {
+          newInterests: [...data.newInterests, e.target.value],
+          interestsToRemove: data.interestsToRemove,
+        };
+
+        return temp;
+      });
+    } else if (editType == "LOOKING_FOR") {
+      if (!setEditedLookingFor) return;
+
+      setEditedLookingFor((data) => {
+        const temp: EDITED_LOOKINGFOR = {
+          newLookingFor: [...data.newLookingFor, e.target.value],
+          lookingForToRemove: data.lookingForToRemove,
+        };
+
+        return temp;
+      });
+    }
+
+    setNewSelectedData([...newSelectedData, e.target.value]);
+  };
+
+  const onRemoveHandler = (label: string) => {
+    const filteredData = newSelectedData.filter((text) => text != label);
+
+    if (selectedData.includes(label)) {
+      if (editType == "INTERESTS") {
+        if (!setEditedInterests) return;
+
+        setEditedInterests((data) => {
+          const temp: EDITED_INTEREST = {
+            newInterests: data.newInterests,
+            interestsToRemove: [...data.interestsToRemove, label],
+          };
+          return temp;
+        });
+      } else if (editType == "LOOKING_FOR") {
+        if (!setEditedLookingFor) return;
+
+        setEditedLookingFor((data) => {
+          const temp: EDITED_LOOKINGFOR = {
+            newLookingFor: data.newLookingFor,
+            lookingForToRemove: [...data.lookingForToRemove, label],
+          };
+          return temp;
+        });
+      }
+    }
+
+    setNewSelectedData(filteredData);
   };
 
   return (
-    <div className="w-full h-fit flex flex-col flex-1 rounded-lg bg-whiteBG px-4 py-3 space-y-3">
+    <div className="w-full h-fit flex flex-col flex-1 rounded-lg bg-whiteBG px-4 py-5 space-y-3">
       <div className="flex items-center justify-between text-darkBg font-medium">
         <div></div>
         <p>{heading}</p>
@@ -90,9 +178,12 @@ const EditComponent = ({
         />
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-col space-y-4">
         <p className="text-sm font-semibold text-grey">{inputLabel}</p>
-        <select className="w-full py-2 px-3 bg-white border border-grey01 rounded-lg outline-none text-grey text-sm">
+        <select
+          onChange={(e) => onChangeHandler(e)}
+          className="w-full py-2 px-3 bg-white border border-grey01 rounded-lg outline-none text-grey text-sm"
+        >
           <option>Choose your preference</option>
           {(editType == "INTERESTS" ? industries : suggestedProfessions).map(
             (data, index) => (
@@ -102,7 +193,7 @@ const EditComponent = ({
         </select>
 
         <div className="flex items-center flex-wrap gap-3">
-          {/* {filters.lookingFor.map((label, index) => (
+          {newSelectedData?.map((label, index) => (
             <div
               key={index}
               className="text-xs bg-grey01 px-3 py-2 rounded-full font-medium text-darkBg flex items-center space-x-4"
@@ -110,20 +201,12 @@ const EditComponent = ({
               <p>{label}</p>{" "}
               <Icon
                 onClick={() => {
-                  const filteredLookingFor = filters.lookingFor.filter(
-                    (text) => text !== label
-                  );
-
-                  setFilters({
-                    workStatus: filters.workStatus,
-                    industries: filters.industries,
-                    lookingFor: filteredLookingFor,
-                  });
+                  onRemoveHandler(label);
                 }}
                 icon={"ph:x-bold"}
               />
             </div>
-          ))} */}
+          ))}
         </div>
       </div>
 
@@ -151,28 +234,59 @@ const EditComponent = ({
 const Profile = () => {
   const navigate = useNavigate();
   const { user, userLevelData } = useUser();
+  const { showSnackbar } = useSnackbar();
 
   const [levelPercentage, setLevelPercentage] = useState(0);
 
   const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
   const [isLookingForModalOpen, setIsLookingForModalOpen] = useState(false);
 
-  // edited info
-  // const [editedInterests, setEditedInterests] = useState<{
-  //   "interestsToRemove": string[],
-  //   "newInterests": string[]
-  // }>({
-  //   interestsToRemove:[],
-  //   newInterests:[]
-  // })
+  const [isPersonalDetailsEditing, setIsPersonalDetailsEditing] =
+    useState(false);
+  const [isProfessionalDetailsEditing, setIsProfessionalDetailsEditing] =
+    useState(false);
 
-  // const [editedLookingFor, setEditedLookingFor] = useState<{
-  //   "lookingForToRemove":string[],
-  //   "newLookingFor":string[]
-  // }>({
-  //   lookingForToRemove:[],
-  //   newLookingFor:[],
-  // })
+  // personal details
+  const [editedName, setEditedName] = useState<string>("");
+  const [editedEmail, setEditedEmail] = useState<string>("");
+  const [editedNumber, setEditedNumber] = useState<string>("");
+
+  // professional details
+  const [editedPosition, setEditedPosition] = useState<string>("");
+  const [editedCompany, setEditedCompany] = useState<string>("");
+  const [editedProfession, setEditedProfession] = useState<string>("");
+
+  // interests
+  // const [interests, setInterests] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    setEditedName(user.name);
+    setEditedEmail(user.email);
+    setEditedNumber(user.contactNumber);
+
+    setEditedPosition(user.position);
+    setEditedCompany(user.company);
+    setEditedProfession(user.profession);
+
+    // setInterests(user.industry);
+  }, [user]);
+
+  // edited info
+  const [editedInterests, setEditedInterests] = useState<EDITED_INTEREST>({
+    interestsToRemove: [],
+    newInterests: [],
+  });
+
+  const [editedLookingFor, setEditedLookingFor] = useState<EDITED_LOOKINGFOR>({
+    lookingForToRemove: [],
+    newLookingFor: [],
+  });
+
+  useEffect(() => {
+    console.log(editedInterests);
+  }, [editedInterests]);
 
   useEffect(() => {
     if (!user || !userLevelData) return;
@@ -183,6 +297,35 @@ const Profile = () => {
     setLevelPercentage(percentage * 100);
   }, []);
 
+  const saveDetails = async (editedData: Object) => {
+    try {
+      await userApi.put("/user/edit", {
+        data: editedData,
+      });
+
+      showSnackbar("Saved successfully", "success");
+      setIsPersonalDetailsEditing(false);
+      setIsProfessionalDetailsEditing(false);
+    } catch (e) {
+      showSnackbar("Error while saving", "error");
+    }
+  };
+
+  const saveInterests = async (editedData: any) => {
+    try {
+      await userApi.put("/user/editInterest", {
+        data: editedData,
+      });
+
+      showSnackbar("Edited successfully", "success");
+
+      setIsInterestModalOpen(false);
+      setIsLookingForModalOpen(false);
+    } catch (e) {
+      showSnackbar("Error while editing", "error");
+    }
+  };
+
   return (
     <div className="w-full h-full">
       <Modal open={isInterestModalOpen}>
@@ -192,7 +335,11 @@ const Profile = () => {
             inputLabel="I’m Interested in"
             closeModal={() => setIsInterestModalOpen(false)}
             editType="INTERESTS"
-            editFunc={() => {}}
+            setEditedInterests={setEditedInterests}
+            saveFunc={async () => {
+              await saveInterests(editedInterests);
+            }}
+            selectedData={user ? user.industry : []}
           />
         </div>
       </Modal>
@@ -204,7 +351,11 @@ const Profile = () => {
             inputLabel="I want to network with"
             closeModal={() => setIsLookingForModalOpen(false)}
             editType="LOOKING_FOR"
-            editFunc={() => {}}
+            setEditedLookingFor={setEditedLookingFor}
+            saveFunc={async () => {
+              await saveInterests(editedLookingFor);
+            }}
+            selectedData={user ? user.lookingFor : []}
           />
         </div>
       </Modal>
@@ -297,10 +448,41 @@ const Profile = () => {
           <div className="w-full bg-white p-3 rounded-lg">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">Personal Details</p>
-              <Icon
-                icon={"material-symbols:edit-outline-rounded"}
-                fontSize={"16px"}
-              />
+              {isPersonalDetailsEditing ? (
+                <div className="flex items-center space-x-5">
+                  <Icon
+                    onClick={() => setIsPersonalDetailsEditing(false)}
+                    icon={"material-symbols:close-rounded"}
+                  />
+                  <Icon
+                    onClick={() => {
+                      const editedDetails: {
+                        name?: string;
+                        email?: string;
+                        contactNumber?: string;
+                      } = {};
+
+                      if (editedName != user?.name)
+                        editedDetails.name = editedName;
+
+                      if (editedEmail != user?.email)
+                        editedDetails.email = editedEmail;
+
+                      if (editedNumber != user?.contactNumber)
+                        editedDetails.contactNumber = editedNumber;
+
+                      saveDetails(editedDetails);
+                    }}
+                    icon={"mage:save-floppy"}
+                  />
+                </div>
+              ) : (
+                <Icon
+                  onClick={() => setIsPersonalDetailsEditing(true)}
+                  icon={"material-symbols:edit-outline-rounded"}
+                  fontSize={"16px"}
+                />
+              )}
             </div>
 
             <div className="w-full flex-1 flex flex-col space-y-4 my-3">
@@ -310,7 +492,18 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>{user?.name}</p>
+                  {isPersonalDetailsEditing ? (
+                    <input
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => {
+                        setEditedName(e.target.value);
+                      }}
+                      className="w-full border-b border-grey"
+                    />
+                  ) : (
+                    <p>{editedName}</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center">
@@ -319,7 +512,18 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>{user?.email}</p>
+                  {isPersonalDetailsEditing ? (
+                    <input
+                      type="text"
+                      value={editedEmail}
+                      onChange={(e) => {
+                        setEditedEmail(e.target.value);
+                      }}
+                      className="w-full border-b border-grey"
+                    />
+                  ) : (
+                    <p>{editedEmail}</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center">
@@ -328,7 +532,18 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>{user?.contactNumber}</p>
+                  {isPersonalDetailsEditing ? (
+                    <input
+                      type="text"
+                      value={editedNumber}
+                      onChange={(e) => {
+                        setEditedNumber(e.target.value);
+                      }}
+                      className="w-full border-b border-grey"
+                    />
+                  ) : (
+                    <p>{editedNumber}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -338,11 +553,41 @@ const Profile = () => {
           <div className="w-full bg-white p-3 rounded-lg">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">Professional Details</p>
-              <Icon
-                onClick={() => setIsInterestModalOpen(true)}
-                icon={"material-symbols:edit-outline-rounded"}
-                fontSize={"16px"}
-              />
+              {isProfessionalDetailsEditing ? (
+                <div className="flex items-center space-x-5">
+                  <Icon
+                    onClick={() => setIsProfessionalDetailsEditing(false)}
+                    icon={"material-symbols:close-rounded"}
+                  />
+                  <Icon
+                    onClick={() => {
+                      const editedDetails: {
+                        position?: string;
+                        company?: string;
+                        profession?: string;
+                      } = {};
+
+                      if (editedPosition != user?.position)
+                        editedDetails.position = editedName;
+
+                      if (editedCompany != user?.company)
+                        editedDetails.company = editedCompany;
+
+                      if (editedProfession != user?.profession)
+                        editedDetails.profession = editedProfession;
+
+                      saveDetails(editedDetails);
+                    }}
+                    icon={"mage:save-floppy"}
+                  />
+                </div>
+              ) : (
+                <Icon
+                  onClick={() => setIsProfessionalDetailsEditing(true)}
+                  icon={"material-symbols:edit-outline-rounded"}
+                  fontSize={"16px"}
+                />
+              )}
             </div>
 
             <div className="w-full flex-1 flex flex-col space-y-4 my-3">
@@ -352,7 +597,18 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>{user?.position}</p>
+                  {isProfessionalDetailsEditing ? (
+                    <input
+                      type="text"
+                      value={editedPosition}
+                      onChange={(e) => {
+                        setEditedPosition(e.target.value);
+                      }}
+                      className="w-full border-b border-grey"
+                    />
+                  ) : (
+                    <p>{editedPosition}</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center">
@@ -361,7 +617,18 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>{user?.company}</p>
+                  {isProfessionalDetailsEditing ? (
+                    <input
+                      type="text"
+                      value={editedCompany}
+                      onChange={(e) => {
+                        setEditedCompany(e.target.value);
+                      }}
+                      className="w-full border-b border-grey"
+                    />
+                  ) : (
+                    <p>{editedCompany}</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center">
@@ -370,7 +637,18 @@ const Profile = () => {
                 </div>
 
                 <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  <p>{user?.profession}</p>
+                  {isProfessionalDetailsEditing ? (
+                    <input
+                      type="text"
+                      value={editedProfession}
+                      onChange={(e) => {
+                        setEditedProfession(e.target.value);
+                      }}
+                      className="w-full border-b border-grey"
+                    />
+                  ) : (
+                    <p>{editedProfession}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -381,7 +659,7 @@ const Profile = () => {
             <div className="w-full flex items-center justify-between">
               <p className="text-sm font-medium">Interests</p>
               <Icon
-                onClick={() => setIsLookingForModalOpen(true)}
+                onClick={() => setIsInterestModalOpen(true)}
                 icon={"material-symbols:edit-outline-rounded"}
                 fontSize={"16px"}
               />
@@ -401,6 +679,7 @@ const Profile = () => {
             <div className="w-full flex items-center justify-between">
               <p className="text-sm font-medium">Want to network with</p>
               <Icon
+                onClick={() => setIsLookingForModalOpen(true)}
                 icon={"material-symbols:edit-outline-rounded"}
                 fontSize={"16px"}
               />

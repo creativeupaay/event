@@ -1,6 +1,11 @@
 const SplashScreen = () => {
   return (
-    <div className="w-full h-screen bg-primary  flex items-center justify-center absolute top-0 left-0 z-50">
+    <div
+      className="w-full bg-primary  flex items-center justify-center absolute top-0 left-0 z-50"
+      style={{
+        height: innerHeight,
+      }}
+    >
       <p className="text-3xl font-extrabold text-white flex items-center">
         Konnect <span className="text-[64px] ">X</span>
       </p>

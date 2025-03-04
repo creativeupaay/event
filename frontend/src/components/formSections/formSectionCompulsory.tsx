@@ -4,6 +4,7 @@ import {
   EastOutlined,
 } from "@mui/icons-material";
 import { useEffect, useState } from "react";
+import { useSnackbar } from "../../hooks/SnackbarContext";
 
 const Option = ({
   label,
@@ -51,6 +52,7 @@ const FormSectionCompulsory = ({
   backForm: Function;
   nextForm: Function;
 }) => {
+  const { showSnackbar } = useSnackbar();
   return (
     <div
       className={`w-full  flex-shrink-0 px-3 relative`}
@@ -74,7 +76,10 @@ const FormSectionCompulsory = ({
             <p>Back</p>
           </div>
 
-          <div className="text-xs text-grey">
+          <div
+            onClick={() => nextForm(true)}
+            className="text-xs w-fit text-grey"
+          >
             <p>Skip</p>
           </div>
         </div>
@@ -99,7 +104,10 @@ const FormSectionCompulsory = ({
           </div>
 
           <button
-            onClick={() => nextForm()}
+            onClick={() => {
+              if (helps.length != 0) nextForm();
+              else showSnackbar("Please select a option or skip", "warning");
+            }}
             className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs flex items-center justify-center space-x-2 ${
               helps.length == 0 ? "opacity-60" : "opacity-100"
             }`}

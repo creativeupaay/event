@@ -55,7 +55,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", v1Routes);
 
 if (process.env.NODE_ENV === "production") {
-  const buildPath = path.join(__dirname, "..", "..", "client", "dist");
+  const buildPath = path.join(__dirname, "..", "..", "frontend", "dist");
   app.use(express.static(buildPath));
 
   app.get("*", (req, res) => {

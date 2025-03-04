@@ -331,7 +331,7 @@ export const getAllFriends = async (
                 lookingFor: "$friends.lookingFor",
                 interests: "$friends.interests",
                 otherUserId: 1,
-                createdAt:"$friends.createdAt",
+                createdAt: "$friends.createdAt",
             }
         }
     ]);
@@ -501,12 +501,51 @@ export const friendProfileById = async (
                 courseName: "$user.courseName",
                 lookingFor: "$user.lookingFor",
                 interests: "$user.interests",
+            },
+        },
+        {
+            $addFields: {
+                isConnected: true
             }
         }
     ]);
 
-    if (!friendProfile.length)
-        throw new AppError("Can't view user profile", 409);
+    if (!friendProfile.length) {
+
+        const userProfile = await UserModel.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(String(friendId)) },
+            },
+            {
+                $project: {
+                    friendId: "$_id",
+                    name: 1,
+                    profileImage: 1,
+                    profession: 1,
+                    position: 1,
+                    industry: 1,
+                    company: 1,
+                    instituteName: 1,
+                    courseName: 1,
+                    lookingFor: 1,
+                    interests: 1,
+                    previousBadgeName: 1,
+                }
+            },
+            {
+                $addFields: {
+                    isConnected: false
+                }
+            }
+        ]);
+
+        if (!userProfile.length)
+            throw new AppError("Firend not found", 404);
+        return res.status(200).json({
+            success: true,
+            friendProfile: userProfile
+        });
+    }
 
     return res.status(200).json({
         success: true,

@@ -672,7 +672,7 @@ export const searchGuestInEvents = async (
                                     { $regexMatch: { input: "$$user.instituteName", regex: name, options: "i" } },
                                     { $regexMatch: { input: "$$user.company", regex: name, options: "i" } },
                                     { $regexMatch: { input: "$$user.courseName", regex: name, options: "i" } },
-                                    { $regexMatch: { input: "$$user.industry", regex: name, options: "i" } },
+                                    // { $regexMatch: { input: "$$user.industry", regex: name, options: "i" } },
                                     // { 
                                     //     $in: [{ $map: {
                                     //         input: "$$user.industry", 

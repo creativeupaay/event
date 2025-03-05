@@ -225,7 +225,7 @@ const FormSection3 = ({
           </div>
         </div>
 
-        <div className="w-full h-[72vh] pb-10 mt-3  grid grid-cols-2 gap-2 overflow-y-scroll no-scrollbar">
+        <div className="w-full h-[72vh] pb-10 mt-3  grid grid-cols-2 gap-2 overflow-y-scroll custom-scrollbar">
           {industries.map((industry, index) => (
             <IndustryBox
               key={index}
@@ -238,14 +238,14 @@ const FormSection3 = ({
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
+      <div className="fixed bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
         <button
           onClick={() => {
             if (selectedIndustries.length == 3) nextForm();
             else showSnackbar("Please select 3 options", "warning");
           }}
-          className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs  ${
-            selectedIndustries.length == 3 ? "opacity-100" : "opacity-60"
+          className={`mt-4 font-bold text-white py-4 rounded-md w-full text-xs  ${
+            selectedIndustries.length == 3 ? "bg-darkBg " : "bg-[#7b7b7b]"
           }`}
         >
           Next

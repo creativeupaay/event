@@ -1154,3 +1154,8 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/\",\"status\":\"304\",\"responseTime\":\"238.308\"}","timestamp":"2025-03-05T09:25:54.393Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/get-all-friends\",\"status\":\"200\",\"responseTime\":\"93.734\"}","timestamp":"2025-03-05T09:29:38.273Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/friend-management/get-all-friends\",\"status\":\"200\",\"responseTime\":\"119.105\"}","timestamp":"2025-03-05T09:30:50.150Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.ico\",\"status\":\"500\",\"responseTime\":\"19.746\"}","timestamp":"2025-03-05T11:14:51.643Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/\",\"status\":\"500\",\"responseTime\":\"220.443\"}","timestamp":"2025-03-05T11:14:55.138Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.ico\",\"status\":\"500\",\"responseTime\":\"1.459\"}","timestamp":"2025-03-05T11:14:56.988Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/\",\"status\":\"500\",\"responseTime\":\"15.664\"}","timestamp":"2025-03-05T12:15:52.408Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.ico\",\"status\":\"500\",\"responseTime\":\"5.242\"}","timestamp":"2025-03-05T12:15:52.587Z"}

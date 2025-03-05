@@ -111,13 +111,12 @@ const FormSectionCompulsory = ({
             <p>Skip</p>
           </div>
         </div>
-
         <div className=" mt-10 w-full h-fit flex flex-col items-center bg-primary rounded-lg px-4 py-5">
           <h1 className="text-white text-xl font-bold">
             I also need help with
           </h1>
 
-          <div className="flex flex-col items-center w-full space-y-3 mt-7">
+          <div className="flex h-[56vh] flex-col items-center w-full space-y-3 mt-7 overflow-y-scroll no-scrollbar">
             <Option label="Website Development" setSelectedOptions={setHelps} />
             <Option
               label="Mobile App Development"
@@ -146,13 +145,15 @@ const FormSectionCompulsory = ({
               <p>Other</p>
             </div>
           </div>
+        </div>
 
+        <div className="fixed bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
           <button
             onClick={() => {
               if (helps.length != 0) nextForm();
               else showSnackbar("Please select a option or skip", "warning");
             }}
-            className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs flex items-center justify-center space-x-2 ${
+            className={`bg-darkBg mt-2 z-10 font-bold text-white py-4 rounded-md w-full text-xs flex items-center justify-center space-x-2 ${
               helps.length == 0 ? "opacity-60" : "opacity-100"
             }`}
           >

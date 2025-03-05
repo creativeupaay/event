@@ -62,6 +62,9 @@ const FormSectionCompulsory = ({
 
   const [otherHelp, setOtherHelp] = useState<string>("");
 
+  // storing all other added helps
+  const [otherHelps, setOtherHelps] = useState<string[]>([]);
+
   return (
     <div
       className={`w-full  flex-shrink-0 px-3 relative`}
@@ -77,7 +80,10 @@ const FormSectionCompulsory = ({
             placeholder="Let us know what you need help with!"
             value={otherHelp}
             setValue={setOtherHelp}
-            addFunc={() => setHelps((data) => [...data, otherHelp])}
+            addFunc={() => {
+              if (otherHelp) setOtherHelps((data) => [...data, otherHelp]);
+              setOtherHelp("");
+            }}
           />
         </div>
       </Modal>
@@ -124,11 +130,14 @@ const FormSectionCompulsory = ({
             <Option label="UI/UX Designing" setSelectedOptions={setHelps} />
             <Option label="Graphic Designing" setSelectedOptions={setHelps} />
 
+            {otherHelps.map((help, index) => (
+              <Option key={index} label={help} setSelectedOptions={setHelps} />
+            ))}
+
             <div
               onClick={() => setIsOtherHelpModalOpen(true)}
-              className={`w-full flex items-center space-x-2 h-fit bg-transparent border border-white text-base text-white font-light py-3 px-3 rounded-lg ${
-                otherHelp ? "opacity-100" : "opacity-60"
-              } `}
+              className={`w-full flex items-center space-x-2 h-fit bg-transparent border border-white text-base text-white font-light py-3 px-3 rounded-lg opacity-60
+              `}
             >
               <Icon
                 icon="material-symbols-light:add-circle-outline-rounded"

@@ -21,7 +21,7 @@ export const FormSquareButton = ({
       }}
       className={`border ${
         describedAs === label ? "border-darkBg" : "border-[#E1E1E1]"
-      }   rounded-lg  w-[109px] h-[95px] transition-transform active:scale-95 flex flex-col space-y-1 text-center justify-center px-2`}
+      }   rounded-lg  transition-transform active:scale-95 flex flex-col space-y-1 text-center justify-center px-2 py-2`}
     >
       <p className="text-2xl px-3 py-2">{icon}</p>
       <p className="text-sm">{label}</p>
@@ -202,7 +202,7 @@ const FormSection2 = ({
           I am best described as
         </h1>
 
-        <div className="w-full  flex flex-wrap justify-evenly gap-2">
+        <div className="w-full grid grid-cols-3 justify-evenly gap-2">
           {interests.map((interest, index) => (
             <FormSquareButton
               key={index}

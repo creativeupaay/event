@@ -5,11 +5,18 @@ import userApi from "../apis/userApi";
 import React, { useEffect, useState } from "react";
 import { userI } from "../types/userTypes";
 import { getIconFromIndustries, InfoSection } from "../components/ConnectCard";
+import CustomButton from "../components/CustomButton";
+import { useSnackbar } from "../hooks/SnackbarContext";
 
 const ConnectionProfile = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [profileInfo, setProfileInfo] = useState<userI | undefined>(undefined);
+  const { showSnackbar } = useSnackbar();
+
+  const [currentState, setCurrentState] = useState<
+    "ACCEPTED_REJECTED" | "WITHDRAWED" | "NEUTRAL"
+  >("NEUTRAL");
 
   const fetchProfile = async () => {
     try {
@@ -23,6 +30,41 @@ const ConnectionProfile = () => {
         setProfileInfo(res.data.friendProfile[0]);
       }
     } catch (e) {}
+  };
+
+  const acceptOrRejectReq = async (status: "ACCEPTED" | "REJECTED") => {
+    try {
+      await userApi.post(
+        `/user/friend-management/accept-reject-friend-request?senderId=${id}&status=${status}`
+      );
+
+      showSnackbar(
+        `Request is ${status.toLowerCase()} successfully`,
+        "success"
+      );
+
+      setCurrentState("ACCEPTED_REJECTED");
+    } catch (e) {
+      if (status == "ACCEPTED")
+        showSnackbar("Error in accepting the request", "error");
+      else if (status == "REJECTED")
+        showSnackbar("Error in rejecting the request", "error");
+    }
+  };
+
+  const withdrawalRequest = async () => {
+    try {
+      const res = await userApi.delete(
+        `/user/friend-management/withdraw-friend-request?receiverId=${id}`
+      );
+
+      if (res.status == 200) {
+        showSnackbar("Request is withdrawed successfully", "success");
+        setCurrentState("WITHDRAWED");
+      }
+    } catch (e) {
+      showSnackbar("Error in withdrawing the request", "error");
+    }
   };
 
   useEffect(() => {
@@ -139,7 +181,7 @@ const ConnectionProfile = () => {
             </div>
 
             {/* Phone number and email */}
-            {profileInfo?.isConnected && (
+            {profileInfo?.friendShipStatus == "CONNECTED" && (
               <div className="flex flex-col space-y-2 pt-3">
                 <Link to={`mailto:${profileInfo?.email}`}>
                   <div className="flex items-center justify-between">
@@ -170,6 +212,43 @@ const ConnectionProfile = () => {
                 </Link>
               </div>
             )}
+
+            {profileInfo?.friendShipStatus == "REQUEST_SENT" &&
+              currentState != "WITHDRAWED" && (
+                <div>
+                  <CustomButton
+                    onClick={() => {
+                      withdrawalRequest();
+                    }}
+                    text="Withdraw Request"
+                    type="filled"
+                    width="100%"
+                  />
+                </div>
+              )}
+
+            {profileInfo?.friendShipStatus == "REQUEST_RECEIVED" &&
+              currentState != "ACCEPTED_REJECTED" && (
+                <div className="flex items-center w-full space-x-3">
+                  <CustomButton
+                    onClick={() => {
+                      acceptOrRejectReq("ACCEPTED");
+                    }}
+                    text="Accept"
+                    type="filled"
+                    width="100%"
+                  />
+
+                  <CustomButton
+                    onClick={() => {
+                      acceptOrRejectReq("REJECTED");
+                    }}
+                    text="Reject"
+                    type="outlined"
+                    width="100%"
+                  />
+                </div>
+              )}
           </div>
         </div>
       </div>

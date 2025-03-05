@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import userApi from "../apis/userApi";
 import { userI } from "../types/userTypes";
 import ConnectCard from "../components/ConnectCard";
-import OfferBanner from "../components/OfferBanner";
+// import OfferBanner from "../components/OfferBanner";
 import { Icon } from "@iconify/react";
 import { CircularProgress, Modal } from "@mui/material";
 import FilterComp, { filterI } from "../components/FilterComp";
@@ -74,8 +74,8 @@ const ConnectPage = () => {
         </div>
       </Modal>
 
-      <OfferBanner />
-      <div className="flex-[0.05] px-5 flex items-center justify-between py-2">
+      {/* <OfferBanner /> */}
+      <div className="px-5 flex items-center justify-between py-3">
         <div
           onClick={() => navigate("/requests/sent")}
           className="active:bg-grey01"
@@ -97,7 +97,7 @@ const ConnectPage = () => {
         </div>
       </div>
 
-      <div className="flex-[0.95] my-5 w-full h-full overflow-y-scroll no-scrollbar">
+      <div className=" my-3 w-full h-full overflow-y-scroll no-scrollbar">
         <div className="flex items-center justify-between px-5 mb-5">
           <div className="flex items-center space-x-4">
             <h1 className="font-bold">Explore Attendees</h1>
@@ -138,7 +138,7 @@ const ConnectPage = () => {
               <SwiperSlide key={user._id}>
                 <ConnectCard
                   name={user.name}
-                  interests={user.interests}
+                  interests={user.industry}
                   id={user._id}
                   lookingFor={user.lookingFor}
                   profession={user.profession}

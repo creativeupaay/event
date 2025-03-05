@@ -145,7 +145,7 @@ const FormSection4 = ({
           </div>
         </div>
 
-        <div className="w-full  flex flex-wrap justify-evenly gap-2">
+        <div className="w-full grid grid-cols-3 justify-evenly gap-2">
           {suggestedProfessions.map((profession, index) => (
             <FormSquareButton
               key={index}

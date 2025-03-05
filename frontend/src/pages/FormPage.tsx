@@ -17,43 +17,45 @@ const pageVariants = {
   forward: {
     initial: {
       opacity: 0,
-      y: "100%"
+      y: "100%",
     },
     in: {
       opacity: 1,
-      y: 0
+      y: 0,
     },
     out: {
       opacity: 0,
-      y: "-100%"
-    }
+      y: "-100%",
+    },
   },
   backward: {
     initial: {
       opacity: 0,
-      y: "-100%"
+      y: "-100%",
     },
     in: {
       opacity: 1,
-      y: 0
+      y: 0,
     },
     out: {
       opacity: 0,
-      y: "100%"
-    }
-  }
+      y: "100%",
+    },
+  },
 };
 
 const pageTransition = {
   type: "tween",
   ease: "easeIn",
-  duration: 0.5
+  duration: 0.5,
 };
 
 const FormPage = () => {
   const formsContainerRef = useRef<HTMLDivElement>(null);
   const [currentFormIndex, setCurrentFormIndex] = useState<number>(0);
-  const [transitionDirection, setTransitionDirection] = useState<'forward' | 'backward'>('forward');
+  const [transitionDirection, setTransitionDirection] = useState<
+    "forward" | "backward"
+  >("forward");
 
   const { eventId } = useParams();
 
@@ -72,7 +74,7 @@ const FormPage = () => {
   const [name, setName] = useState<string>("");
   const [companyName, setCompanyName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("+91");
 
   // It is from the compulsory last form page
   const [helps, setHelps] = useState<string[]>([]);
@@ -93,11 +95,12 @@ const FormPage = () => {
       if (response.status == 200) {
         showSnackbar("Already form is filled", "info");
         navigate(
-          `/connect/${eventId ? eventId : localStorage.getItem("currentEventId")
+          `/connect/${
+            eventId ? eventId : localStorage.getItem("currentEventId")
           }`
         );
       }
-    } catch (e) { }
+    } catch (e) {}
 
     setIsUserFetching(false);
   };
@@ -160,7 +163,7 @@ const FormPage = () => {
   }, [currentFormIndex]);
 
   const nextForm = async (isLastFormSkipped: boolean = false) => {
-    setTransitionDirection('forward');
+    setTransitionDirection("forward");
     setTimeout(() => {
       setCurrentFormIndex((prevIndex) => {
         const newIndex = prevIndex + 1;
@@ -171,18 +174,14 @@ const FormPage = () => {
         }
         return newIndex;
       });
-
-    }, )
+    });
   };
 
   const backForm = () => {
-    setTransitionDirection('backward');
+    setTransitionDirection("backward");
     setTimeout(() => {
-
       setCurrentFormIndex((prevIndex) => Math.max(0, prevIndex - 1));
-    }, )
-
-
+    });
   };
 
   // For showing the splash screen for 2 seconds
@@ -215,7 +214,7 @@ const FormPage = () => {
             <AnimatePresence
               mode="popLayout"
               // This makes the transitions more simultaneous
-              onExitComplete={() => { }}
+              onExitComplete={() => {}}
             >
               {currentFormIndex === 0 && (
                 <motion.div
@@ -228,7 +227,7 @@ const FormPage = () => {
                     ...pageTransition,
                     // Overlap the exit and enter animations
                     delayChildren: 0,
-                    staggerChildren: 0
+                    staggerChildren: 0,
                   }}
                 >
                   <FormSectionIntro nextForm={nextForm} />
@@ -245,7 +244,7 @@ const FormPage = () => {
                   transition={{
                     ...pageTransition,
                     delayChildren: 0,
-                    staggerChildren: 0
+                    staggerChildren: 0,
                   }}
                 >
                   <FormSection1
@@ -270,7 +269,7 @@ const FormPage = () => {
                   transition={{
                     ...pageTransition,
                     delayChildren: 0,
-                    staggerChildren: 0
+                    staggerChildren: 0,
                   }}
                 >
                   <FormSection2
@@ -298,7 +297,7 @@ const FormPage = () => {
                   transition={{
                     ...pageTransition,
                     delayChildren: 0,
-                    staggerChildren: 0
+                    staggerChildren: 0,
                   }}
                 >
                   {describedAs == "Freelancer" || describedAs == "Student" ? (
@@ -329,7 +328,7 @@ const FormPage = () => {
                   transition={{
                     ...pageTransition,
                     delayChildren: 0,
-                    staggerChildren: 0
+                    staggerChildren: 0,
                   }}
                 >
                   <FormSection4
@@ -351,7 +350,7 @@ const FormPage = () => {
                   transition={{
                     ...pageTransition,
                     delayChildren: 0,
-                    staggerChildren: 0
+                    staggerChildren: 0,
                   }}
                 >
                   <FormSectionCompulsory

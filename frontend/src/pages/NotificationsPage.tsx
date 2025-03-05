@@ -10,29 +10,45 @@ const ActivityCard = ({
   name,
   userId,
   message,
+  isRead,
+  notificationId,
 }: {
   type: "Note" | "Video";
   name: string;
   userId: string;
   message: string;
+  isRead: boolean;
+  notificationId: string;
 }) => {
   const navigate = useNavigate();
+
+  const readNotification = async () => {
+    try {
+      await userApi.put(
+        `/user/notification/read?notificationId=${notificationId}`
+      );
+    } catch (e) {}
+  };
 
   return (
     <div
       onClick={() => {
+        if (!isRead) readNotification();
         navigate(`/profile/${userId}`);
       }}
-      className="flex items-start space-x-4"
+      className={`flex items-start space-x-4 ${
+        !isRead && "bg-grey01"
+      } py-3 px-4`}
     >
       <div className="flex items-center space-x-2">
         <Icon
           icon={type == "Note" ? "proicons:note" : "proicons:video"}
           fontSize={"20px"}
         />
-        <p className="text-sm font-bold text-darkBg">{name}</p>
+        <p className="text-sm font-bold text-darkBg">
+          {name} <span className="font-normal text-grey ml-2">{message}</span>
+        </p>
       </div>
-      <p className="text-sm text-grey">{message}</p>
     </div>
   );
 };
@@ -87,26 +103,28 @@ const NotificatonsPage = () => {
       </div>
       <OfferBanner />
 
-      <div className="w-full h-full flex flex-col py-4 px-4 overflow-y-scroll no-scrollbar">
+      <div className="w-full h-full flex flex-col py-4  overflow-y-scroll no-scrollbar">
         <div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 px-4">
             <Icon icon={"hugeicons:activity-01"} fontSize={"22px"} />
             <p className="text-sm font-medium text-darkBg">Activity</p>
           </div>
 
-          {notifications.length == 0 ? (
+          {notifications?.length == 0 ? (
             <div className="w-full my-8 text-center">
               <p className="text-xs text-grey">No notifications</p>
             </div>
           ) : (
             <div className="mt-4 space-y-4">
-              {notifications.map((notification) => (
+              {notifications?.map((notification) => (
                 <ActivityCard
                   key={notification._id}
                   type="Note"
                   message={notification.message}
                   name={notification.user[0].name}
                   userId={notification.user[0]._id}
+                  isRead={notification.isRead}
+                  notificationId={notification._id}
                 />
               ))}
 

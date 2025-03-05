@@ -50,16 +50,6 @@ const badgeInfo = [
   },
 ];
 
-type EDITED_INTEREST = {
-  interestsToRemove: string[];
-  newInterests: string[];
-};
-
-type EDITED_LOOKINGFOR = {
-  lookingForToRemove: string[];
-  newLookingFor: string[];
-};
-
 const EditComponent = ({
   heading,
   inputLabel,
@@ -67,8 +57,8 @@ const EditComponent = ({
   saveFunc,
   editType,
   selectedData,
-  setEditedInterests,
-  setEditedLookingFor,
+  setInterests,
+  setLookingFor,
 }: {
   heading: string;
   inputLabel: string;
@@ -76,17 +66,11 @@ const EditComponent = ({
   saveFunc: Function;
   selectedData: string[];
   editType: "INTERESTS" | "LOOKING_FOR";
-  setEditedInterests?: React.Dispatch<React.SetStateAction<EDITED_INTEREST>>;
-  setEditedLookingFor?: React.Dispatch<React.SetStateAction<EDITED_LOOKINGFOR>>;
+  setInterests?: React.Dispatch<React.SetStateAction<string[]>>;
+  setLookingFor?: React.Dispatch<React.SetStateAction<string[]>>;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { showSnackbar } = useSnackbar();
-
-  const [newSelectedData, setNewSelectedData] = useState<string[]>([]);
-
-  useEffect(() => {
-    setNewSelectedData(selectedData);
-  }, [selectedData]);
 
   const onEdit = async () => {
     if (isLoading) return;
@@ -105,66 +89,42 @@ const EditComponent = ({
   };
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (selectedData.length == 3) {
+      showSnackbar("Already 3 selected", "warning");
+      return;
+    }
+
     if (selectedData.includes(e.target.value)) {
       showSnackbar("Already selected", "warning");
       return;
     }
 
     if (editType == "INTERESTS") {
-      if (!setEditedInterests) return;
+      if (!setInterests) return;
 
-      setEditedInterests((data) => {
-        const temp: EDITED_INTEREST = {
-          newInterests: [...data.newInterests, e.target.value],
-          interestsToRemove: data.interestsToRemove,
-        };
-
-        return temp;
-      });
+      setInterests((data) => [...data, e.target.value]);
     } else if (editType == "LOOKING_FOR") {
-      if (!setEditedLookingFor) return;
+      if (!setLookingFor) return;
 
-      setEditedLookingFor((data) => {
-        const temp: EDITED_LOOKINGFOR = {
-          newLookingFor: [...data.newLookingFor, e.target.value],
-          lookingForToRemove: data.lookingForToRemove,
-        };
-
-        return temp;
-      });
+      setLookingFor((data) => [...data, e.target.value]);
     }
-
-    setNewSelectedData([...newSelectedData, e.target.value]);
   };
 
   const onRemoveHandler = (label: string) => {
-    const filteredData = newSelectedData.filter((text) => text != label);
-
     if (selectedData.includes(label)) {
       if (editType == "INTERESTS") {
-        if (!setEditedInterests) return;
+        if (!setInterests) return;
 
-        setEditedInterests((data) => {
-          const temp: EDITED_INTEREST = {
-            newInterests: data.newInterests,
-            interestsToRemove: [...data.interestsToRemove, label],
-          };
-          return temp;
-        });
+        const temp = selectedData.filter((data) => data != label);
+
+        setInterests(temp);
       } else if (editType == "LOOKING_FOR") {
-        if (!setEditedLookingFor) return;
+        if (!setLookingFor) return;
 
-        setEditedLookingFor((data) => {
-          const temp: EDITED_LOOKINGFOR = {
-            newLookingFor: data.newLookingFor,
-            lookingForToRemove: [...data.lookingForToRemove, label],
-          };
-          return temp;
-        });
+        const temp = selectedData.filter((data) => data != label);
+        setLookingFor(temp);
       }
     }
-
-    setNewSelectedData(filteredData);
   };
 
   return (
@@ -179,7 +139,12 @@ const EditComponent = ({
       </div>
 
       <div className="flex flex-col space-y-4">
-        <p className="text-sm font-semibold text-grey">{inputLabel}</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-grey">{inputLabel}</p>
+          <p className="text-sm font-semibold text-grey">
+            {selectedData.length}/3
+          </p>
+        </div>
         <select
           onChange={(e) => onChangeHandler(e)}
           className="w-full py-2 px-3 bg-white border border-grey01 rounded-lg outline-none text-grey text-sm"
@@ -193,7 +158,7 @@ const EditComponent = ({
         </select>
 
         <div className="flex items-center flex-wrap gap-3">
-          {newSelectedData?.map((label, index) => (
+          {selectedData?.map((label, index) => (
             <div
               key={index}
               className="text-xs bg-grey01 px-3 py-2 rounded-full font-medium text-darkBg flex items-center space-x-4"
@@ -257,7 +222,19 @@ const Profile = () => {
   const [editedProfession, setEditedProfession] = useState<string>("");
 
   // interests
-  // const [interests, setInterests] = useState<string[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [lookingFor, setLookingFor] = useState<string[]>([]);
+
+  // edited info
+  // const [editedInterests, setEditedInterests] = useState<EDITED_INTEREST>({
+  //   interestsToRemove: [],
+  //   newInterests: [],
+  // });
+
+  // const [editedLookingFor, setEditedLookingFor] = useState<EDITED_LOOKINGFOR>({
+  //   lookingForToRemove: [],
+  //   newLookingFor: [],
+  // });
 
   useEffect(() => {
     if (!user) return;
@@ -270,23 +247,9 @@ const Profile = () => {
     setEditedCompany(user.company);
     setEditedProfession(user.profession);
 
-    // setInterests(user.industry);
+    setInterests(user.industry);
+    setLookingFor(user.lookingFor);
   }, [user]);
-
-  // edited info
-  const [editedInterests, setEditedInterests] = useState<EDITED_INTEREST>({
-    interestsToRemove: [],
-    newInterests: [],
-  });
-
-  const [editedLookingFor, setEditedLookingFor] = useState<EDITED_LOOKINGFOR>({
-    lookingForToRemove: [],
-    newLookingFor: [],
-  });
-
-  useEffect(() => {
-    console.log(editedInterests);
-  }, [editedInterests]);
 
   useEffect(() => {
     if (!user || !userLevelData) return;
@@ -311,10 +274,21 @@ const Profile = () => {
     }
   };
 
-  const saveInterests = async (editedData: EDITED_INTEREST) => {
+  const saveInterests = async () => {
+    const newInterests = interests.filter(
+      (data) => !user?.interests.includes(data)
+    );
+
+    const interestsToRemove = user?.interests.filter(
+      (data) => !interests.includes(data)
+    );
+
     try {
       await userApi.put("/user/editInterest", {
-        data: editedData,
+        data: {
+          newInterests,
+          interestsToRemove,
+        },
       });
 
       showSnackbar("Edited successfully", "success");
@@ -325,10 +299,21 @@ const Profile = () => {
     }
   };
 
-  const saveLookingFor = async (editedData: EDITED_LOOKINGFOR) => {
+  const saveLookingFor = async () => {
+    const newLookingFor = lookingFor.filter(
+      (data) => !user?.lookingFor.includes(data)
+    );
+
+    const lookingForToRemove = user?.lookingFor.filter(
+      (data) => !lookingFor.includes(data)
+    );
+
     try {
       await userApi.put("/user/edit-lookingFor", {
-        data: editedData,
+        data: {
+          lookingForToRemove,
+          newLookingFor,
+        },
       });
 
       showSnackbar("Edited successfully", "success");
@@ -348,11 +333,11 @@ const Profile = () => {
             inputLabel="I’m Interested in"
             closeModal={() => setIsInterestModalOpen(false)}
             editType="INTERESTS"
-            setEditedInterests={setEditedInterests}
             saveFunc={async () => {
-              await saveInterests(editedInterests);
+              await saveInterests();
             }}
-            selectedData={user ? user.industry : []}
+            selectedData={interests}
+            setInterests={setInterests}
           />
         </div>
       </Modal>
@@ -364,11 +349,11 @@ const Profile = () => {
             inputLabel="I want to network with"
             closeModal={() => setIsLookingForModalOpen(false)}
             editType="LOOKING_FOR"
-            setEditedLookingFor={setEditedLookingFor}
             saveFunc={async () => {
-              await saveLookingFor(editedLookingFor);
+              await saveLookingFor();
             }}
-            selectedData={user ? user.lookingFor : []}
+            selectedData={lookingFor}
+            setLookingFor={setLookingFor}
           />
         </div>
       </Modal>
@@ -430,7 +415,8 @@ const Profile = () => {
             <div className="flex items-center justify-between">
               <p className="text-[10px] text-grey">
                 {badgeInfo[userLevelData?.level ? userLevelData?.level : 0]
-                  .connectionsNeeded -
+                  .connectionsNeeded +
+                  1 -
                   (user?.connections ? user.connections : 0)}{" "}
                 more connections to Level Up! 🚀
               </p>
@@ -624,26 +610,30 @@ const Profile = () => {
                   )}
                 </div>
               </div>
-              <div className="flex items-center">
-                <div className="flex-[0.5] w-full text-sm text-grey">
-                  <p>Company Name</p>
-                </div>
 
-                <div className="flex-[0.5] w-full text-sm text-darkBg">
-                  {isProfessionalDetailsEditing ? (
-                    <input
-                      type="text"
-                      value={editedCompany}
-                      onChange={(e) => {
-                        setEditedCompany(e.target.value);
-                      }}
-                      className="w-full border-b border-grey"
-                    />
-                  ) : (
-                    <p>{editedCompany}</p>
-                  )}
+              {user?.position != "Freelancer" && (
+                <div className="flex items-center">
+                  <div className="flex-[0.5] w-full text-sm text-grey">
+                    <p>Company Name</p>
+                  </div>
+
+                  <div className="flex-[0.5] w-full text-sm text-darkBg">
+                    {isProfessionalDetailsEditing ? (
+                      <input
+                        type="text"
+                        value={editedCompany}
+                        onChange={(e) => {
+                          setEditedCompany(e.target.value);
+                        }}
+                        className="w-full border-b border-grey"
+                      />
+                    ) : (
+                      <p>{editedCompany}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
+
               <div className="flex items-center">
                 <div className="flex-[0.5] w-full text-sm text-grey">
                   <p>Role</p>
@@ -668,24 +658,29 @@ const Profile = () => {
           </div>
 
           {/* interests section */}
-          <div className="w-full bg-white p-3 rounded-lg">
-            <div className="w-full flex items-center justify-between">
-              <p className="text-sm font-medium">Interests</p>
-              <Icon
-                onClick={() => setIsInterestModalOpen(true)}
-                icon={"material-symbols:edit-outline-rounded"}
-                fontSize={"16px"}
-              />
-            </div>
+          {user?.position != "Employee" && user?.position != "Freelancer" && (
+            <div className="w-full bg-white p-3 rounded-lg">
+              <div className="w-full flex items-center justify-between">
+                <p className="text-sm font-medium">Interests</p>
+                <Icon
+                  onClick={() => setIsInterestModalOpen(true)}
+                  icon={"material-symbols:edit-outline-rounded"}
+                  fontSize={"16px"}
+                />
+              </div>
 
-            <div className="w-full flex items-center  my-3 text-sm text-darkBg">
-              <p>
-                {user?.industry.map((label, index) => (
-                  <React.Fragment key={index}>{label}, </React.Fragment>
-                ))}
-              </p>
+              <div className="w-full flex items-center  my-3 text-sm text-darkBg">
+                <p>
+                  {interests.map((label, index) => (
+                    <React.Fragment key={index}>
+                      {label}
+                      {index != interests.length - 1 && ", "}
+                    </React.Fragment>
+                  ))}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Want to network with section */}
           <div className="w-full bg-white p-3 rounded-lg pb-[200px]">
@@ -700,8 +695,11 @@ const Profile = () => {
 
             <div className="w-full flex items-center space-x-2 my-3 text-sm text-darkBg">
               <p>
-                {user?.lookingFor.map((label, index) => (
-                  <React.Fragment key={index}>{label}, </React.Fragment>
+                {lookingFor.map((label, index) => (
+                  <React.Fragment key={index}>
+                    {label}
+                    {index != lookingFor.length - 1 && ","}{" "}
+                  </React.Fragment>
                 ))}
               </p>
             </div>

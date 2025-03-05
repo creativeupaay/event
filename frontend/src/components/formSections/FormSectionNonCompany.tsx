@@ -21,7 +21,7 @@ const roles = [
   },
   {
     icon: "📋",
-    label: "Prpject Manager",
+    label: "Project Manager",
   },
   {
     icon: "📢",
@@ -81,7 +81,7 @@ const FormSectionNonCompany = ({
           I am best described as
         </h1>
 
-        <div className="w-full  flex flex-wrap justify-evenly gap-2">
+        <div className="w-full grid grid-cols-3 justify-evenly gap-2">
           {roles.map((role, index) => (
             <FormSquareButton
               key={index}

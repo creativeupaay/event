@@ -15,6 +15,7 @@ const QRConnecting = () => {
       );
 
       if (res.status == 200) {
+        navigate(`/profile/${friendId}`);
         showSnackbar("You are now connected", "success");
       }
     } catch (e) {

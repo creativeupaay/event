@@ -23,19 +23,21 @@ const ConnectionCard = ({
   const navigate = useNavigate();
 
   return (
-    <div
-      onClick={() => {
-        navigate(`/profile/${userId}`);
-      }}
-      className="w-full h-[149px] flex flex-col rounded-xl bg-[#FFFEC4]"
-    >
+    <div className="w-full h-[149px] flex flex-col rounded-xl bg-[#FFFEC4]">
       {/* top part */}
-      <div className="flex-[0.75] px-2 pt-4 space-y-2  ">
+      <div
+        onClick={() => {
+          navigate(`/profile/${userId}`);
+        }}
+        className="flex-[0.75] px-2 pt-4 space-y-2  "
+      >
         <p className="text-sm font-bold text-darkBg">{name}</p>
-        <div className="flex items-center space-x-2">
-          <Icon icon={"openmoji:handbag"} fontSize="16px" />
-          <p className="text-xs text-grey">{position}</p>
-        </div>
+        {position && (
+          <div className="flex items-center space-x-2">
+            <Icon icon={"openmoji:handbag"} fontSize="16px" />
+            <p className="text-xs text-grey">{position}</p>
+          </div>
+        )}
 
         <p className="text-sm text-grey">{company}</p>
       </div>
@@ -148,7 +150,7 @@ const MyNetworkPage = () => {
 
         {/* Connection cards */}
         <div className="h-fit grid grid-cols-2 gap-3 overflow-y-scroll no-scrollbar pb-56">
-          {allFriends.map((friend) => (
+          {allFriends?.map((friend) => (
             <ConnectionCard
               key={friend.friendId}
               name={friend.name}

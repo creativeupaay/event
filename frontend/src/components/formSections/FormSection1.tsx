@@ -24,7 +24,7 @@ const FormSection1 = ({
 
   const validAndGoToNext = () => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
+    const phoneRegex = /^\+91\d{10}$/;
 
     // Function to validate email
     const validateEmail = (email: string) => emailRegex.test(email);
@@ -96,7 +96,10 @@ const FormSection1 = ({
             type="text"
             label="Phone Number"
             value={number}
-            onChange={(e) => setNumber(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length >= 3 && e.target.value.length <= 13)
+                setNumber(e.target.value);
+            }}
             variant="outlined"
             sx={{
               width: "100%",
@@ -118,7 +121,7 @@ const FormSection1 = ({
             validAndGoToNext();
           }}
           className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs ${
-            name && email && number ? "opacity-100" : "opacity-60"
+            name && email && number.length == 13 ? "opacity-100" : "opacity-60"
           }`}
         >
           I am ready to start!

@@ -84,12 +84,13 @@ const NoteCard = ({
   return (
     <div className="flex items-center justify-between">
       {/* left section */}
-      <div
-        onClick={() => {
-          navigate(`/profile/${type == "sent" ? receiverId : senderId}`);
-        }}
-      >
-        <div className="flex items-center space-x-2">
+      <div>
+        <div
+          onClick={() => {
+            navigate(`/profile/${type == "sent" ? receiverId : senderId}`);
+          }}
+          className="flex items-center space-x-2"
+        >
           <p className="text-sm font-bold text-darkBg">{name}</p>
           <p className="text-xs text-grey">Freelancer</p>
         </div>
@@ -298,11 +299,6 @@ const RequestsPage = () => {
           </Accordion> */}
 
           {/* Note Requests */}
-
-          <div className="flex items-center space-x-2">
-            <Icon icon={"proicons:note"} fontSize={"20px"} />
-            <p>Note Requests {currentTab == "sent" && "Sent to"}</p>
-          </div>
 
           <div className="w-full space-y-3">
             {currentTab == "sent"

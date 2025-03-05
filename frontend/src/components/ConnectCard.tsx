@@ -233,9 +233,11 @@ const ConnectCard = ({
   const { showSnackbar } = useSnackbar();
   const [isFlipped, setFlipped] = useState<boolean>(false);
 
-  const [isQuickConnected, setIsQuickConnected] = useState<boolean>(false);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
 
   const sendConnectionRequest = async () => {
+    if (isConnected) return;
+
     if (!note) {
       showSnackbar("Please provide a note", "warning");
       return;
@@ -256,6 +258,8 @@ const ConnectCard = ({
       );
 
       if (response.status == 200) {
+        setFlipped(false);
+        setIsConnected(true);
         showSnackbar("Request is sent successfully", "success");
       }
     } catch (e) {
@@ -282,7 +286,7 @@ const ConnectCard = ({
 
       if (response.status == 200) {
         showSnackbar("Quick Connected", "success");
-        setIsQuickConnected(true);
+        setIsConnected(true);
       }
     } catch (e) {
       showSnackbar("Error in quick connecting", "error");
@@ -291,58 +295,79 @@ const ConnectCard = ({
     setIsQuickConnecting(false);
   };
 
+  const withdrawalRequest = async () => {
+    try {
+      const res = await userApi.delete(
+        `/user/friend-management/withdraw-friend-request?receiverId=${id}`
+      );
+
+      if (res.status == 200) {
+        setIsConnected(false);
+        showSnackbar("Request is withdrawed successfully", "success");
+      }
+    } catch (e) {
+      showSnackbar("Error in withdrawing the request", "error");
+    }
+  };
+
   return (
     <>
       <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
         {/* Front side component */}
         <>
           <div
-            className={`w-full h-[450px] rounded-xl flex flex-col justify-between ${getGradientCardColor(
+            className={`w-full h-[450px] min-h-fit rounded-xl flex flex-col justify-between ${getGradientCardColor(
               position
             )}  flex-shrink-0 relative px-3 pb-3`}
           >
             <div className="bg-black w-fit px-3 py-1 rounded-b-md mb-2">
               <p className="text-white text-xs font-light">
                 {position}{" "}
-                {(position === "Freelancer" || position === "Employee") &&
+                {(position === "Freelancer" ||
+                  (position === "Employee" && profession)) &&
                   ` | ${profession}`}
               </p>
             </div>
             <div className="w-full h-full flex flex-col justify-between">
               <div>
-                {position == "Student" && (
-                  <div className="w-full flex-1 flex items-center my-3">
-                    <div className="flex-[0.5] space-y-1">
-                      <div className="flex items-center space-x-3 text-grey01 ">
-                        <Icon icon={"ic:outline-room"} fontSize={"10px"} />
-                        <p className="text-[8px] ">Institute</p>
-                      </div>
-
-                      <p className="text-[10px] text-white font-medium">
-                        {instituteName}
-                      </p>
-                    </div>
-
-                    <div className="flex-[0.5] space-y-1">
-                      <div className="flex items-center space-x-3 text-grey01 ">
-                        <Icon icon={"mdi:college-outline"} fontSize={"10px"} />
-                        <p className="text-[8px] ">Course Enrolled</p>
-                      </div>
-
-                      <p className="text-[10px] text-white font-medium">
-                        {courseName}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center ">
-                  <div className="flex flex-col space-y-2">
+                <div className="w-full flex items-center ">
+                  <div className="w-full flex flex-col space-y-2">
                     <h1 className="text-xl text-white font-medium">{name}</h1>
 
-                    {company && (
-                      <InfoSection heading="Company" text={company} />
+                    {position == "Student" && (
+                      <div className="w-full flex-1 flex items-start my-3">
+                        <div className="flex-[0.5] space-y-1">
+                          <div className="flex items-center space-x-3 text-grey01 ">
+                            <Icon icon={"ic:outline-room"} fontSize={"10px"} />
+                            <p className="text-[10px] ">Institute</p>
+                          </div>
+
+                          <p className="text-[10px] text-white font-medium">
+                            {instituteName}
+                          </p>
+                        </div>
+
+                        <div className="flex-[0.5] space-y-1">
+                          <div className="flex items-center space-x-3 text-grey01 ">
+                            <Icon
+                              icon={"mdi:college-outline"}
+                              fontSize={"10px"}
+                            />
+                            <p className="text-[10px] ">Course Enrolled</p>
+                          </div>
+
+                          <p className="text-[10px] text-white font-medium">
+                            {courseName}
+                          </p>
+                        </div>
+                      </div>
                     )}
+
+                    {position != "Student" &&
+                      position != "Freelancer" &&
+                      company && (
+                        <InfoSection heading="Company" text={company} />
+                      )}
                   </div>
                 </div>
 
@@ -359,7 +384,7 @@ const ConnectCard = ({
                       </p>
                     </div>
                     <div className=" flex flex-wrap gap-3">
-                      {interests.map((label, index) => (
+                      {interests?.map((label, index) => (
                         <div
                           key={index}
                           className={`border border-white
@@ -379,7 +404,9 @@ const ConnectCard = ({
                   </p>
                   <p className="text-sm   font-medium text-white leading-normal">
                     {lookingFor?.map((text, index) => (
-                      <React.Fragment key={index}>{text}, </React.Fragment>
+                      <React.Fragment key={index}>
+                        {text} {index != lookingFor.length - 1 && ","}{" "}
+                      </React.Fragment>
                     ))}
                   </p>
                 </div>
@@ -398,34 +425,43 @@ const ConnectCard = ({
                 </div>
 
                 <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-3">
-                  <button
-                    onClick={sendQuickConnect}
-                    className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
-                  >
-                    {isQuickConnecting ? (
-                      <CircularProgress size={"18px"} />
-                    ) : isQuickConnected ? (
-                      <p>Connection Sent</p>
-                    ) : (
-                      <>
-                        <Icon
-                          icon="tdesign:lighting-circle"
-                          width="24"
-                          height="24"
-                        />
-                        <p>Quick Connect</p>
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setFlipped(true);
-                    }}
-                    className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-3"
-                  >
-                    <Icon icon="proicons:note" width="24" height="24" />
-                    <p>Via a text note</p>
-                  </button>
+                  {isConnected ? (
+                    <button
+                      onClick={withdrawalRequest}
+                      className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
+                    >
+                      Withdraw Request
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={sendQuickConnect}
+                        className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
+                      >
+                        {isQuickConnecting ? (
+                          <CircularProgress size={"18px"} />
+                        ) : (
+                          <>
+                            <Icon
+                              icon="tdesign:lighting-circle"
+                              width="24"
+                              height="24"
+                            />
+                            <p>Quick Connect</p>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setFlipped(true);
+                        }}
+                        className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-3"
+                      >
+                        <Icon icon="proicons:note" width="24" height="24" />
+                        <p>Via a text note</p>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -442,7 +478,7 @@ const ConnectCard = ({
               <div className=" w-full space-y-1">
                 <p className="text-darkBg font-medium">Request to {name}</p>
                 <p className="text-grey text-sm">
-                  {position} - {company}
+                  {position} {company && `- ${company}`}
                 </p>
               </div>
 

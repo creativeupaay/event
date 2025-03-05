@@ -16,6 +16,7 @@ export interface userI {
   status: string;
   contactNumber: string;
   connections: number;
+  friendShipStatus?: "REQUEST_SENT" | "REQUEST_RECEIVED" | "CONNECTED";
   isConnected?: boolean;
 }
 

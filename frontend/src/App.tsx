@@ -36,6 +36,8 @@ const App = () => {
       if (response.status == 200) {
         setUser(response.data.user);
         setUserLevelData(response.data.userLevelData);
+
+        if (!response.data.userLevelData.badgeSplashRead) navigate("/levelup");
       }
     } catch (e) {
       navigate("/form/67a1e3adace29974b72c9694");

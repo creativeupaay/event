@@ -17,7 +17,7 @@ import CustomButton from "../components/CustomButton";
 import { useSnackbar } from "../hooks/SnackbarContext";
 import userApi from "../apis/userApi";
 
-const badgeInfo = [
+export const badgeInfo = [
   {
     badgeName: "Lock",
     badge: lockBadge,

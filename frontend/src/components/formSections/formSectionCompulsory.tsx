@@ -12,11 +12,15 @@ import OtherInfoInput from "../OtherInfoInput";
 const Option = ({
   label,
   setSelectedOptions,
+  isAlreadySelected,
 }: {
   label: string;
   setSelectedOptions: React.Dispatch<React.SetStateAction<string[]>>;
+  isAlreadySelected?: boolean;
 }) => {
-  const [isSelected, setIsSelected] = useState<boolean>(false);
+  const [isSelected, setIsSelected] = useState<boolean>(
+    isAlreadySelected ?? false
+  );
 
   useEffect(() => {
     if (isSelected) {
@@ -130,7 +134,12 @@ const FormSectionCompulsory = ({
             <Option label="Graphic Designing" setSelectedOptions={setHelps} />
 
             {otherHelps.map((help, index) => (
-              <Option key={index} label={help} setSelectedOptions={setHelps} />
+              <Option
+                isAlreadySelected={true}
+                key={index}
+                label={help}
+                setSelectedOptions={setHelps}
+              />
             ))}
 
             <div

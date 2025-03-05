@@ -326,6 +326,7 @@ export const getAllFriends = async (
                 contactNumber: "$friends.contactNumber",
                 profileImage: "$friends.profileImage",
                 profession: "$friends.profession",
+                position:"$friends.position",
                 industry: "$friends.industry",
                 company: "$friends.company",
                 lookingFor: "$friends.lookingFor",

@@ -10,19 +10,17 @@ const QRConnecting = () => {
 
   const connect = async () => {
     try {
-      const res = await userApi.post(
+      await userApi.post(
         `/user/friend-management/quick-add-friend?friendId=${friendId}`
       );
 
-      if (res.status == 200) {
-        navigate(`/profile/${friendId}`);
-        showSnackbar("You are now connected", "success");
-      }
+      showSnackbar("You are now connected", "success");
     } catch (e) {
       showSnackbar("Error in connecting", "error");
     }
 
-    navigate(`/connect/${localStorage.getItem("currentEventId")}`);
+    navigate(`/profile/${friendId}`);
+    // navigate(`/connect/${localStorage.getItem("currentEventId")}`);
   };
 
   useEffect(() => {

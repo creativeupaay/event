@@ -19,7 +19,7 @@ const ConnectPage = () => {
 
   const { eventId } = useParams();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, _setIsLoading] = useState<boolean>(false);
   const [users, setUsers] = useState<userI[]>([]);
 
   const { user } = useUser();
@@ -30,12 +30,15 @@ const ConnectPage = () => {
 
   useEffect(() => {
     if (users.length == 0) return;
+    let tempCurrentIndex = currentSwiperSlide;
 
     const percent = ((currentSwiperSlide + 1) / users.length) * 100;
     console.log(percent);
     if (percent >= 75) {
       console.log("fetching");
       fetchEventGuests(users[users.length - 1]._id);
+
+      setCurrentSwiperSlide(tempCurrentIndex);
     }
   }, [currentSwiperSlide]);
 
@@ -46,7 +49,7 @@ const ConnectPage = () => {
   });
 
   const fetchEventGuests = async (cursor?: string) => {
-    setIsLoading(true);
+    // setIsLoading(true);
 
     try {
       const response = await userApi.get(
@@ -67,7 +70,7 @@ const ConnectPage = () => {
       }
     } catch (e) {}
 
-    setIsLoading(false);
+    // setIsLoading(false);
   };
 
   useEffect(() => {
@@ -143,6 +146,7 @@ const ConnectPage = () => {
             spaceBetween={10}
             slidesPerView={1.1}
             centeredSlides={true}
+            initialSlide={currentSwiperSlide}
           >
             {/* <SwiperSlide>
               <AdCard>

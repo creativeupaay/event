@@ -248,7 +248,7 @@ export const getAllEventGuest = async (
                                 {
                                     totalMatchCount: {
                                         $add: [
-                                            { $ifNull: ["$$user.lookingForMatchedCount", 0] },
+                                            // { $ifNull: ["$$user.lookingForMatchedCount", 0] },
                                             { $ifNull: ["$$user.professionMatchCount", 0] },
                                             { $ifNull: ["$$user.positionMatchCount", 0] },
                                             { $ifNull: ["$$user.instituteNameMatchCount", 0] },
@@ -256,6 +256,13 @@ export const getAllEventGuest = async (
                                             { $ifNull: ["$$user.courseNameMatchCount", 0] },
                                             { $ifNull: ["$$user.industryMatchCount", 0] },
                                         ]
+                                    },
+                                    lookingForMatchedCountWithBonus: {
+                                        $cond: {
+                                            if: { $gt: ["$$user.lookingForMatchedCount", 0] },
+                                            then: { $add: ["$$user.lookingForMatchedCount", 10] },
+                                            else: "$$user.lookingForMatchedCount"
+                                        }
                                     }
                                 }
                             ]
@@ -302,6 +309,7 @@ export const getAllEventGuest = async (
                     $sortArray: {
                         input: "$users",
                         sortBy: {
+                            "lookingForMatchedCountWithBonus": -1,
                             "totalMatchCount": -1,
                             "createdAt": sortOrder === 'asc' ? 1 : -1
                         }
@@ -322,9 +330,9 @@ export const getAllEventGuest = async (
         {
             $limit: parseInt(String(limit))
         },
-        {
-            $sample: { size: parseInt(String(limit)) }
-        },
+        // {
+        //     $sample: { size: parseInt(String(limit)) }
+        // },
         {
             $project: {
                 _id: "$users._id",
@@ -339,7 +347,6 @@ export const getAllEventGuest = async (
                 courseName: "$users.courseName",
                 lookingFor: "$users.lookingFor",
                 matchCount: "$users.totalMatchCount",
-                // industryMatchCount:"$users.industryMatchCount"
             }
         }
     ]);
@@ -753,7 +760,7 @@ export const searchGuestInEvents = async (
                                 //     }
                                 // },
 
-                                { $eq: ["$$user.isAnyMatch", true]},
+                                { $eq: ["$$user.isAnyMatch", true] },
                                 // { $eq: ["$$user.isNameMatch", true] },
                                 // { $eq: ["$$user.isProfessionMatch", true] },
                                 // { $eq: ["$$user.isPositionMatch", true] },

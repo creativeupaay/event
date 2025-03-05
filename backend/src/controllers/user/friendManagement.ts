@@ -643,3 +643,169 @@ export const addFriendDirect = async (
         message: "Friend added successfully"
     })
 }
+
+export const userProfileById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<Response | void> => {
+    const userId = req.user.id;
+    const { friendId } = req.query;
+
+    if (!friendId)
+        throw new AppError("Field not found", 400);
+
+
+    const friendProfile = await FriendRequestModel.aggregate([
+        {
+            $match: {
+                $or: [
+                    {
+                        sender: new mongoose.Types.ObjectId(userId),
+                        receiver: new mongoose.Types.ObjectId(String(friendId))
+                    },
+                    {
+                        sender: new mongoose.Types.ObjectId(String(friendId)),
+                        receiver: new mongoose.Types.ObjectId(userId)
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                friendId: {
+                    $cond: {
+                        if: { $eq: ["$sender", new mongoose.Types.ObjectId(userId)] },
+                        then: "$receiver",
+                        else: "$sender"
+                    }
+                },
+                friendShipStatus: {
+                    $cond: {
+                        if: { $eq: ["$status", RequestStatusEnum.PENDING] },
+                        then: {
+                            $cond: {
+                                if: { $eq: ["$sender", new mongoose.Types.ObjectId(userId)] },
+                                then: "REQUEST_SENT",
+                                else: "REQUEST_RECEIVED"
+                            }
+                        },
+                        else: "CONNECTED"
+                    }
+                },
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                let: { friendId: "$friendId", status: "$friendShipStatus" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ["$_id", "$$friendId"] }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            friendId: 1,
+                            friendShipStatus: 1,
+                            name: 1,
+                            profileImage: 1,
+                            profession: 1,
+                            position: 1,
+                            industry: 1,
+                            company: 1,
+                            instituteName: 1,
+                            courseName: 1,
+                            lookingFor: 1,
+                            interests: 1,
+                            email: {
+                                $cond: {
+                                    if: { $eq: ["$$status", "CONNECTED"] },
+                                    then: "$email",
+                                    else: null
+                                }
+                            },
+                            contactNumber: {
+                                $cond: {
+                                    if: { $eq: ["$$status", "CONNECTED"] },
+                                    then: "$contactNumber",
+                                    else: null
+                                }
+                            }
+                        }
+                    }
+                ],
+                as: "freindProfile"
+            }
+        },
+        {
+            $unwind: {
+                path: "$freindProfile",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                friendId: 1,
+                friendShipStatus: 1,
+                name: "$freindProfile.name",
+                profileImage: "$freindProfile.profileImage",
+                profession: "$freindProfile.profession",
+                position: "$freindProfile.position",
+                industry: "$freindProfile.industry",
+                company: "$freindProfile.company",
+                instituteName: "$freindProfile.instituteName",
+                courseName: "$freindProfile.courseName",
+                lookingFor: "$freindProfile.lookingFor",
+                interests: "$freindProfile.interests",
+                email: "$freindProfile.email",
+                contactNumber: "$freindProfile.contactNumber",
+            }
+        }
+    ]);
+
+    if (!friendProfile.length) {
+        const userProfile = await UserModel.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(String(friendId)) }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    friendId: "$_id",
+                    friendShipStatus: "NOT_CONNECTED",
+                    name: 1,
+                    profileImage: 1,
+                    profession: 1,
+                    position: 1,
+                    industry: 1,
+                    company: 1,
+                    instituteName: 1,
+                    courseName: 1,
+                    lookingFor: 1,
+                    interests: 1,
+                    email:null,
+                    contactNumber:null
+                }
+            }
+        ]);
+
+        if (!userProfile.length)
+            throw new AppError("Freind not found", 404);
+
+        return res.status(200).json({
+            sucess: true,
+            friendProfile: userProfile
+        })
+
+    };
+
+    return res.status(200).json({
+        sucess: true,
+        friendProfile
+    })
+}

@@ -28,7 +28,7 @@ const updateUserBadge = async (userId: string, connections: number) => {
 
 
   if (previousBadgeName !== null && previousBadgeName !== badgeName) {
-    user.badgeSplashRead
+    user.badgeSplashRead = false
   }
 
   user.previousBadgeName = badgeName;
@@ -370,3 +370,27 @@ export const editProfilePicture = async (
     profileImage: updatedProfile.profileImage,
   });
 };
+
+export const badgeSplashReadStatus =async(
+  req:Request,
+  res:Response,
+  next:NextFunction
+):Promise<Response|void> =>{
+  const userId = req.user.id;
+
+  const updatedBadgeStatus = await UserModel.findByIdAndUpdate(
+    new mongoose.Types.ObjectId(userId),
+    {
+      $set:{ badgeSplashRead: true }
+    },
+    { new: true}
+  ) ;
+
+  if(!updatedBadgeStatus)
+    throw new AppError("Failed to updated status", 500);
+
+  return res.status(200).json({
+    sucess:true,
+    badgeSplashRead : updatedBadgeStatus.badgeSplashRead
+  })
+}

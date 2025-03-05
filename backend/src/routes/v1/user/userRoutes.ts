@@ -11,6 +11,7 @@ router.route("/edit").put(authenticate,asyncHandler(UserController.updateUser));
 router.route("/editInterest").put(authenticate, asyncHandler(UserController.updateInterest));
 router.route("/edit-lookingFor").put(authenticate, asyncHandler(UserController.updateLookingFor));
 router.route("/edit-profile-picture").put(authenticate, asyncHandler(UserController.editProfilePicture));
+router.route("/upadate-badge-status").put(authenticate, asyncHandler(UserController.badgeSplashReadStatus));
 
 
 export default router;

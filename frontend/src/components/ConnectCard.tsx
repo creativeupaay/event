@@ -316,7 +316,7 @@ const ConnectCard = ({
         {/* Front side component */}
         <>
           <div
-            className={`w-full h-[450px] min-h-fit rounded-xl flex flex-col justify-between ${getGradientCardColor(
+            className={`w-full h-[380px] min-h-fit rounded-xl flex flex-col justify-between ${getGradientCardColor(
               position
             )}  flex-shrink-0 relative px-3 pb-3`}
           >
@@ -424,7 +424,7 @@ const ConnectCard = ({
                   </div> */}
                 </div>
 
-                <div className=" w-full h-fit flex flex-col justify-center items-center  space-y-3">
+                <div className=" w-full h-fit flex justify-center items-center  space-x-2">
                   {isConnected ? (
                     <button
                       onClick={withdrawalRequest}
@@ -436,7 +436,7 @@ const ConnectCard = ({
                     <>
                       <button
                         onClick={sendQuickConnect}
-                        className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-3"
+                        className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-2"
                       >
                         {isQuickConnecting ? (
                           <CircularProgress size={"18px"} />
@@ -444,10 +444,10 @@ const ConnectCard = ({
                           <>
                             <Icon
                               icon="tdesign:lighting-circle"
-                              width="24"
-                              height="24"
+                              width="17"
+                              height="17"
                             />
-                            <p>Quick Connect</p>
+                            <p className="text-xs">Quick Connect</p>
                           </>
                         )}
                       </button>
@@ -455,10 +455,10 @@ const ConnectCard = ({
                         onClick={() => {
                           setFlipped(true);
                         }}
-                        className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-3"
+                        className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-2"
                       >
-                        <Icon icon="proicons:note" width="24" height="24" />
-                        <p>Via a text note</p>
+                        <Icon icon="proicons:note" width="17" height="17" />
+                        <p className="text-xs">Via a text note</p>
                       </button>
                     </>
                   )}

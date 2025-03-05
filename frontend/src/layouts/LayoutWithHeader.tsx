@@ -15,11 +15,11 @@ const LayoutWithHeader = () => {
         <Header />
       </div>
 
-      <div className="flex-[0.87] w-full h-full overflow-y-hidden">
+      <div className="flex-[0.89] w-full h-full overflow-y-hidden">
         <Outlet />
       </div>
 
-      <div className="flex-[0.1] w-full h-full flex flex-col justify-end">
+      <div className="flex-[0.08] w-full h-full flex flex-col justify-end">
         <Navbar />
       </div>
     </div>

@@ -26,18 +26,33 @@ const ConnectPage = () => {
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
 
+  const [currentSwiperSlide, setCurrentSwiperSlide] = useState<number>(0);
+
+  useEffect(() => {
+    if (users.length == 0) return;
+
+    const percent = ((currentSwiperSlide + 1) / users.length) * 100;
+    console.log(percent);
+    if (percent >= 75) {
+      console.log("fetching");
+      fetchEventGuests(users[users.length - 1]._id);
+    }
+  }, [currentSwiperSlide]);
+
   const [filters, setFilters] = useState<filterI>({
     workStatus: [],
     industries: [],
     lookingFor: [],
   });
 
-  const fetchEventGuests = async () => {
+  const fetchEventGuests = async (cursor?: string) => {
     setIsLoading(true);
 
     try {
       const response = await userApi.get(
-        `/user/events/get-all-event-Guest?eventId=${eventId}&limit=20&cursor=`,
+        `/user/events/get-all-event-Guest?eventId=${eventId}&limit=10${
+          cursor ? "&cursor=" + cursor : ""
+        }`,
         {
           params: {
             selectedInterest: filters.lookingFor,
@@ -48,9 +63,7 @@ const ConnectPage = () => {
       );
 
       if (response.status == 200) {
-        const data = response.data.eventGuests;
-
-        setUsers(data);
+        setUsers([...users, ...response.data.eventGuests]);
       }
     } catch (e) {}
 
@@ -97,7 +110,7 @@ const ConnectPage = () => {
         </div>
       </div>
 
-      <div className=" my-3 w-full h-full overflow-y-scroll no-scrollbar">
+      <div className=" w-full h-full overflow-y-scroll no-scrollbar">
         <div className="flex items-center justify-between px-5 mb-5">
           <div className="flex items-center space-x-4">
             <h1 className="font-bold">Explore Attendees</h1>
@@ -123,7 +136,14 @@ const ConnectPage = () => {
             <CircularProgress size={"20px"} />
           </div>
         ) : (
-          <Swiper spaceBetween={10} slidesPerView={1.1} centeredSlides={true}>
+          <Swiper
+            onSlideChange={(swiper) =>
+              setCurrentSwiperSlide(swiper.activeIndex)
+            }
+            spaceBetween={10}
+            slidesPerView={1.1}
+            centeredSlides={true}
+          >
             {/* <SwiperSlide>
               <AdCard>
                 <p>
@@ -134,8 +154,8 @@ const ConnectPage = () => {
                 </p>
               </AdCard>
             </SwiperSlide> */}
-            {users?.map((user) => (
-              <SwiperSlide key={user._id}>
+            {users?.map((user, index) => (
+              <SwiperSlide key={index}>
                 <ConnectCard
                   name={user.name}
                   interests={user.industry}

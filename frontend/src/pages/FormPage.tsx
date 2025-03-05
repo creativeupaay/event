@@ -11,10 +11,49 @@ import FormSectionCompulsory from "../components/formSections/formSectionCompuls
 import FormSection3 from "../components/formSections/FormSection3";
 import FormSection4 from "../components/formSections/FormSection4";
 import FormSectionNonCompany from "../components/formSections/FormSectionNonCompany";
+import { motion, AnimatePresence } from "framer-motion";
+
+const pageVariants = {
+  forward: {
+    initial: {
+      opacity: 0,
+      y: "100%"
+    },
+    in: {
+      opacity: 1,
+      y: 0
+    },
+    out: {
+      opacity: 0,
+      y: "-100%"
+    }
+  },
+  backward: {
+    initial: {
+      opacity: 0,
+      y: "-100%"
+    },
+    in: {
+      opacity: 1,
+      y: 0
+    },
+    out: {
+      opacity: 0,
+      y: "100%"
+    }
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "easeIn",
+  duration: 0.5
+};
 
 const FormPage = () => {
   const formsContainerRef = useRef<HTMLDivElement>(null);
   const [currentFormIndex, setCurrentFormIndex] = useState<number>(0);
+  const [transitionDirection, setTransitionDirection] = useState<'forward' | 'backward'>('forward');
 
   const { eventId } = useParams();
 
@@ -54,12 +93,11 @@ const FormPage = () => {
       if (response.status == 200) {
         showSnackbar("Already form is filled", "info");
         navigate(
-          `/connect/${
-            eventId ? eventId : localStorage.getItem("currentEventId")
+          `/connect/${eventId ? eventId : localStorage.getItem("currentEventId")
           }`
         );
       }
-    } catch (e) {}
+    } catch (e) { }
 
     setIsUserFetching(false);
   };
@@ -104,28 +142,13 @@ const FormPage = () => {
         },
       });
 
-      // console.log(response);
-
       if (response.status == 200) navigate(`/connect/${eventId}`);
     } catch (e) {
-      showSnackbar("Error in submittig the form", "error");
+      showSnackbar("Error in submitting the form", "error");
     }
 
     setIsLoading(false);
   };
-
-  // useEffect(() => {
-  //   const formsContainerElement = formsContainerRef.current;
-
-  //   if (!formsContainerElement) return;
-
-  //   const HEIGHT = formsContainerElement.offsetHeight * currentFormIndex;
-
-  //   formsContainerElement.scrollTo({
-  //     behavior: "smooth",
-  //     top: HEIGHT,
-  //   });
-  // }, [currentFormIndex]);
 
   useEffect(() => {
     const formsContainerElement = formsContainerRef.current;
@@ -137,23 +160,29 @@ const FormPage = () => {
   }, [currentFormIndex]);
 
   const nextForm = async (isLastFormSkipped: boolean = false) => {
-    const formsContainerElement = formsContainerRef.current;
+    setTransitionDirection('forward');
+    setTimeout(() => {
+      setCurrentFormIndex((prevIndex) => {
+        const newIndex = prevIndex + 1;
+        // If it's the last index, submit the form
+        if (newIndex === 6) {
+          submitForm(isLastFormSkipped);
+          return prevIndex;
+        }
+        return newIndex;
+      });
 
-    if (!formsContainerElement) return;
-
-    if (currentFormIndex != formsContainerElement.childElementCount - 1)
-      setCurrentFormIndex((index) => index + 1);
-    else {
-      await submitForm(isLastFormSkipped);
-    }
+    }, )
   };
 
   const backForm = () => {
-    const formsContainerElement = formsContainerRef.current;
+    setTransitionDirection('backward');
+    setTimeout(() => {
 
-    if (!formsContainerElement) return;
+      setCurrentFormIndex((prevIndex) => Math.max(0, prevIndex - 1));
+    }, )
 
-    if (currentFormIndex != 0) setCurrentFormIndex((index) => index - 1);
+
   };
 
   // For showing the splash screen for 2 seconds
@@ -168,7 +197,7 @@ const FormPage = () => {
   } else {
     return (
       <div
-        className="w-full relative"
+        className="w-full relative overflow-hidden"
         style={{
           minHeight: innerHeight,
           height: innerHeight,
@@ -183,59 +212,157 @@ const FormPage = () => {
               height: innerHeight,
             }}
           >
-            <FormSectionIntro nextForm={nextForm} />
-            <FormSection1
-              name={name}
-              setName={setName}
-              email={email}
-              setEmail={setEmail}
-              number={phoneNumber}
-              setNumber={setPhoneNumber}
-              nextForm={nextForm}
-            />
+            <AnimatePresence
+              mode="popLayout"
+              // This makes the transitions more simultaneous
+              onExitComplete={() => { }}
+            >
+              {currentFormIndex === 0 && (
+                <motion.div
+                  key="intro-section"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants[transitionDirection]}
+                  transition={{
+                    ...pageTransition,
+                    // Overlap the exit and enter animations
+                    delayChildren: 0,
+                    staggerChildren: 0
+                  }}
+                >
+                  <FormSectionIntro nextForm={nextForm} />
+                </motion.div>
+              )}
 
-            <FormSection2
-              setDescribedAs={setDescribedAs}
-              describedAs={describedAs}
-              companyName={companyName}
-              setCompanyName={setCompanyName}
-              instituteName={instituteName}
-              setInsituteName={setInstituteName}
-              courseName={courseName}
-              setCourseName={setCourseName}
-              nextForm={nextForm}
-              backForm={backForm}
-            />
+              {currentFormIndex === 1 && (
+                <motion.div
+                  key="section-1"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants[transitionDirection]}
+                  transition={{
+                    ...pageTransition,
+                    delayChildren: 0,
+                    staggerChildren: 0
+                  }}
+                >
+                  <FormSection1
+                    name={name}
+                    setName={setName}
+                    email={email}
+                    setEmail={setEmail}
+                    number={phoneNumber}
+                    setNumber={setPhoneNumber}
+                    nextForm={nextForm}
+                  />
+                </motion.div>
+              )}
 
-            {describedAs == "Freelancer" || describedAs == "Student" ? (
-              <FormSectionNonCompany
-                nextForm={nextForm}
-                backForm={backForm}
-                bestDescribedAs={bestDescribedAs}
-                setBestDescribedAs={setBestDescribedAs}
-              />
-            ) : (
-              <FormSection3
-                nextForm={nextForm}
-                backForm={backForm}
-                setSelectedIndustries={setSelectedIndustries}
-                selectedIndustries={selectedIndustries}
-              />
-            )}
+              {currentFormIndex === 2 && (
+                <motion.div
+                  key="section-2"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants[transitionDirection]}
+                  transition={{
+                    ...pageTransition,
+                    delayChildren: 0,
+                    staggerChildren: 0
+                  }}
+                >
+                  <FormSection2
+                    setDescribedAs={setDescribedAs}
+                    describedAs={describedAs}
+                    companyName={companyName}
+                    setCompanyName={setCompanyName}
+                    instituteName={instituteName}
+                    setInsituteName={setInstituteName}
+                    courseName={courseName}
+                    setCourseName={setCourseName}
+                    nextForm={nextForm}
+                    backForm={backForm}
+                  />
+                </motion.div>
+              )}
 
-            <FormSection4
-              nextForm={nextForm}
-              backForm={backForm}
-              wantToNetworkWith={wantToNetworkWith}
-              setWantToNetworkWith={setWantToNetworkWith}
-            />
+              {currentFormIndex === 3 && (
+                <motion.div
+                  key="section-3"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants[transitionDirection]}
+                  transition={{
+                    ...pageTransition,
+                    delayChildren: 0,
+                    staggerChildren: 0
+                  }}
+                >
+                  {describedAs == "Freelancer" || describedAs == "Student" ? (
+                    <FormSectionNonCompany
+                      nextForm={nextForm}
+                      backForm={backForm}
+                      bestDescribedAs={bestDescribedAs}
+                      setBestDescribedAs={setBestDescribedAs}
+                    />
+                  ) : (
+                    <FormSection3
+                      nextForm={nextForm}
+                      backForm={backForm}
+                      setSelectedIndustries={setSelectedIndustries}
+                      selectedIndustries={selectedIndustries}
+                    />
+                  )}
+                </motion.div>
+              )}
 
-            <FormSectionCompulsory
-              helps={helps}
-              setHelps={setHelps}
-              backForm={backForm}
-              nextForm={nextForm}
-            />
+              {currentFormIndex === 4 && (
+                <motion.div
+                  key="section-4"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants[transitionDirection]}
+                  transition={{
+                    ...pageTransition,
+                    delayChildren: 0,
+                    staggerChildren: 0
+                  }}
+                >
+                  <FormSection4
+                    nextForm={nextForm}
+                    backForm={backForm}
+                    wantToNetworkWith={wantToNetworkWith}
+                    setWantToNetworkWith={setWantToNetworkWith}
+                  />
+                </motion.div>
+              )}
+
+              {currentFormIndex === 5 && (
+                <motion.div
+                  key="compulsory-section"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants[transitionDirection]}
+                  transition={{
+                    ...pageTransition,
+                    delayChildren: 0,
+                    staggerChildren: 0
+                  }}
+                >
+                  <FormSectionCompulsory
+                    helps={helps}
+                    setHelps={setHelps}
+                    backForm={backForm}
+                    nextForm={nextForm}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

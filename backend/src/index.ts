@@ -36,18 +36,18 @@ app.use(
 
 app.use(helmet());
 
-// const corsOptions = {
-//   origin:
-//     process.env.NODE_ENV === "production"
-//       ? ["https://event.creativeupaay.com"]
-//       : ["http://localhost:5173"],
-//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-//   credentials: true,
-//   allowedHeaders: ["Content-Type", "Authorization"],
-// };
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? ["https://event.creativeupaay.com"]
+      : ["http://localhost:5173"],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-// app.use(cors(corsOptions));
-app.use(cors());
+app.use(cors(corsOptions));
+// app.use(cors());
 
 app.use(cookieParser());
 

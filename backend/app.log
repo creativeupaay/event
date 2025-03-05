@@ -1159,3 +1159,9 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.ico\",\"status\":\"500\",\"responseTime\":\"1.459\"}","timestamp":"2025-03-05T11:14:56.988Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/\",\"status\":\"500\",\"responseTime\":\"15.664\"}","timestamp":"2025-03-05T12:15:52.408Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.ico\",\"status\":\"500\",\"responseTime\":\"5.242\"}","timestamp":"2025-03-05T12:15:52.587Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/notification?limit=10&cursor=\",\"status\":\"204\",\"responseTime\":\"72.438\"}","timestamp":"2025-03-05T12:24:30.906Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/notification?limit=10&cursor=\",\"status\":\"204\",\"responseTime\":\"58.988\"}","timestamp":"2025-03-05T12:24:30.971Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/\",\"status\":\"304\",\"responseTime\":\"239.283\"}","timestamp":"2025-03-05T12:24:31.093Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/events/get-all-event-Guest?eventId=67a1e3adace29974b72c9694&limit=20&cursor=\",\"status\":\"304\",\"responseTime\":\"298.644\"}","timestamp":"2025-03-05T12:24:31.145Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/\",\"status\":\"304\",\"responseTime\":\"209.734\"}","timestamp":"2025-03-05T12:24:31.308Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/events/get-all-event-Guest?eventId=67a1e3adace29974b72c9694&limit=20&cursor=\",\"status\":\"304\",\"responseTime\":\"280.899\"}","timestamp":"2025-03-05T12:24:31.428Z"}

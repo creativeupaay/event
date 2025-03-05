@@ -5,10 +5,10 @@ import menImg from "../../assets/formIntroMen.png";
 const FormSectionIntro = ({ nextForm }: { nextForm: Function }) => {
   return (
     <div
-      className={`w-full  flex-shrink-0 bg-darkBg flex items-center justify-center relative`}
-      style={{
-        height: innerHeight,
-      }}
+      className={`w-full h-full flex-shrink-0 bg-darkBg flex items-center justify-center relative`}
+      // style={{
+      //   height: innerHeight,
+      // }}
     >
       <div className="w-[80%] flex flex-col items-center">
         <div className="relative">

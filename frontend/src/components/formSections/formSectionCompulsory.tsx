@@ -67,10 +67,10 @@ const FormSectionCompulsory = ({
 
   return (
     <div
-      className={`w-full  flex-shrink-0 px-3 relative`}
-      style={{
-        height: innerHeight,
-      }}
+      className={`w-full h-full flex-shrink-0 px-3 relative`}
+      // style={{
+      //   height: innerHeight,
+      // }}
     >
       <Modal open={isOtherHelpModalOpen}>
         <div className="w-full h-full px-2 flex items-center">

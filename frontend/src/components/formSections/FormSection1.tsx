@@ -49,10 +49,10 @@ const FormSection1 = ({
 
   return (
     <div
-      className={`w-full flex-shrink-0 relative px-3`}
-      style={{
-        height: innerHeight,
-      }}
+      className={`w-full h-full flex-shrink-0 relative px-3`}
+      // style={{
+      //   height: innerHeight,
+      // }}
     >
       <div className="w-full grid grid-cols-3 grid-rows-1 py-3 gap-3 [&>*]:bg-darkBg [&>*]:h-1  [&>*]:rounded-full [&>*]:opacity-50">
         <div></div>

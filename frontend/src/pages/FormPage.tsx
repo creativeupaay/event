@@ -53,6 +53,11 @@ const pageTransition = {
 const FormPage = () => {
   const formsContainerRef = useRef<HTMLDivElement>(null);
   const [currentFormIndex, setCurrentFormIndex] = useState<number>(0);
+  const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
+
+
+ 
+
   const [transitionDirection, setTransitionDirection] = useState<
     "forward" | "backward"
   >("forward");
@@ -154,6 +159,18 @@ const FormPage = () => {
   };
 
   useEffect(() => {
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
     const formsContainerElement = formsContainerRef.current;
     const currentForm = formsContainerElement?.children[currentFormIndex];
 
@@ -208,7 +225,7 @@ const FormPage = () => {
             className="w-full flex flex-col flex-nowrap overflow-y-hidden"
             style={{
               minHeight: innerHeight,
-              height: innerHeight,
+              height: windowHeight,
             }}
           >
             <AnimatePresence
@@ -229,6 +246,7 @@ const FormPage = () => {
                     delayChildren: 0,
                     staggerChildren: 0,
                   }}
+                  className="h-full"
                 >
                   <FormSectionIntro nextForm={nextForm} />
                 </motion.div>
@@ -246,6 +264,8 @@ const FormPage = () => {
                     delayChildren: 0,
                     staggerChildren: 0,
                   }}
+                  className="h-full"
+
                 >
                   <FormSection1
                     name={name}
@@ -271,6 +291,8 @@ const FormPage = () => {
                     delayChildren: 0,
                     staggerChildren: 0,
                   }}
+                  className="h-full"
+
                 >
                   <FormSection2
                     setDescribedAs={setDescribedAs}
@@ -299,6 +321,8 @@ const FormPage = () => {
                     delayChildren: 0,
                     staggerChildren: 0,
                   }}
+                  className="h-full"
+
                 >
                   {describedAs == "Freelancer" || describedAs == "Student" ? (
                     <FormSectionNonCompany
@@ -330,6 +354,8 @@ const FormPage = () => {
                     delayChildren: 0,
                     staggerChildren: 0,
                   }}
+                  className="h-full"
+
                 >
                   <FormSection4
                     nextForm={nextForm}
@@ -352,6 +378,8 @@ const FormPage = () => {
                     delayChildren: 0,
                     staggerChildren: 0,
                   }}
+                  className="h-full"
+
                 >
                   <FormSectionCompulsory
                     helps={helps}

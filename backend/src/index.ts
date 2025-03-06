@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
-import helmet from "helmet";
+// import helmet from "helmet";
 import cors from "cors";
 import path from "path";
 import connectDB from "./config/db";
@@ -34,7 +34,7 @@ app.use(
   })
 );
 
-app.use(helmet());
+// app.use(helmet());
 
 const corsOptions = {
   origin:

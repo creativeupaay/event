@@ -103,7 +103,7 @@ const ConnectionProfile = () => {
   };
 
   const saveContact = async () => {
-    const url = `https://wa.me/${profileInfo?.contactNumber}?text=Hi%20${profileInfo?.name}%21%20Great%20meeting%20you%20at%20TIECON.%20Let%E2%80%99s%20connect%20and%20stay%20in%20touch%21`;
+    const url = `https://wa.me/91${profileInfo?.contactNumber}?text=Hi%20${profileInfo?.name}%21%20Great%20meeting%20you%20at%20TIECON.%20Let%E2%80%99s%20connect%20and%20stay%20in%20touch%21`;
 
     window.open(url);
   };

@@ -102,6 +102,22 @@ const ConnectionProfile = () => {
     }
   };
 
+  const saveContact = () => {
+    const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${profileInfo?.name}\nEMAIL:${profileInfo?.email}\nORG:${profileInfo?.company}\nTEL:${profileInfo?.contactNumber}\nEND:VCARD`;
+
+    const blob = new Blob([vCardData], { type: "text/vcard" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name}.vcf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -304,6 +320,19 @@ const ConnectionProfile = () => {
               type="filled"
               width="100%"
               bgColor="#16a34a"
+            />
+          </div>
+        )}
+
+        {currentState == "CONNECTED" && (
+          <div>
+            <CustomButton
+              onClick={() => {
+                saveContact();
+              }}
+              text="Save Contact"
+              type="filled"
+              width="100%"
             />
           </div>
         )}

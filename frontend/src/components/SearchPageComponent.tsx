@@ -42,7 +42,13 @@ const getIconFromPosition = (position: string) => {
   return temp[0].icon;
 };
 
-const SearchResultCard = ({ data }: { data: SearchResultI }) => {
+const SearchResultCard = ({
+  data,
+  isRecentSearched = false,
+}: {
+  data: SearchResultI;
+  isRecentSearched?: boolean;
+}) => {
   const navigate = useNavigate();
 
   const addRecentSearch = async () => {
@@ -52,7 +58,7 @@ const SearchResultCard = ({ data }: { data: SearchResultI }) => {
   };
 
   const handleClick = () => {
-    addRecentSearch();
+    if (!isRecentSearched) addRecentSearch();
     navigate(`/profile/${data._id}`);
   };
 
@@ -194,7 +200,11 @@ const SearchPageComponent = ({
 
             <div className="mt-4 space-y-5 h-full pb-[200px]  overflow-y-scroll">
               {recentSearches?.map((data) => (
-                <SearchResultCard key={data._id} data={data} />
+                <SearchResultCard
+                  key={data._id}
+                  data={data}
+                  isRecentSearched={true}
+                />
               ))}
             </div>
           </div>

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 // import videoTestImg from "../assets/test-video-image.png";
 import userApi from "../apis/userApi";
 import { useSnackbar } from "../hooks/SnackbarContext";
+import { getTimeAgo } from "../utils/time";
 
 // const VideoCard = () => {
 //   return (
@@ -33,6 +34,7 @@ const NoteCard = ({
   note,
   type,
   removeCard,
+  createdAt,
 }: {
   receiverId: string;
   senderId: string;
@@ -40,6 +42,7 @@ const NoteCard = ({
   note: string;
   type: "sent" | "received";
   removeCard: Function;
+  createdAt: string;
 }) => {
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -110,7 +113,7 @@ const NoteCard = ({
             </>
           )}
 
-          <p className="text-xs text-grey">12 min. ago</p>
+          <p className="text-xs text-grey">{getTimeAgo(createdAt)}</p>
         </div>
       </div>
 
@@ -147,6 +150,7 @@ interface UserConnectionI {
   senderId: string;
   receiverId: string;
   interest: string[];
+  createdAt: string;
 }
 
 const RequestsPage = () => {
@@ -311,6 +315,7 @@ const RequestsPage = () => {
                     name={req.name}
                     note={req.note}
                     removeCard={removeCard}
+                    createdAt={req.createdAt}
                   />
                 ))
               : pendingRequests.map((req, index) => (
@@ -322,6 +327,7 @@ const RequestsPage = () => {
                     name={req.name}
                     note={req.note}
                     removeCard={removeCard}
+                    createdAt={req.createdAt}
                   />
                 ))}
           </div>

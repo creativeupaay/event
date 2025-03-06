@@ -1,4 +1,4 @@
-import { EastOutlined, ReplayOutlined } from "@mui/icons-material";
+import { EastOutlined } from "@mui/icons-material";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
 import { useNavigate, useParams } from "react-router-dom";
@@ -48,7 +48,7 @@ const ConnectPage = () => {
     lookingFor: [],
   });
 
-  const fetchEventGuests = async (cursor?: string) => {
+  const fetchEventGuests = async (cursor?: string, isReseting?: boolean) => {
     // setIsLoading(true);
 
     try {
@@ -66,7 +66,10 @@ const ConnectPage = () => {
       );
 
       if (response.status == 200) {
-        setUsers([...users, ...response.data.eventGuests]);
+        if (isReseting) {
+          setUsers(response.data.eventGuests);
+          setCurrentSwiperSlide(0);
+        } else setUsers([...users, ...response.data.eventGuests]);
       }
     } catch (e) {}
 
@@ -85,7 +88,7 @@ const ConnectPage = () => {
             setIsFilterModalOpen={setIsFilterModalOpen}
             filters={filters}
             setFilters={setFilters}
-            applyFilters={() => fetchEventGuests()}
+            applyFilters={() => fetchEventGuests("", true)}
           />
         </div>
       </Modal>
@@ -117,13 +120,13 @@ const ConnectPage = () => {
         <div className="flex items-center justify-between px-5 mb-5">
           <div className="flex items-center space-x-4">
             <h1 className="font-bold">Explore Attendees</h1>
-            <div
+            {/* <div
               onClick={() => fetchEventGuests()}
               className="text-grey border border-grey flex items-center space-x-1 rounded-full text-[10px] px-2 py-1 active:scale-95 transition-transform"
             >
               <ReplayOutlined color="inherit" fontSize="inherit" />
               <p>Refresh</p>
-            </div>
+            </div> */}
           </div>
 
           <div

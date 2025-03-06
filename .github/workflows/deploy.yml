@@ -94,9 +94,10 @@ jobs:
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           source: "backend/dist/*, backend/package*.json"
           target: "/home/ubuntu/event/backend/"
-          strip_components: 1
+          strip_components:
+            1
 
-      # Step 10: Install Backend Dependencies on EC2
+            # Step 10: Install Backend Dependencies on EC2
       - name: Install Backend Dependencies on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -104,6 +105,10 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
+            if ! command -v node &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
             cd /home/ubuntu/event/backend
             npm ci --production
 

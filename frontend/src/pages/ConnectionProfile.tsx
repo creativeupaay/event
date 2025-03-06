@@ -42,7 +42,7 @@ const ConnectionProfile = () => {
         if (res.data.friendProfile[0].badgeInfo)
           setProfileLevelData(res.data.friendProfile[0].badgeInfo);
       }
-    } catch (e) { }
+    } catch (e) {}
   };
 
   const acceptOrRejectReq = async (status: "ACCEPTED" | "REJECTED") => {
@@ -103,27 +103,33 @@ const ConnectionProfile = () => {
   };
 
   const saveContact = async () => {
-    const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${profileInfo?.name}\nEMAIL:${profileInfo?.email}\nORG:${profileInfo?.company}\nTEL:${profileInfo?.contactNumber}\nEND:VCARD`;
+    const url = `https://wa.me/${profileInfo?.contactNumber}?text=Hi%20${profileInfo?.name}%21%20Great%20meeting%20you%20at%20TIECON.%20Let%E2%80%99s%20connect%20and%20stay%20in%20touch%21`;
 
-    const blob = new Blob([vCardData], { type: "text/vcard" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${name}.vcf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
-
-    setTimeout(() => {
-      const userConfirmed = confirm("The contact has been downloaded. Would you like to open it now?");
-      if (userConfirmed) {
-        window.open(url, "_self"); // Try opening it automatically
-      }
-    }, 500);
+    window.open(url);
   };
+
+  // const saveContact = async () => {
+  //   const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${profileInfo?.name}\nEMAIL:${profileInfo?.email}\nORG:${profileInfo?.company}\nTEL:${profileInfo?.contactNumber}\nEND:VCARD`;
+
+  //   const blob = new Blob([vCardData], { type: "text/vcard" });
+  //   const url = URL.createObjectURL(blob);
+
+  //   const a = document.createElement("a");
+  //   a.href = url;
+  //   a.download = `${name}.vcf`;
+  //   document.body.appendChild(a);
+  //   a.click();
+  //   document.body.removeChild(a);
+
+  //   URL.revokeObjectURL(url);
+
+  //   setTimeout(() => {
+  //     const userConfirmed = confirm("The contact has been downloaded. Would you like to open it now?");
+  //     if (userConfirmed) {
+  //       window.open(url, "_self"); // Try opening it automatically
+  //     }
+  //   }, 500);
+  // };
 
   useEffect(() => {
     fetchProfile();
@@ -175,12 +181,13 @@ const ConnectionProfile = () => {
               <div
                 className={` h-full bg-[#7E1891] rounded-full`}
                 style={{
-                  width: `${profileInfo
-                    ? (profileInfo.connections /
-                      badgeInfo[profileLevelData.level].connectionsNeeded) *
-                    100
-                    : 0
-                    }%`,
+                  width: `${
+                    profileInfo
+                      ? (profileInfo.connections /
+                          badgeInfo[profileLevelData.level].connectionsNeeded) *
+                        100
+                      : 0
+                  }%`,
                 }}
               ></div>
             </div>
@@ -336,7 +343,7 @@ const ConnectionProfile = () => {
               onClick={() => {
                 saveContact();
               }}
-              text="Save Contact"
+              text="Connect on WhatsApp"
               type="filled"
               width="100%"
             />

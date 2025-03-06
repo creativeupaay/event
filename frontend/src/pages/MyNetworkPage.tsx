@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import userApi from "../apis/userApi";
 import { Icon } from "@iconify/react";
-import OfferBanner from "../components/OfferBanner";
+// import OfferBanner from "../components/OfferBanner";
 import { Link, useNavigate } from "react-router-dom";
 import { filter } from "fuzzy";
 
@@ -129,7 +129,7 @@ const MyNetworkPage = () => {
           <p className="font-medium">My Network</p>
         </div>
       </div>
-      <OfferBanner />
+      {/* <OfferBanner /> */}
 
       <div className="w-full h-full px-3 py-3 overflow-y-scroll no-scrollbar">
         <p className="text-sm text-darkBg">

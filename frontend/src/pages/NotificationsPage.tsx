@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import OfferBanner from "../components/OfferBanner";
+// import OfferBanner from "../components/OfferBanner";
 // import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -101,7 +101,7 @@ const NotificatonsPage = () => {
           <p className="font-medium">Notifications</p>
         </div>
       </div>
-      <OfferBanner />
+      {/* <OfferBanner /> */}
 
       <div className="w-full h-full flex flex-col py-4  overflow-y-scroll no-scrollbar">
         <div>

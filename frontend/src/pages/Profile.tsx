@@ -1,4 +1,4 @@
-import OfferBanner from "../components/OfferBanner";
+// import OfferBanner from "../components/OfferBanner";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
 import QRImg from "../assets/qrImage.png";
@@ -59,6 +59,7 @@ const EditComponent = ({
   selectedData,
   setInterests,
   setLookingFor,
+  isEdited,
 }: {
   heading: string;
   inputLabel: string;
@@ -68,6 +69,7 @@ const EditComponent = ({
   editType: "INTERESTS" | "LOOKING_FOR";
   setInterests?: React.Dispatch<React.SetStateAction<string[]>>;
   setLookingFor?: React.Dispatch<React.SetStateAction<string[]>>;
+  isEdited: boolean;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { showSnackbar } = useSnackbar();
@@ -177,11 +179,13 @@ const EditComponent = ({
 
       <div className="flex flex-col space-y-3">
         <CustomButton
-          text="Edit"
+          text="Save"
           onClick={() => {
-            onEdit();
+            if (isEdited) onEdit();
+            else showSnackbar("Please edit something first", "warning");
           }}
           width="100%"
+          opacity={isEdited ? "100%" : "60%"}
         />
         <CustomButton
           text="Cancel"
@@ -331,13 +335,22 @@ const Profile = () => {
           <EditComponent
             heading="Edit interests"
             inputLabel="I’m Interested in"
-            closeModal={() => setIsInterestModalOpen(false)}
+            closeModal={() => {
+              setIsInterestModalOpen(false);
+              if (user) setInterests(user.industry);
+            }}
             editType="INTERESTS"
             saveFunc={async () => {
               await saveInterests();
             }}
             selectedData={interests}
             setInterests={setInterests}
+            isEdited={
+              interests.filter((data) => user?.industry.includes(data))
+                .length == 3
+                ? false
+                : true
+            }
           />
         </div>
       </Modal>
@@ -347,13 +360,22 @@ const Profile = () => {
           <EditComponent
             heading="Edit Networking Options"
             inputLabel="I want to network with"
-            closeModal={() => setIsLookingForModalOpen(false)}
+            closeModal={() => {
+              setIsLookingForModalOpen(false);
+              if (user) setLookingFor(user.lookingFor);
+            }}
             editType="LOOKING_FOR"
             saveFunc={async () => {
               await saveLookingFor();
             }}
             selectedData={lookingFor}
             setLookingFor={setLookingFor}
+            isEdited={
+              lookingFor.filter((data) => user?.lookingFor.includes(data))
+                .length == 3
+                ? false
+                : true
+            }
           />
         </div>
       </Modal>
@@ -375,7 +397,7 @@ const Profile = () => {
           fontSize={"20px"}
         />
       </div>
-      <OfferBanner />
+      {/* <OfferBanner /> */}
 
       <div className="w-full h-full relative overflow-y-scroll no-scrollbar">
         {/* main profile section with name and badge */}

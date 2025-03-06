@@ -121,27 +121,6 @@ const FormSectionCompulsory = ({
           </h1>
 
           <div className="flex h-[56vh] flex-col items-center w-full space-y-3 mt-7 overflow-y-scroll no-scrollbar">
-            <Option label="Website Development" setSelectedOptions={setHelps} />
-            <Option
-              label="Mobile App Development"
-              setSelectedOptions={setHelps}
-            />
-            <Option
-              label="Custom Web App Development"
-              setSelectedOptions={setHelps}
-            />
-            <Option label="UI/UX Designing" setSelectedOptions={setHelps} />
-            <Option label="Graphic Designing" setSelectedOptions={setHelps} />
-
-            {otherHelps.map((help, index) => (
-              <Option
-                isAlreadySelected={true}
-                key={index}
-                label={help}
-                setSelectedOptions={setHelps}
-              />
-            ))}
-
             <div
               onClick={() => setIsOtherHelpModalOpen(true)}
               className={`w-full flex items-center space-x-2 h-fit bg-transparent border border-white text-base text-white font-light py-3 px-3 rounded-lg opacity-60
@@ -153,6 +132,27 @@ const FormSectionCompulsory = ({
               />
               <p>Other</p>
             </div>
+
+            {otherHelps.map((help, index) => (
+              <Option
+                isAlreadySelected={true}
+                key={index}
+                label={help}
+                setSelectedOptions={setHelps}
+              />
+            ))}
+
+            <Option label="Website Development" setSelectedOptions={setHelps} />
+            <Option
+              label="Mobile App Development"
+              setSelectedOptions={setHelps}
+            />
+            <Option
+              label="Custom Web App Development"
+              setSelectedOptions={setHelps}
+            />
+            <Option label="UI/UX Designing" setSelectedOptions={setHelps} />
+            <Option label="Graphic Designing" setSelectedOptions={setHelps} />
           </div>
         </div>
 

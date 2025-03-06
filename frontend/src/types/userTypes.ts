@@ -16,7 +16,11 @@ export interface userI {
   status: string;
   contactNumber: string;
   connections: number;
-  friendShipStatus?: "REQUEST_SENT" | "REQUEST_RECEIVED" | "CONNECTED";
+  friendShipStatus?:
+    | "REQUEST_SENT"
+    | "REQUEST_RECEIVED"
+    | "CONNECTED"
+    | "NOT_CONNECTED";
   isConnected?: boolean;
 }
 

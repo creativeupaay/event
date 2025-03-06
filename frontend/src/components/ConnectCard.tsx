@@ -316,12 +316,12 @@ const ConnectCard = ({
         {/* Front side component */}
         <>
           <div
-            className={`w-full h-[380px] min-h-fit rounded-xl flex flex-col justify-between ${getGradientCardColor(
+            className={`w-full h-[400px] min-h-fit rounded-xl flex flex-col justify-between ${getGradientCardColor(
               position
             )}  flex-shrink-0 relative px-3 pb-3`}
           >
             <div className="bg-black w-fit px-3 py-1 rounded-b-md mb-2">
-              <p className="text-white text-xs font-light">
+              <p className="text-white text-sm font-light">
                 {position}{" "}
                 {(position === "Freelancer" ||
                   (position === "Employee" && profession)) &&
@@ -332,17 +332,19 @@ const ConnectCard = ({
               <div>
                 <div className="w-full flex items-center ">
                   <div className="w-full flex flex-col space-y-2">
-                    <h1 className="text-xl text-white font-medium">{name}</h1>
+                    <h1 className="text-[22px] text-white font-medium">
+                      {name}
+                    </h1>
 
                     {position == "Student" && (
                       <div className="w-full flex-1 flex items-start my-3">
                         <div className="flex-[0.5] space-y-1">
                           <div className="flex items-center space-x-3 text-grey01 ">
-                            <Icon icon={"ic:outline-room"} fontSize={"10px"} />
-                            <p className="text-[10px] ">Institute</p>
+                            <Icon icon={"ic:outline-room"} fontSize={"12px"} />
+                            <p className="text-xs ">Institute</p>
                           </div>
 
-                          <p className="text-[10px] text-white font-medium">
+                          <p className="text-xs text-white font-medium">
                             {instituteName}
                           </p>
                         </div>
@@ -351,12 +353,12 @@ const ConnectCard = ({
                           <div className="flex items-center space-x-3 text-grey01 ">
                             <Icon
                               icon={"mdi:college-outline"}
-                              fontSize={"10px"}
+                              fontSize={"12px"}
                             />
-                            <p className="text-[10px] ">Course Enrolled</p>
+                            <p className="text-xs ">Course Enrolled</p>
                           </div>
 
-                          <p className="text-[10px] text-white font-medium">
+                          <p className="text-xs text-white font-medium">
                             {courseName}
                           </p>
                         </div>
@@ -376,10 +378,10 @@ const ConnectCard = ({
                     <div className="flex items-center space-x-2">
                       <Icon
                         icon={"material-symbols-light:domain"}
-                        fontSize={"12px"}
+                        fontSize={"14px"}
                         color="#fff"
                       />
-                      <p className="text-xs font-extralight text-white">
+                      <p className="text-sm font-extralight text-white">
                         Belongs to industries like
                       </p>
                     </div>
@@ -391,7 +393,7 @@ const ConnectCard = ({
                    w-fit px-2 py-1 rounded-lg flex items-center space-x-2`}
                         >
                           <p>{getIconFromIndustries(label)}</p>
-                          <p className="text-sm text-white">{label}</p>
+                          <p className="text-base text-white">{label}</p>
                         </div>
                       ))}
                     </div>
@@ -399,10 +401,10 @@ const ConnectCard = ({
                 )}
 
                 <div className="my-5">
-                  <p className="text-xs font-extralight text-white">
+                  <p className="text-sm font-extralight text-white">
                     Looking to connect with
                   </p>
-                  <p className="text-sm   font-medium text-white leading-normal">
+                  <p className="text-base   font-medium text-white leading-normal">
                     {lookingFor?.map((text, index) => (
                       <React.Fragment key={index}>
                         {text} {index != lookingFor.length - 1 && ","}{" "}
@@ -414,7 +416,7 @@ const ConnectCard = ({
 
               <div>
                 <div className="flex items-center space-x-3 mb-2">
-                  <p className=" text-black font-light text-xs">
+                  <p className=" text-black font-light text-sm">
                     Request to connect
                   </p>
 
@@ -447,7 +449,7 @@ const ConnectCard = ({
                               width="17"
                               height="17"
                             />
-                            <p className="text-xs">Quick Connect</p>
+                            <p className="text-sm">Quick Connect</p>
                           </>
                         )}
                       </button>
@@ -458,7 +460,7 @@ const ConnectCard = ({
                         className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-2"
                       >
                         <Icon icon="proicons:note" width="17" height="17" />
-                        <p className="text-xs">Via a text note</p>
+                        <p className="text-sm">Via a text note</p>
                       </button>
                     </>
                   )}

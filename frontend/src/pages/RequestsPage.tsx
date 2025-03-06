@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import OfferBanner from "../components/OfferBanner";
+// import OfferBanner from "../components/OfferBanner";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 // import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
@@ -226,7 +226,7 @@ const RequestsPage = () => {
           <p className="font-medium">Requests</p>
         </div>
       </div>
-      <OfferBanner />
+      {/* <OfferBanner /> */}
 
       <div className="py-4 h-full overflow-y-scroll">
         {/* Tabs */}

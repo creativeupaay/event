@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import OfferBanner from "./OfferBanner";
+// import OfferBanner from "./OfferBanner";
 import React, { useEffect, useState } from "react";
 import userApi from "../apis/userApi";
 import useDebounce from "../hooks/Debounce";
@@ -175,7 +175,7 @@ const SearchPageComponent = ({
         </div>
       </div>
 
-      {searchedName.length == 0 && <OfferBanner />}
+      {/* {searchedName.length == 0 && <OfferBanner />} */}
 
       {/* Recent search portion */}
       <div className="mt-2 px-3 h-full overflow-y-scroll no-scrollbar">

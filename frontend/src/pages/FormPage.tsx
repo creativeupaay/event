@@ -79,7 +79,7 @@ const FormPage = () => {
   const [name, setName] = useState<string>("");
   const [companyName, setCompanyName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [phoneNumber, setPhoneNumber] = useState<string>("+91");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
 
   // It is from the compulsory last form page
   const [helps, setHelps] = useState<string[]>([]);

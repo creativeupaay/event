@@ -123,7 +123,7 @@ const FormSection4 = ({
       <div className="w-full grid grid-cols-3 grid-rows-1 py-3 gap-3 [&>*]:bg-darkBg [&>*]:h-1  [&>*]:rounded-full ">
         <div className="opacity-100"></div>
         <div className="opacity-100"></div>
-        <div className="opacity-100"></div>
+        <div className="opacity-50"></div>
       </div>
 
       <div className="mt-2">

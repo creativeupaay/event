@@ -1,4 +1,4 @@
-import { TextField } from "@mui/material";
+import { InputAdornment, TextField } from "@mui/material";
 import screwClockIcon from "../../assets/icons/screwClockIcon.svg";
 import { useSnackbar } from "../../hooks/SnackbarContext";
 
@@ -24,7 +24,7 @@ const FormSection1 = ({
 
   const validAndGoToNext = () => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^\+91\d{10}$/;
+    const phoneRegex = /^\d{10}$/;
 
     // Function to validate email
     const validateEmail = (email: string) => emailRegex.test(email);
@@ -66,15 +66,18 @@ const FormSection1 = ({
           <p className="text-grey text-xs">Sign up in less than 2 minutes!</p>
         </div>
 
-        <h1 className="text-darkBg text-2xl font-bold my-4">
+        <h1 className="text-darkBg text-2xl font-bold my-4 mb-8">
           Tell us about yourself!
         </h1>
 
-        <div className="w-full space-y-4">
+        <div className="w-full space-y-6">
           <TextField
             type="text"
             label="Full Name"
             value={name}
+            InputLabelProps={{
+              shrink: true,
+            }}
             onChange={(e) => setName(e.target.value)}
             variant="outlined"
             sx={{
@@ -86,6 +89,9 @@ const FormSection1 = ({
             type="email"
             label="Email ID"
             value={email}
+            InputLabelProps={{
+              shrink: true,
+            }}
             onChange={(e) => setEmail(e.target.value)}
             variant="outlined"
             sx={{
@@ -97,10 +103,16 @@ const FormSection1 = ({
             label="Phone Number"
             value={number}
             onChange={(e) => {
-              if (e.target.value.length >= 3 && e.target.value.length <= 13)
-                setNumber(e.target.value);
+              setNumber(e.target.value.replace(/\D/g, '').slice(0, 10));
             }}
             variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <p className="text-gray-500">+91</p>
+                </InputAdornment>
+              ),
+            }}
             sx={{
               width: "100%",
             }}
@@ -121,7 +133,7 @@ const FormSection1 = ({
             validAndGoToNext();
           }}
           className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs ${
-            name && email && number.length == 13 ? "opacity-100" : "opacity-60"
+            name && email && number.length == 10 ? "opacity-100" : "opacity-60"
           }`}
         >
           I am ready to start!

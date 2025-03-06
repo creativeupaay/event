@@ -6,8 +6,10 @@ const SplashScreen = () => {
         height: innerHeight,
       }}
     >
-      <p className="text-3xl font-extrabold text-white flex items-center">
-        Konnect <span className="text-[64px] ">X</span>
+      <p className="text-3xl text-center font-extrabold text-white">
+        Network Like a
+        <br />
+        <span className=" text-4xl">PRO</span>
       </p>
 
       <div className="text-white absolute bottom-8 text-center text-[10px] font-light">

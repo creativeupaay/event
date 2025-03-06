@@ -113,7 +113,7 @@ const FormSectionCompulsory = ({
           <h1 className="text-white text-xl font-bold">
             I also need help with
           </h1>
-            <button onClick={() => setIsOtherHelpModalOpen(true)} className="text-white border-white border rounded-md px-4">Other</button>
+            <button onClick={() => setIsOtherHelpModalOpen(true)} className="text-white border-white border rounded-md px-4">Add Other</button>
           </div>
 
           <div className="flex max-h-[360px] flex-col items-center w-full space-y-3 mt-7 overflow-y-scroll custom-scrollbar">

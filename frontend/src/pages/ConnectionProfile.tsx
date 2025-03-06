@@ -7,6 +7,7 @@ import { userI } from "../types/userTypes";
 import CustomButton from "../components/CustomButton";
 import { useSnackbar } from "../hooks/SnackbarContext";
 import { badgeInfo } from "./Profile";
+import { eventId } from "../utils/eventId";
 
 const ConnectionProfile = () => {
   const navigate = useNavigate();
@@ -141,7 +142,7 @@ const ConnectionProfile = () => {
       <div className="bg-grey01 px-3 py-5 flex items-center justify-between">
         <div className="text-darkBg space-x-3 flex items-center">
           <Icon
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/connect/${eventId}`)}
             icon="proicons:arrow-left"
             fontSize={"24px"}
           />
@@ -243,7 +244,7 @@ const ConnectionProfile = () => {
                   </div>
                 </div>
 
-                {profileInfo?.position != "Freelancer" && (
+                {profileInfo?.company && (
                   <div className="flex items-center">
                     <div className="flex-[0.5] w-full text-sm text-grey">
                       <p>Company Name</p>
@@ -255,7 +256,7 @@ const ConnectionProfile = () => {
                   </div>
                 )}
 
-                <div className="flex items-center">
+               {profileInfo?.profession && <div className="flex items-center">
                   <div className="flex-[0.5] w-full text-sm text-grey">
                     <p>Role</p>
                   </div>
@@ -263,7 +264,7 @@ const ConnectionProfile = () => {
                   <div className="flex-[0.5] w-full text-sm text-darkBg">
                     <p>{profileInfo?.profession}</p>
                   </div>
-                </div>
+                </div>}
               </div>
             </div>
 
@@ -271,7 +272,7 @@ const ConnectionProfile = () => {
             {profileInfo?.position != "Employee" &&
               profileInfo?.position != "Freelancer" && (
                 <div className="w-full bg-white p-3 rounded-lg">
-                  <p className="text-sm font-medium">Interests</p>
+                  <p className="text-sm font-medium">{profileInfo?.position==="Student"?"Interests":"Industry"}</p>
 
                   <div className="w-full flex items-center  my-3 text-sm text-darkBg">
                     <p>

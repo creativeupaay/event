@@ -103,46 +103,23 @@ const ConnectionProfile = () => {
   };
 
   const saveContact = async () => {
-    // const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${profileInfo?.name}\nEMAIL:${profileInfo?.email}\nORG:${profileInfo?.company}\nTEL:${profileInfo?.contactNumber}\nEND:VCARD`;
+    const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${profileInfo?.name}\nEMAIL:${profileInfo?.email}\nORG:${profileInfo?.company}\nTEL:${profileInfo?.contactNumber}\nEND:VCARD`;
 
-    // const blob = new Blob([vCardData], { type: "text/vcard" });
-    // const url = URL.createObjectURL(blob);
+    const blob = new Blob([vCardData], { type: "text/vcard" });
+    const url = URL.createObjectURL(blob);
 
-    // const a = document.createElement("a");
-    // a.href = url;
-    // a.download = `${name}.vcf`;
-    // document.body.appendChild(a);
-    // a.click();
-    // document.body.removeChild(a);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name}.vcf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-    // URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
 
-    if ("contacts" in navigator) {
-      const contactsAPI = navigator.contacts as unknown as {
-        save: (contacts: { name?: string; email?: string; tel?: string; organization?: string }[]) => Promise<void>;
-      };
-
-      if ("save" in contactsAPI) {
-        try {
-          await contactsAPI.save([
-            {
-              name: profileInfo?.name,
-              email: profileInfo?.email,
-              tel: profileInfo?.contactNumber,
-              organization: profileInfo?.company,
-            },
-          ]);
-          console.error("Contact saveed");
-          alert("Contact saved successfully!");
-        } catch (error) {
-          console.error("Error saving contact:", error);
-        }
-      } else {
-        alert("Saving contacts directly is not supported on this device.");
-      }
-    } else {
-      alert("Contacts API is not available on this device.");
-    }
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1000);
   };
 
   useEffect(() => {

@@ -42,7 +42,7 @@ const ConnectionProfile = () => {
         if (res.data.friendProfile[0].badgeInfo)
           setProfileLevelData(res.data.friendProfile[0].badgeInfo);
       }
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const acceptOrRejectReq = async (status: "ACCEPTED" | "REJECTED") => {
@@ -102,7 +102,7 @@ const ConnectionProfile = () => {
     }
   };
 
-  const saveContact = () => {
+  const saveContact = async () => {
     const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${profileInfo?.name}\nEMAIL:${profileInfo?.email}\nORG:${profileInfo?.company}\nTEL:${profileInfo?.contactNumber}\nEND:VCARD`;
 
     const blob = new Blob([vCardData], { type: "text/vcard" });
@@ -116,6 +116,10 @@ const ConnectionProfile = () => {
     document.body.removeChild(a);
 
     URL.revokeObjectURL(url);
+
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1000);
   };
 
   useEffect(() => {
@@ -168,13 +172,12 @@ const ConnectionProfile = () => {
               <div
                 className={` h-full bg-[#7E1891] rounded-full`}
                 style={{
-                  width: `${
-                    profileInfo
-                      ? (profileInfo.connections /
-                          badgeInfo[profileLevelData.level].connectionsNeeded) *
-                        100
-                      : 0
-                  }%`,
+                  width: `${profileInfo
+                    ? (profileInfo.connections /
+                      badgeInfo[profileLevelData.level].connectionsNeeded) *
+                    100
+                    : 0
+                    }%`,
                 }}
               ></div>
             </div>

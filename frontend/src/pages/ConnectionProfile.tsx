@@ -118,8 +118,11 @@ const ConnectionProfile = () => {
     URL.revokeObjectURL(url);
 
     setTimeout(() => {
-      window.location.href = url;
-    }, 1000);
+      const userConfirmed = confirm("The contact has been downloaded. Would you like to open it now?");
+      if (userConfirmed) {
+        window.open(url, "_self"); // Try opening it automatically
+      }
+    }, 500);
   };
 
   useEffect(() => {

@@ -324,18 +324,19 @@ const FormPage = () => {
                   className="h-full"
 
                 >
-                  {describedAs == "Freelancer" || describedAs == "Student" ? (
+                  {describedAs == "Freelancer" || describedAs == "Employee" ? (
                     <FormSectionNonCompany
                       nextForm={nextForm}
                       backForm={backForm}
                       bestDescribedAs={bestDescribedAs}
                       setBestDescribedAs={setBestDescribedAs}
-                    />
-                  ) : (
-                    <FormSection3
+                      />
+                    ) : (
+                      <FormSection3
                       nextForm={nextForm}
                       backForm={backForm}
                       setSelectedIndustries={setSelectedIndustries}
+                      bestDescribedAs={describedAs}
                       selectedIndustries={selectedIndustries}
                     />
                   )}

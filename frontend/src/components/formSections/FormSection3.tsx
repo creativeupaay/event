@@ -185,11 +185,13 @@ const FormSection3 = ({
   selectedIndustries,
   nextForm,
   backForm,
+  bestDescribedAs
 }: {
   setSelectedIndustries: React.Dispatch<React.SetStateAction<string[]>>;
   selectedIndustries: string[];
   nextForm: Function;
   backForm: Function;
+  bestDescribedAs: string;
 }) => {
   const { showSnackbar } = useSnackbar();
 
@@ -217,7 +219,7 @@ const FormSection3 = ({
 
         <div className="flex items-center justify-between">
           <h1 className="text-darkBg text-2xl font-bold my-4">
-            Choose your Industry
+            Choose your {bestDescribedAs==="Student"?"Interests":"Industry"}
           </h1>
 
           <div className="border border-grey  rounded-lg px-2 py-1">

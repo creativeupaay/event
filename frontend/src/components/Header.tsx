@@ -78,7 +78,7 @@ const Header = () => {
         </div>
       )}
 
-      <div className="flex items-center space-x-5 ">
+      <div onClick={() => navigate("/profile")} className="flex items-center cursor-pointer space-x-5 ">
         {/* <img
           onClick={() => navigate("/profile")}
           src={user?.profileImage}

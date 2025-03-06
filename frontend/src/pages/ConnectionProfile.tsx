@@ -168,16 +168,14 @@ const ConnectionProfile = () => {
         <div className="w-full bg-transparent px-3 absolute top-28 left-0 space-y-4">
           {/* badge current score section */}
           <div className="w-full bg-white p-3 space-y-3 rounded-lg">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-darkBg">
+              <p className="text-md text-center font-medium text-darkBg">
                 {profileLevelData?.badgeName}
               </p>
-              <p className="text-[10px] text-darkBg">
+              {/* <p className="text-[10px] text-darkBg">
                 Connections Made : {profileInfo?.connections}
-              </p>
-            </div>
+              </p> */}
             {/* Level bar */}
-            <div className="w-full h-3 bg-[#EDE8FF] rounded-full">
+            {/* <div className="w-full h-3 bg-[#EDE8FF] rounded-full">
               <div
                 className={` h-full bg-[#7E1891] rounded-full`}
                 style={{
@@ -190,7 +188,7 @@ const ConnectionProfile = () => {
                   }%`,
                 }}
               ></div>
-            </div>
+            </div> */}
 
             {/* personal details section */}
 
@@ -277,10 +275,10 @@ const ConnectionProfile = () => {
 
                   <div className="w-full flex items-center  my-3 text-sm text-darkBg">
                     <p>
-                      {profileInfo?.interests.map((label, index) => (
+                      {profileInfo?.industry.map((label, index) => (
                         <React.Fragment key={index}>
                           {label}
-                          {index != profileInfo.interests.length - 1 && ", "}
+                          {index != profileInfo.industry.length - 1 && ", "}
                         </React.Fragment>
                       ))}
                     </p>

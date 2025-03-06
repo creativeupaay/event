@@ -1,0 +1,119 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Cache Frontend Dependencies
+      - name: Cache Frontend Dependencies
+        uses: actions/cache@v3
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
+      # Step 3: Install and Build Frontend
+      - name: Build Frontend
+        run: |
+          cd frontend
+          echo -e "VITE_BACKEND_BASE_URL=${{ secrets.VITE_BACKEND_BASE_URL }}" > .env
+          npm ci
+          npm run build
+
+      # Step 4: Cache Backend Dependencies
+      - name: Cache Backend Dependencies
+        uses: actions/cache@v3
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      # Step 5: Install and Build Backend
+      - name: Install and Build Backend
+        run: |
+          cd backend
+          npm ci
+          npm run build
+          if [ -d "dist/backend/dist" ]; then
+            mv dist/backend/dist/* dist/
+            rm -rf dist/backend
+          fi
+
+      # Step 6: Prepare Remote Directories (Clean and Prepare Remote Frontend Directory)
+      - name: Clean and Prepare Remote Frontend Directory
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/event/frontend/dist
+            mkdir -p /home/ubuntu/event/frontend/
+
+      # Step 7: Upload Frontend Build Files
+      - name: Deploy Frontend Build Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "frontend/dist/*"
+          target: "/home/ubuntu/event/frontend/dist/"
+          strip_components: 2
+
+      # Step 8: Prepare Remote Backend Directory (Clean and Prepare Remote Backend Directory)
+      - name: Clean and Prepare Remote Backend Directory
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/event/backend
+            mkdir -p /home/ubuntu/event/backend
+
+      # Step 9: Upload Backend Files
+      - name: Deploy Backend Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "backend/dist/*, backend/package*.json"
+          target: "/home/ubuntu/event/backend/"
+          strip_components: 1
+
+      # Step 10: Install Backend Dependencies on EC2
+      - name: Install Backend Dependencies on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/event/backend
+            npm ci --production
+
+      # Step 11: Restart PM2 Application
+      - name: Restart PM2 Application
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/event
+            pm2 reload ecosystem.config.js --only event

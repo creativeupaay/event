@@ -1,6 +1,5 @@
 import { Icon } from "@iconify/react";
 import CustomButton from "./CustomButton";
-import { useEffect, useState } from "react";
 import { industries } from "./formSections/FormSection3";
 import { suggestedProfessions } from "./formSections/FormSection4";
 
@@ -19,43 +18,34 @@ const Option = ({
   setFilters: React.Dispatch<React.SetStateAction<filterI>>;
   filters: filterI;
 }) => {
-  const [isSelected, setIsSelected] = useState<boolean>(false);
+  // Instead of maintaining a separate state, derive it from filters
+  const isSelected = filters.workStatus.includes(label);
 
-  useEffect(() => {
-    if (filters.workStatus.includes(label)) setIsSelected(true);
-  }, [filters]);
-
-  useEffect(() => {
-    if (isSelected && !filters.workStatus.includes(label)) {
-      setFilters((filters) => {
-        const temp = [...filters.workStatus];
-        temp.push(label);
-
-        return {
-          workStatus: temp,
-          industries: filters.industries,
-          lookingFor: filters.lookingFor,
-        };
-      });
-    } else {
-      setFilters((filters) => {
-        const filteredWorkStatus = filters.workStatus.filter(
+  const toggleSelection = () => {
+    setFilters((prevFilters) => {
+      if (isSelected) {
+        // Remove the label if it's already selected
+        const filteredWorkStatus = prevFilters.workStatus.filter(
           (text) => text !== label
         );
-
         return {
+          ...prevFilters,
           workStatus: filteredWorkStatus,
-          industries: filters.industries,
-          lookingFor: filters.lookingFor,
         };
-      });
-    }
-  }, [isSelected]);
+      } else {
+        // Add the label if it's not selected
+        return {
+          ...prevFilters,
+          workStatus: [...prevFilters.workStatus, label],
+        };
+      }
+    });
+  };
 
   return (
     <div
-      onClick={() => setIsSelected(!isSelected)}
-      className={`text-xs  px-3 py-2 rounded-full font-medium  ${
+      onClick={toggleSelection}
+      className={`text-xs px-3 py-2 rounded-full font-medium ${
         isSelected ? "text-white bg-darkBg" : "bg-grey01 text-darkBg"
       } active:scale-95 transition-transform`}
     >
@@ -90,7 +80,7 @@ const FilterComp = ({
         <div className="flex items-center justify-between my-3">
           <h1 className="text-xl font-semibold text-darkBg">Filter</h1>
           <p
-            className="text-primary text-sm font-medium"
+            className="text-primary text-sm font-medium cursor-pointer"
             onClick={() => {
               setFilters({
                 industries: [],
@@ -130,14 +120,12 @@ const FilterComp = ({
             <p className="text-sm font-semibold text-grey">Industries</p>
             <select
               onChange={(e) => {
-                const temp = [...filters.industries];
-                temp.push(e.target.value);
-
-                setFilters({
-                  workStatus: filters.workStatus,
-                  industries: temp,
-                  lookingFor: filters.lookingFor,
-                });
+                if (e.target.value !== "Choose your preference") {
+                  setFilters((prevFilters) => ({
+                    ...prevFilters,
+                    industries: [...prevFilters.industries, e.target.value],
+                  }));
+                }
               }}
               className="w-full py-2 px-3 bg-transparent border border-grey01 rounded-lg outline-none text-grey text-sm"
             >
@@ -156,15 +144,12 @@ const FilterComp = ({
                   <p>{label}</p>{" "}
                   <Icon
                     onClick={() => {
-                      const filteredIndustries = filters.industries.filter(
-                        (text) => text !== label
-                      );
-
-                      setFilters({
-                        workStatus: filters.workStatus,
-                        industries: filteredIndustries,
-                        lookingFor: filters.lookingFor,
-                      });
+                      setFilters((prevFilters) => ({
+                        ...prevFilters,
+                        industries: prevFilters.industries.filter(
+                          (text) => text !== label
+                        ),
+                      }));
                     }}
                     icon={"ph:x-bold"}
                   />
@@ -179,14 +164,12 @@ const FilterComp = ({
             </p>
             <select
               onChange={(e) => {
-                const temp = [...filters.lookingFor];
-                temp.push(e.target.value);
-
-                setFilters({
-                  workStatus: filters.workStatus,
-                  industries: filters.industries,
-                  lookingFor: temp,
-                });
+                if (e.target.value !== "Choose your preference") {
+                  setFilters((prevFilters) => ({
+                    ...prevFilters,
+                    lookingFor: [...prevFilters.lookingFor, e.target.value],
+                  }));
+                }
               }}
               className="w-full py-2 px-3 bg-transparent border border-grey01 rounded-lg outline-none text-grey text-sm"
             >
@@ -205,15 +188,12 @@ const FilterComp = ({
                   <p>{label}</p>{" "}
                   <Icon
                     onClick={() => {
-                      const filteredLookingFor = filters.lookingFor.filter(
-                        (text) => text !== label
-                      );
-
-                      setFilters({
-                        workStatus: filters.workStatus,
-                        industries: filters.industries,
-                        lookingFor: filteredLookingFor,
-                      });
+                      setFilters((prevFilters) => ({
+                        ...prevFilters,
+                        lookingFor: prevFilters.lookingFor.filter(
+                          (text) => text !== label
+                        ),
+                      }));
                     }}
                     icon={"ph:x-bold"}
                   />

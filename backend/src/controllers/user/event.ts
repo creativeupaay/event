@@ -318,12 +318,30 @@ export const getAllEventGuest = async (
             }
         },
         {
+            $addFields: {
+                users: {
+                    $map: {
+                        input: "$users",
+                        as: "user",
+                        in: {
+                            $mergeObjects: [
+                                "$$user",
+                                {
+                                    matchIndex: { $add: [1, { $indexOfArray: ["$users._id", "$$user._id"] }] }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
             $unwind: "$users"
         },
         ...(cursor ? [
             {
                 $match: {
-                    "users._id": { $gt: new mongoose.Types.ObjectId(String(cursor)) }
+                    "users.matchIndex": { $gt: parseInt(String(cursor)) }
                 }
             }
         ] : []),
@@ -347,6 +365,7 @@ export const getAllEventGuest = async (
                 courseName: "$users.courseName",
                 lookingFor: "$users.lookingFor",
                 matchCount: "$users.totalMatchCount",
+                matchIndex : "$users.matchIndex"
             }
         }
     ]);

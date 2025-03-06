@@ -17,11 +17,12 @@ export interface userI {
   contactNumber: string;
   connections: number;
   friendShipStatus?:
-    | "REQUEST_SENT"
-    | "REQUEST_RECEIVED"
-    | "CONNECTED"
-    | "NOT_CONNECTED";
+  | "REQUEST_SENT"
+  | "REQUEST_RECEIVED"
+  | "CONNECTED"
+  | "NOT_CONNECTED";
   isConnected?: boolean;
+  matchIndex: number
 }
 
 export interface userLevelDataI {

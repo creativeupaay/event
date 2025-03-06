@@ -633,7 +633,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              {user?.position != "Freelancer" && (
+              {editedCompany && (
                 <div className="flex items-center">
                   <div className="flex-[0.5] w-full text-sm text-grey">
                     <p>Company Name</p>
@@ -656,7 +656,7 @@ const Profile = () => {
                 </div>
               )}
 
-              <div className="flex items-center">
+             { editedProfession && <div className="flex items-center">
                 <div className="flex-[0.5] w-full text-sm text-grey">
                   <p>Role</p>
                 </div>
@@ -675,7 +675,7 @@ const Profile = () => {
                     <p>{editedProfession}</p>
                   )}
                 </div>
-              </div>
+              </div>}
             </div>
           </div>
 

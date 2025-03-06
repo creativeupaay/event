@@ -15,8 +15,16 @@ const QRConnecting = () => {
       );
 
       showSnackbar("You are now connected", "success");
-    } catch (e) {
-      showSnackbar("Error in connecting", "error");
+    } catch (e:any) {
+      console.log(e)
+      console.log("Error response",e.response)
+      if(e.response.status===409){
+        showSnackbar("Already Connected", "info");
+      }
+      else{
+        showSnackbar("Error in connecting", "error");
+      }
+
     }
 
     navigate(`/profile/${friendId}`);

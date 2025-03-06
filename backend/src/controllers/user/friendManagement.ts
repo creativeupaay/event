@@ -606,7 +606,7 @@ export const addFriendDirect = async (
         ]
     });
     if (existingFriendship)
-        throw new AppError("Friendship already exists", 400);
+        throw new AppError("Friendship already exists", 409);
 
     // checking either request earlier made or not, if made the update status to accepted
     const existingRequestPromise = await FriendRequestModel.findOne({

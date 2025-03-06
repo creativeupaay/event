@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
-// import helmet from "helmet";
+import helmet from "helmet";
 import cors from "cors";
 import path from "path";
 import connectDB from "./config/db";
@@ -34,7 +34,19 @@ app.use(
   })
 );
 
-// app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Disable default CSP if it's causing issues
+  })
+);
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self' * data: blob:; connect-src 'self' https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; style-src 'self' 'unsafe-inline' *; img-src 'self' data: *;"
+  );
+  next();
+});
 
 const corsOptions = {
   origin:

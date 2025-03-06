@@ -213,13 +213,13 @@ const FormPage = () => {
   } else {
     return (
       <div
-        className="w-full relative overflow-hidden"
-        style={{
-          minHeight: innerHeight,
-          height: innerHeight,
-        }}
+        className="w-full h-full relative overflow-hidden"
+        // style={{
+        //   minHeight: innerHeight,
+        //   height: innerHeight,
+        // }}
       >
-        <div className="w-full">
+        <div className="w-full h-full">
           <div
             ref={formsContainerRef}
             className="w-full flex flex-col flex-nowrap overflow-y-hidden"

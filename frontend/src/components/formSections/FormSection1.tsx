@@ -49,7 +49,7 @@ const FormSection1 = ({
 
   return (
     <div
-      className={`w-full h-full flex-shrink-0 relative px-3`}
+      className={`w-full h-full flex flex-col flex-shrink-0 relative px-3`}
       // style={{
       //   height: innerHeight,
       // }}
@@ -108,7 +108,7 @@ const FormSection1 = ({
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
+      <div className="mt-auto mb-4 left-0 w-full flex flex-col items-center justify-center px-3">
         <div className="text-grey text-xs space-y-1">
           <p>*NOTE</p>
           <p>

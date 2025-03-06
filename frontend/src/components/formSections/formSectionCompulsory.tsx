@@ -5,7 +5,6 @@ import {
 } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useSnackbar } from "../../hooks/SnackbarContext";
-import { Icon } from "@iconify/react";
 import { Modal } from "@mui/material";
 import OtherInfoInput from "../OtherInfoInput";
 
@@ -108,20 +107,17 @@ const FormSectionCompulsory = ({
             <p>Back</p>
           </div>
 
-          <div
-            onClick={() => nextForm(true)}
-            className="text-xs w-fit text-grey"
-          >
-            <p>Skip</p>
-          </div>
         </div>
         <div className=" mt-10 w-full h-fit flex flex-col items-center bg-primary rounded-lg px-4 py-5">
+          <div className="flex justify-between w-full">
           <h1 className="text-white text-xl font-bold">
             I also need help with
           </h1>
+            <button onClick={() => setIsOtherHelpModalOpen(true)} className="text-white border-white border rounded-md px-4">Other</button>
+          </div>
 
-          <div className="flex h-[56vh] flex-col items-center w-full space-y-3 mt-7 overflow-y-scroll no-scrollbar">
-            <div
+          <div className="flex max-h-[360px] flex-col items-center w-full space-y-3 mt-7 overflow-y-scroll custom-scrollbar">
+            {/* <div
               onClick={() => setIsOtherHelpModalOpen(true)}
               className={`w-full flex items-center space-x-2 h-fit bg-transparent border border-white text-base text-white font-light py-3 px-3 rounded-lg opacity-60
               `}
@@ -131,7 +127,7 @@ const FormSectionCompulsory = ({
                 fontSize="20px"
               />
               <p>Other</p>
-            </div>
+            </div> */}
 
             {otherHelps.map((help, index) => (
               <Option
@@ -169,6 +165,12 @@ const FormSectionCompulsory = ({
             <p>Let's start networking</p>
             <EastOutlined fontSize="inherit" color="inherit" />
           </button>
+          <div
+            onClick={() => nextForm(true)}
+            className="mt-2 text-xs w-fit text-grey"
+          >
+            <p>Skip</p>
+          </div>
         </div>
       </div>
     </div>

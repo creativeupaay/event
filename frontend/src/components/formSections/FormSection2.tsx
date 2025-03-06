@@ -230,8 +230,23 @@ const FormSection2 = ({
       <div className="absolute bottom-5 left-0 w-full flex flex-col items-center justify-center px-3">
         <button
           onClick={() => {
-            if (canGoToNext) nextForm();
-            else showSnackbar("Please select an option", "warning");
+            if (canGoToNext) {
+              nextForm();
+            } else {
+              if (!describedAs) {
+                showSnackbar("Please select your role", "warning");
+              } else if ((describedAs === "Founder" || describedAs === "Employee") && !companyName) {
+                showSnackbar("Please enter your company name", "warning");
+              } else if (describedAs === "Student") {
+                if (!instituteName) {
+                  showSnackbar("Please enter your institute name", "warning");
+                } else if (!courseName) {
+                  showSnackbar("Please enter your course name", "warning");
+                }
+              } else {
+                showSnackbar("Please complete the required fields", "warning");
+              }
+            }
           }}
           className={`bg-darkBg mt-4 font-bold text-white py-4 rounded-md w-full text-xs ${
             canGoToNext ? "opacity-100" : "opacity-60"

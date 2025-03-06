@@ -36,7 +36,7 @@ const IndustryBox = ({
         if (totalSelected == 3 && isSelected) setIsSelected(false);
         else if (totalSelected < 3) setIsSelected(!isSelected);
         else {
-          showSnackbar("Max three can be selected", "warning");
+          showSnackbar("Max 3 can be selected", "warning");
         }
       }}
       className={`w-full h-fit py-2 border  rounded-md text-center ${
@@ -225,7 +225,7 @@ const FormSection3 = ({
           </div>
         </div>
 
-        <div className="w-full h-[72vh] pb-10 mt-3  grid grid-cols-2 gap-2 overflow-y-scroll custom-scrollbar">
+        <div className="w-full h-[72vh] pb-32 mt-3  grid grid-cols-2 gap-2 overflow-y-scroll custom-scrollbar">
           {industries.map((industry, index) => (
             <IndustryBox
               key={index}

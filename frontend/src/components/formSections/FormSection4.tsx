@@ -36,7 +36,7 @@ const FormSquareButton = ({
         if (totalSelected == 3 && isSelected) setIsSelected(false);
         else if (totalSelected < 3) setIsSelected(!isSelected);
         else {
-          showSnackbar("Max three can be selected", "warning");
+          showSnackbar("Max 3 can be selected", "warning");
         }
       }}
       className={`border ${

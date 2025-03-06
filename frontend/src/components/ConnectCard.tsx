@@ -316,7 +316,7 @@ const ConnectCard = ({
         {/* Front side component */}
         <>
           <div
-            className={`w-full h-[400px] min-h-fit rounded-xl flex flex-col justify-between ${getGradientCardColor(
+            className={`w-full h-[415px] min-h-fit rounded-xl flex flex-col justify-between ${getGradientCardColor(
               position
             )}  flex-shrink-0 relative px-3 pb-3`}
           >
@@ -438,7 +438,7 @@ const ConnectCard = ({
                     <>
                       <button
                         onClick={sendQuickConnect}
-                        className="  bg-[#242424]  font-medium text-white px-3 py-3 rounded-lg w-full flex items-center justify-center space-x-2"
+                        className="  bg-[#242424]  font-medium text-white px-2 py-3 rounded-lg w-full flex items-center justify-center space-x-2"
                       >
                         {isQuickConnecting ? (
                           <CircularProgress size={"18px"} />
@@ -446,10 +446,10 @@ const ConnectCard = ({
                           <>
                             <Icon
                               icon="tdesign:lighting-circle"
-                              width="17"
-                              height="17"
+                              width="15"
+                              height="15"
                             />
-                            <p className="text-sm">Quick Connect</p>
+                            <p className="text-sm whitespace-nowrap">Quick Connect</p>
                           </>
                         )}
                       </button>
@@ -457,10 +457,10 @@ const ConnectCard = ({
                         onClick={() => {
                           setFlipped(true);
                         }}
-                        className="  bg-transparent  font-medium text-black px-3 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-2"
+                        className="  bg-transparent  font-medium text-black px-2 py-3 rounded-lg w-full border border-black flex items-center justify-center space-x-2"
                       >
-                        <Icon icon="proicons:note" width="17" height="17" />
-                        <p className="text-sm">Via a text note</p>
+                        <Icon icon="proicons:note" width="15" height="15" />
+                        <p className="text-sm whitespace-nowrap">Via a text note</p>
                       </button>
                     </>
                   )}

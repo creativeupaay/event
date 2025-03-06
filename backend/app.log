@@ -1295,3 +1295,10 @@
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/favicon.png\",\"status\":\"200\",\"responseTime\":\"2.124\"}","timestamp":"2025-03-06T13:25:14.218Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/assets/formBackLayer-Bf1YKpnu.png\",\"status\":\"200\",\"responseTime\":\"2.195\"}","timestamp":"2025-03-06T13:25:15.813Z"}
 {"level":"info","message":"{\"method\":\"GET\",\"url\":\"/assets/formIntroMen-1ESyenvi.png\",\"status\":\"200\",\"responseTime\":\"1.979\"}","timestamp":"2025-03-06T13:25:15.820Z"}
+{"level":"info","message":"{\"method\":\"OPTIONS\",\"url\":\"/api/v1/user/create\",\"status\":\"204\",\"responseTime\":\"3.062\"}","timestamp":"2025-03-06T15:13:20.533Z"}
+{"level":"info","message":"{\"method\":\"POST\",\"url\":\"/api/v1/user/create\",\"status\":\"200\",\"responseTime\":\"421.665\"}","timestamp":"2025-03-06T15:13:20.966Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/notification?limit=10&cursor=\",\"status\":\"204\",\"responseTime\":\"96.991\"}","timestamp":"2025-03-06T15:13:21.178Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/notification?limit=10&cursor=\",\"status\":\"204\",\"responseTime\":\"67.263\"}","timestamp":"2025-03-06T15:13:21.251Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/\",\"status\":\"200\",\"responseTime\":\"226.208\"}","timestamp":"2025-03-06T15:13:21.354Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/events/get-all-event-Guest?eventId=67a1e3adace29974b72c9694&limit=10\",\"status\":\"200\",\"responseTime\":\"532.840\"}","timestamp":"2025-03-06T15:13:21.646Z"}
+{"level":"info","message":"{\"method\":\"GET\",\"url\":\"/api/v1/user/events/get-all-event-Guest?eventId=67a1e3adace29974b72c9694&limit=10\",\"status\":\"304\",\"responseTime\":\"284.152\"}","timestamp":"2025-03-06T15:13:21.935Z"}

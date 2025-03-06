@@ -59,8 +59,8 @@ const ConnectPage = () => {
         {
           params: {
             selectedInterest: filters.lookingFor,
-            position: filters.workStatus[0],
-            industries: filters.industries[0],
+            position: filters.workStatus,
+            industries: filters.industries,
           },
         }
       );

@@ -20,6 +20,9 @@ export const getAllEventGuest = async (
     if (!eventId)
         throw new AppError("Query(eventId) not found", 400);
 
+    console.log("position", position);
+    console.log("is array", Array.isArray(position))
+
     const filteredSelectedInterest = Array.isArray(selectedInterest)
         ? selectedInterest.filter((item: any) => item.trim() !== "")
         : [];
@@ -219,8 +222,26 @@ export const getAllEventGuest = async (
                             },
                             isNameMatch: name ? { $regexMatch: { input: "$$user.name", regex: name, options: "i" } } : true,
                             isProfessionMatch: profession ? { $regexMatch: { input: "$$user.profession", regex: profession, options: "i" } } : true,
-                            isPositionMatch: position ? { $regexMatch: { input: "$$user.position", regex: position, options: "i" } } : true,
+                            // isPositionMatch: position ? { $regexMatch: { input: "$$user.position", regex: position, options: "i" } } : true,
                             // isIndustryMatch: industry ? { $regexMatch: { input: "$$user.industry", regex: industry, options: "i" } } : true,
+
+                            isPositionMatch: position?.length ? {
+                                $gte: [
+                                    {
+                                        $size: {
+                                            $setIntersection: [
+                                                {
+                                                    $setUnion: [
+                                                        { $ifNull: [{ $split: ["$$user.position", ","] }, []] }
+                                                    ]
+                                                },
+                                                position // Directly passing the position array
+                                            ]
+                                        }
+                                    },
+                                    1 // Ensuring at least one common element exists
+                                ]
+                            } : true,
                             isIndustryMatch: industry ? {
                                 $gte: [
                                     {
@@ -365,7 +386,7 @@ export const getAllEventGuest = async (
                 courseName: "$users.courseName",
                 lookingFor: "$users.lookingFor",
                 matchCount: "$users.totalMatchCount",
-                matchIndex : "$users.matchIndex"
+                matchIndex: "$users.matchIndex"
             }
         }
     ]);

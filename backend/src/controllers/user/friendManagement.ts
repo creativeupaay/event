@@ -7,6 +7,7 @@ import { NotificationEnum, RequestStatusEnum } from "../../types/enum";
 import { FriendModel } from "../../models/friendModel";
 import { imageUploader } from "../../utils/imageUploader";
 import { createNotification } from "../../utils/notificationService";
+import { badgeLevels } from "../../utils/badgeLevels";
 
 export const sendFriendRequest = async (
     req: Request,
@@ -326,7 +327,7 @@ export const getAllFriends = async (
                 contactNumber: "$friends.contactNumber",
                 profileImage: "$friends.profileImage",
                 profession: "$friends.profession",
-                position:"$friends.position",
+                position: "$friends.position",
                 industry: "$friends.industry",
                 company: "$friends.company",
                 lookingFor: "$friends.lookingFor",
@@ -502,11 +503,31 @@ export const friendProfileById = async (
                 courseName: "$user.courseName",
                 lookingFor: "$user.lookingFor",
                 interests: "$user.interests",
+                previousBadgeName: "$user.previousBadgeName"
             },
         },
         {
             $addFields: {
-                isConnected: true
+                isConnected: true,
+                level: {
+                    $cond: {
+                        if: { eq: ["$previousBadgeName", "Parmanu"] },
+                        then: 1,
+                        else: {
+                            if: { eq: ["$previousBadgeName", "Nakshatra"] },
+                            then: 2,
+                            else: {
+                                if: { eq: ["$previousBadgeName", "Chandra"] },
+                                then: 3,
+                                else: {
+                                    if: { eq: ["$previousBadgeName", "Shani"] },
+                                    then: 4,
+                                    else: 5
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     ]);
@@ -530,7 +551,6 @@ export const friendProfileById = async (
                     courseName: 1,
                     lookingFor: 1,
                     interests: 1,
-                    previousBadgeName: 1,
                 }
             },
             {
@@ -722,6 +742,7 @@ export const userProfileById = async (
                             courseName: 1,
                             lookingFor: 1,
                             interests: 1,
+                            previousBadgeName: 1,
                             email: {
                                 $cond: {
                                     if: { $eq: ["$$status", "CONNECTED"] },
@@ -735,7 +756,7 @@ export const userProfileById = async (
                                     then: "$contactNumber",
                                     else: null
                                 }
-                            }
+                            },
                         }
                     }
                 ],
@@ -765,12 +786,45 @@ export const userProfileById = async (
                 interests: "$freindProfile.interests",
                 email: "$freindProfile.email",
                 contactNumber: "$freindProfile.contactNumber",
+                previousBadgeName: "$freindProfile.previousBadgeName",
+            }
+        },
+        {
+            $addFields: {
+                badgeDetails: {
+                    $arrayElemAt: [
+                        {
+                            $filter: {
+                                input: badgeLevels,
+                                as: "badge",
+                                cond: { $eq: ["$$badge.badgeName", "$previousBadgeName"] }
+                            }
+                        },
+                        0
+                    ]
+                }
+            }
+        },
+        {
+            $addFields: {
+                badgeInfo: {
+                    badgeName: "$badgeDetails.badgeName",
+                    level: "$badgeDetails.level",
+                    subText: "$badgeDetails.subText"
+                }
+
+            }
+        },
+        {
+            $project: {
+                badgeDetails: 0,
+                previousBadgeName:0
             }
         }
     ]);
 
     if (!friendProfile.length) {
-        const userProfile = await UserModel.aggregate([
+       const userProfile = await UserModel.aggregate([
             {
                 $match: { _id: new mongoose.Types.ObjectId(String(friendId)) }
             },
@@ -789,8 +843,41 @@ export const userProfileById = async (
                     courseName: 1,
                     lookingFor: 1,
                     interests: 1,
-                    email:null,
-                    contactNumber:null
+                    email: null,
+                    contactNumber: null,
+                    previousBadgeName: 1,
+                }
+            },
+            {
+                $addFields: {
+                    badgeDetails: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: badgeLevels,
+                                    as: "badge",
+                                    cond: { $eq: ["$$badge.badgeName", "$previousBadgeName"] }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    badgeInfo: {
+                        badgeName: "$badgeDetails.badgeName",
+                        level: "$badgeDetails.level",
+                        subText: "$badgeDetails.subText"
+                    }
+
+                }
+            },
+            {
+                $project: {
+                    badgeDetails: 0,
+                    previousBadgeName:0
                 }
             }
         ]);

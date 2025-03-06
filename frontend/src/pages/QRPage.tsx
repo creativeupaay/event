@@ -42,6 +42,7 @@ const QRPage = () => {
           <div className="w-[300px] h-[300px]">
             <Scanner
               onScan={(result) => {
+                console.log(result);
                 setScannerURL(result[0].rawValue);
               }}
             />

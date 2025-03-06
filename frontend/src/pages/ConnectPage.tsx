@@ -36,7 +36,7 @@ const ConnectPage = () => {
     console.log(percent);
     if (percent >= 75) {
       console.log("fetching");
-      fetchEventGuests(users[users.length - 1]._id);
+      fetchEventGuests(users[users.length - 1].matchIndex);
 
       setCurrentSwiperSlide(tempCurrentIndex);
     }
@@ -48,7 +48,7 @@ const ConnectPage = () => {
     lookingFor: [],
   });
 
-  const fetchEventGuests = async (cursor?: string, isReseting?: boolean) => {
+  const fetchEventGuests = async (cursor?: number, isReseting?: boolean) => {
     // setIsLoading(true);
 
     try {
@@ -88,7 +88,7 @@ const ConnectPage = () => {
             setIsFilterModalOpen={setIsFilterModalOpen}
             filters={filters}
             setFilters={setFilters}
-            applyFilters={() => fetchEventGuests("", true)}
+            applyFilters={() => fetchEventGuests(0, true)}
           />
         </div>
       </Modal>

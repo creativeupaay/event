@@ -39,8 +39,8 @@ const ConnectionProfile = () => {
         setProfileInfo(res.data.friendProfile[0]);
         setCurrentState(res.data.friendProfile[0].friendShipStatus);
 
-        if (res.data.friendProfile[0].userLevelData)
-          setProfileLevelData(res.data.friendProfile[0].userLevelData);
+        if (res.data.friendProfile[0].badgeInfo)
+          setProfileLevelData(res.data.friendProfile[0].badgeInfo);
       }
     } catch (e) {}
   };
